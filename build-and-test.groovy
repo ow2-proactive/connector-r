@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
+import org.apache.tools.ant.DefaultLogger;
 
 class MainTest extends TestCase {
 
@@ -167,6 +168,11 @@ class Context {
         println '\n######################\n#       Building Parscript and Runnning tests ... \n######################'
         def antFile = new File(parscriptDir,"build.xml")
         def project = new Project()
+        def consoleLogger = new DefaultLogger()
+        consoleLogger.errorPrintStream = System.err
+        consoleLogger.outputPrintStream = System.out
+        consoleLogger.messageOutputLevel = Project.MSG_INFO
+        project.addBuildListener(consoleLogger);
         project.init()
         ProjectHelper.projectHelper.parse(project, antFile)
         project.executeTarget("clean")
