@@ -107,7 +107,7 @@ class Context {
 
 		// Check that the current dir is 'r' or its parent
 		def cd = new File(System.getProperty('user.dir'));
-		homeDir = cd.getName() == 'r' ? cd : new File(cd, 'r');
+		homeDir = cd;
 		distDir = new File(homeDir, 'dist');
 		parConnectorDir = new File(homeDir, 'PARConnector');
 		testsDir = new File(parConnectorDir,'functionalTests')
