@@ -22,6 +22,8 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.ProjectHelper;
 
 class MainTest extends TestCase {
 
@@ -29,7 +31,8 @@ class MainTest extends TestCase {
 
 		def ctx = new Context()
 		ctx.check();
-		ctx.build()
+        ctx.buildParscript();
+		ctx.build();
 
 		def ts = new TestSuite();
 
@@ -80,15 +83,17 @@ class Context {
 	def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 	def isMac = System.getProperty("os.name").toLowerCase().contains('mac')
 	def isLinux = System.getProperty("os.name").toLowerCase().contains('nux')
-	def schedHome = System.getenv()['SCHEDULER_340']
+	def schedHome = System.getenv()['SCHEDULER_HOME']
 	def rHome = System.getenv()['R_HOME']
-		
-	def rExe, homeDir, distDir, parConnectorDir, testsDir, rLibraryDir, rLibraryPath
+    def jreHome
+	def jdkHome
+
+	def rExe, homeDir, distDir, parConnectorDir, parscriptDir, testsDir, rLibraryDir, rLibraryPath
 	def newEnv = []
 	def schedProcess
 
 	void check(){
-		assert schedHome != null : '!!! Unable to locate Scheduler 3.4.0 home dir, the SCHEDULER_340 env var is undefined !!!'
+		assert schedHome != null : '!!! Unable to locate Scheduler home dir, the SCHEDULER_HOME env var is undefined !!!'
 		assert rHome != null : '!!! Unable to locate R home dir, the R_HOME env var is undefined !!!'
 
 		// Locate r binary
@@ -110,19 +115,30 @@ class Context {
 		homeDir = cd;
 		distDir = new File(homeDir, 'dist');
 		parConnectorDir = new File(homeDir, 'PARConnector');
+        parscriptDir =  new File(homeDir, 'parscript');
 		testsDir = new File(parConnectorDir,'functionalTests')
 
 		assert parConnectorDir.exists() : '!!! Unable to locate PARConnector dir !!!'
+        assert parscriptDir.exists() : '!!! Unable to locate parscript dir !!!'
+        assert testsDir.exists() : '!!! Unable to locate functionalTests dir !!!'
 
 		if (isWindows || isLinux) {
-			def jreHome = System.getenv()['JAVA_HOME'] + fs + 'jre'
+            def javaHomeF = new File(System.getenv()['JAVA_HOME'])
+
+            assert !javaHomeF.getName().equals("jre") : "!!! JAVA_HOME must contain a path to a JDK !!!"
+            jdkHome = javaHomeF.getAbsolutePath();
+            jreHome = new File(javaHomeF, "jre").getAbsolutePath();
+
 			assert (new File(jreHome)).exists() : "!!! Unable to locate the jre !!!"
-			// ! THIS IS A FIX FOR rJava that requires JAVA_HOME to be the location of the JRE !
-			System.getenv().each() {k,v ->
-				if ('JAVA_HOME'.equals(k)) { v = jreHome }
-				newEnv << k+'='+v
-			}
+
 			if (isLinux) {
+
+                // ! THIS IS A FIX FOR rJava that requires JAVA_HOME to be the location of the JRE !
+                System.getenv().each() {k,v ->
+                    if ('JAVA_HOME'.equals(k)) { v = jreHome }
+                    newEnv << k+'='+v
+                }
+
 				// LD_LIBRARY_PATH=/home/jenkins/shared/java/x86_64/sun/jdk1.7.0_45/jre/lib/amd64:/home/jenkins/shared/java/x86_64/sun/jdk1.7.0_45/jre/lib/amd64/server/		
 				def libDir = new File(jreHome, 'lib')
 				assert libDir.exists() : "!!! Unable to locate the lib dir inside the jre dir !!!"
@@ -146,6 +162,24 @@ class Context {
 			}
 		}
 	}
+
+    void buildParscript() {
+        println '\n######################\n#       Building Parscript and Runnning tests ... \n######################'
+        def antFile = new File(parscriptDir,"build.xml")
+        def project = new Project()
+        project.init()
+        ProjectHelper.projectHelper.parse(project, antFile)
+        project.executeTarget("clean")
+        project.executeTarget("test")
+
+        println '\n######################\n#   COPYING parscript + deps to scheduler addons & PARConnector ... \n######################'
+        new AntBuilder().copy(todir: parConnectorDir.getPath() + '/inst/java/') {
+            fileset(dir: parscriptDir.getPath() + '/dist/') {
+                include(name: "*.jar")
+            }
+        }
+        // copy to scheduler addons dir is done already by parscript
+    }
 
 	void build(){
 		println '\n######################\n#   CHECKING R packages from package sources ... \n######################'
@@ -172,17 +206,6 @@ class Context {
 		assert run([rExe, 'CMD', 'INSTALL', '--no-multiarch', '--library='+rLibraryPath, archiveFile.getAbsolutePath()], newEnv, homeDir
 			).waitFor() == 0 : 'It seems R CMD install failed'
 
-		println '\n######################\n#   COPYING parscript + deps to scheduler addons ... \n######################'		
-		new AntBuilder().copy(todir: schedHome+'/addons/') {
-		    fileset(dir: parConnectorDir.getPath() + '/inst/java/') {
-		        include(name: "JRI.jar")
-		        include(name: "JRS.jar")
-		        include(name: "JRIEngine.jar")
-		        include(name: "REngine.jar")
-		        include(name: "RserveEngine.jar")
-		        include(name: "parscript.jar")
-		    }
-		}
 
 		println '\n######################\n#   CLEANING scheduler .logs and DB dirs ... \n######################'
 		(new File(schedHome, '.logs')).deleteDir()

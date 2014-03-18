@@ -79,7 +79,17 @@
 		    	<attribute name="Version" value="${version}"/>
 		  	</manifest>
 		</jar>
-		<copy file='${target}' todir='${env.SCHEDULER_HOME}/addons'/>
+
+		<copy todir='${dist}'>
+			<fileset dir="${lib}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+		<copy todir='${env.SCHEDULER_HOME}/addons'>
+			<fileset dir="${dist}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
 	</target>
 
 	<target name='doc' depends='compile'>
