@@ -85,7 +85,7 @@
 				<include name="*.jar"/>
 			</fileset>
 		</copy>
-		<delete>
+		<delete failonerror="false">
 			<fileset dir="${env.SCHEDULER_HOME}/addons">
 				<include name="parscript*.jar"/>
 			</fileset>
