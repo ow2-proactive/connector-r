@@ -132,14 +132,12 @@ class Context {
 
 			assert (new File(jreHome)).exists() : "!!! Unable to locate the jre !!!"
 
+            // ! THIS IS A FIX FOR rJava that requires JAVA_HOME to be the location of the JRE !
+            System.getenv().each() {k,v ->
+                if ('JAVA_HOME'.equals(k)) { v = jreHome }
+                newEnv << k+'='+v
+            }
 			if (isLinux) {
-
-                // ! THIS IS A FIX FOR rJava that requires JAVA_HOME to be the location of the JRE !
-                System.getenv().each() {k,v ->
-                    if ('JAVA_HOME'.equals(k)) { v = jreHome }
-                    newEnv << k+'='+v
-                }
-
 				// LD_LIBRARY_PATH=/home/jenkins/shared/java/x86_64/sun/jdk1.7.0_45/jre/lib/amd64:/home/jenkins/shared/java/x86_64/sun/jdk1.7.0_45/jre/lib/amd64/server/		
 				def libDir = new File(jreHome, 'lib')
 				assert libDir.exists() : "!!! Unable to locate the lib dir inside the jre dir !!!"
