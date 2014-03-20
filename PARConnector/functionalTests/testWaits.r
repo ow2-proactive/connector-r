@@ -14,7 +14,7 @@ res <- PASolve(function(x)FALSE,1)
 # this should trigger a timout
 timeout <- FALSE
 v <- tryCatch(PAWaitFor(res,10), error = function(e) {print(e);TRUE})
-if (islist(v) || !v) {
+if (is.list(v) || !v) {
   msg <- paste0("Error timeout not received in PAWaitFor\n")
   stop(msg)
 }
