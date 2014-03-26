@@ -12,7 +12,7 @@ import java.util.List;
 import javax.script.ScriptEngine;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ow2.proactive.scheduler.util.process.Environment;
+import org.ow2.proactive.rm.util.process.Environment;
 import org.rosuda.jrs.RScriptFactory;
 
 /**
