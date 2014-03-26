@@ -132,6 +132,11 @@ public class TestResults {
 			return null;
 		}
 
+                @Override
+                public Map<String,byte[]> getPropagatedVariables() {
+                        return null;
+                }
+
 		@Override
 		public byte[] getSerializedValue() {
 			return null;
