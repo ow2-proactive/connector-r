@@ -47,6 +47,10 @@ project(':par-script') {
 }
 
 project(':par-connector') {
+	println "Check required environment variables."
+	assert System.getenv()['JAVA_HOME'] != null : "Environment variable 'JAVA_HOME' is not set."
+	assert System.getenv()["R_HOME"] != null : "Environment variable 'R_HOME' is not set."
+	assert System.getenv()["R_LIBS"] != null : "Environment variable 'R_LIBS' is not set."
 
 	configurations {
 		copyJars 
@@ -55,6 +59,7 @@ project(':par-connector') {
 	dependencies {
 		 copyJars "org.ow2.proactive_grid_cloud_portal:rest-client:1.5.0-SNAPSHOT"
 	}
+
 
 	task copySources(type: Copy) {
 		from file("${projectDir}/src/main/r")

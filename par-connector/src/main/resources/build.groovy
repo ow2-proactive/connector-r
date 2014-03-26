@@ -14,7 +14,7 @@ def env() {
 }
 
 def run(command, env, dir) {
-  println 'Running ' + command.join(" ")
+  println "Execute command: " + command.join(" ")
   def proc = command.execute(env, dir)
   proc.waitForProcessOutput(System.out, System.err)
   return proc
