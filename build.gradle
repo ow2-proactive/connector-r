@@ -3,6 +3,7 @@ apply plugin: 'java'
 buildscript {
 	repositories {
 		if (project.hasProperty('useMavenLocal')) {
+			println "Use mavel local repository"
 			mavenLocal()
 		}
 		mavenCentral()
@@ -22,7 +23,22 @@ subprojects {
 	rootProject.buildscript.repositories.each {
         	repositories.add(it)
 	}
+
+	task propertyCheck() << {
+		println "Check required environment variables."
+		assert System.getenv()['JAVA_HOME'] != null : "Environment variable 'JAVA_HOME' is not set."
+		assert System.getenv()["R_HOME"] != null : "Environment variable 'R_HOME' is not set."
+		assert System.getenv()["R_LIBS"] != null : "Environment variable 'R_LIBS' is not set."
+	}
+
+	test {
+		forkEvery = 100
+	}
+
+	test.dependsOn propertyCheck
 }
+
+
 
 project(':par-script') {
 	apply plugin: 'java'
@@ -44,14 +60,17 @@ project(':par-script') {
 
 		testCompile 'junit:junit:4.11'
 	}
+	
+	test {
+		forkEvery 1
+	}
 }
 
 project(':par-connector') {
-	println "Check required environment variables."
-	assert System.getenv()['JAVA_HOME'] != null : "Environment variable 'JAVA_HOME' is not set."
-	assert System.getenv()["R_HOME"] != null : "Environment variable 'R_HOME' is not set."
-	assert System.getenv()["R_LIBS"] != null : "Environment variable 'R_LIBS' is not set."
-
+	def rExec
+	def rSrc
+	def env = [:]
+	
 	configurations {
 		copyJars 
 	}
@@ -60,26 +79,48 @@ project(':par-connector') {
 		 copyJars "org.ow2.proactive_grid_cloud_portal:rest-client:1.5.0-SNAPSHOT"
 	}
 
-
-	task copySources(type: Copy) {
-		from file("${projectDir}/src/main/r")
-		into file("${buildDir}/r-pkg-src")
-	}
-
-	task copyJars(type: Copy) {
-		from configurations.copyJars
-		into file("${buildDir}/r-pkg-src/inst/java")
-	}
-
 	task pkg() << {
-		def gs = new GroovyShell();
-		def source = file("${buildDir}/r-pkg-src").getAbsolutePath()
-		def dest = file("${buildDir}").getAbsolutePath()
-		def script = file("${projectDir}/src/main/resources/build.groovy")
-		new GroovyShell().run(script, [source, dest])
+		// copy source
+		copy {
+			from file("${projectDir}/src/main/r")
+			into file("${buildDir}/r-pkg-src")
+		}
+		// copy jars	
+		copy {
+			from configurations.copyJars
+			into file("${buildDir}/r-pkg-src/inst/java")			
+		}
+		// build r package
+		exec {
+			workingDir "${buildDir}"
+			commandLine rExec, "CMD", "INSTALL", "--build", "--preclean", "--with-keep.source", "--no-multiarch", rSrc
+			environment env
+		}		
 	}
 
-	pkg.dependsOn copySources, copyJars
+	task setEnv() << {
+		System.getenv().each() { k,v -> 
+			if ('JAVA_HOME'.equals(k)) { 
+				v = v + File.separator + 'jre'
+			} 
+			env.put(k, v)
+		}
+	}
+
+	task setRExec() << {
+		if (System.properties["os.name"].toLowerCase().contains("windows")) {
+			def ARCH = System.getenv()["ProgramFiles(x86)"] != null ? "x64" : "i386"
+			rExec = System.getenv()["R_HOME"] + File.separator +  "bin" + File.separator + ARCH + File.separator + "R.exe"
+		} else if ("linux") {
+			rExec = System.getenv()["R_HOME"] + File.separator +  "bin" + File.separator + "R"
+		}
+	}
+
+	task setRSrc() << {
+		rSrc = file("${buildDir}/r-pkg-src").getAbsolutePath()
+	}
+
+	pkg.dependsOn propertyCheck, setEnv, setRExec, setRSrc
 }
 
 
