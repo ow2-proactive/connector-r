@@ -55,7 +55,6 @@ public class PARScriptEngine extends RScriptEngine {
 			paRengine.engine = REngine.engineForClass(cls, args, paRengine, /* runREPL */
 					false);
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new IllegalStateException(
 					"Unable to instantiate the REngine by reflection", e);
 		}
