@@ -52,11 +52,11 @@ project(':par-script') {
 		compile "org.ow2.proactive:common-api:3.5.0-SNAPSHOT"
 		compile "org.ow2.proactive:rm-node:3.5.0-SNAPSHOT"
 
-		compile files("${projectDir}/lib/JRIEngine.jar")
-		compile files("${projectDir}/lib/JRI.jar")
-		compile files("${projectDir}/lib/JRS.jar")
-		compile files("${projectDir}/lib/REngine.jar")
-		compile files("${projectDir}/lib/RrserveEngine.jar")	
+		compile "org.rosuda:jriengine:0.5.x" 
+		compile "org.rosuda:jri:0.5.x"
+		compile "org.rosuda:jrs:28r"
+		compile "org.rosuda:rengine:1.7.x"
+		compile "org.rosuda:rserveengine:1.7.x"
 
 		testCompile 'junit:junit:4.11'
 	}
@@ -90,7 +90,15 @@ project(':par-connector') {
 			from configurations.copyJars
 			into file("${buildDir}/r-pkg-src/inst/java")			
 		}
+		// check r package
+		println "Check R add-on package."
+		exec { 
+			workingDir "${buildDir}"
+			commandLine rExec, "CMD", "check", "--no-codoc", "--no-manual", "--no-multiarch", "PARConnector"
+			environment env
+		}
 		// build r package
+		println "Build R add-on package"
 		exec {
 			workingDir "${buildDir}"
 			commandLine rExec, "CMD", "INSTALL", "--build", "--preclean", "--with-keep.source", "--no-multiarch", rSrc
@@ -100,18 +108,29 @@ project(':par-connector') {
 
 	task setEnv() << {
 		System.getenv().each() { k,v -> 
-			if ('JAVA_HOME'.equals(k)) { 
-				v = v + File.separator + 'jre'
-			} 
 			env.put(k, v)
 		}
+		if (! System.properties["os.name"].toLowerCase().contains("mac")) {
+			env.put('JAVA_HOME', env.get('JAVA_HOME') + File.separator + 'jre')
+		}
+		if (System.properties["os.name"].toLowerCase().contains("linux")) {
+			def ldLib
+			if (System.getProperty('os.arch').contains('64')) {
+				ldLib = new File(env.get('JAVA_HOME'), 'lib/amd64/server')
+			} else {
+				ldLib = new File(env.get('JAVA_HOME'), 'lib/i386/client')
+			}
+			assert ldLib.exists() : "Cannot locate LD_LIBRARY_PATH: " + ldLib.getAbsolutePath()
+			env.put('LD_LIBRARY_PATH', ldLib.getAbsolutePath())
+		}
+                
 	}
 
 	task setRExec() << {
 		if (System.properties["os.name"].toLowerCase().contains("windows")) {
 			def ARCH = System.getenv()["ProgramFiles(x86)"] != null ? "x64" : "i386"
 			rExec = System.getenv()["R_HOME"] + File.separator +  "bin" + File.separator + ARCH + File.separator + "R.exe"
-		} else if ("linux") {
+		} else {
 			rExec = System.getenv()["R_HOME"] + File.separator +  "bin" + File.separator + "R"
 		}
 	}
