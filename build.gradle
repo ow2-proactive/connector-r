@@ -12,6 +12,21 @@ buildscript {
  		maven { url 'http://repo.activeeon.com/content/repositories/thirdparty/' }
 		maven { url 'http://spoon.gforge.inria.fr/repositories/releases/' }		
 	}
+	
+}
+
+allprojects {
+	configurations {
+		addons
+	}
+
+	dependencies {
+		addons "org.rosuda:jriengine:0.5.x" 
+		addons "org.rosuda:jri:0.5.x"
+		addons "org.rosuda:jrs:28r"
+		addons "org.rosuda:rengine:1.7.x"
+		addons "org.rosuda:rserveengine:1.7.x"
+	}
 }
 
 subprojects {
@@ -43,33 +58,36 @@ subprojects {
 project(':par-script') {
 	apply plugin: 'java'
 
+	configurations {
+		compile.extendsFrom addons
+	}
+
 	dependencies {
+		
 		compile "org.apache.commons:commons-lang3:3.1"
 
 		compile "org.objectweb.proactive:programming-extension-dataspaces:5.5.0-SNAPSHOT"
 		compile "org.ow2.proactive:scheduler-api:3.5.0-SNAPSHOT"
-		compile "org.ow2.proactive:scheduler-node:3.5.0-SNAPSHOT"
 		compile "org.ow2.proactive:common-api:3.5.0-SNAPSHOT"
 		compile "org.ow2.proactive:rm-node:3.5.0-SNAPSHOT"
-
-		compile "org.rosuda:jriengine:0.5.x" 
-		compile "org.rosuda:jri:0.5.x"
-		compile "org.rosuda:jrs:28r"
-		compile "org.rosuda:rengine:1.7.x"
-		compile "org.rosuda:rserveengine:1.7.x"
 
 		testCompile 'junit:junit:4.11'
 	}
 	
+	
+
 	test {
 		forkEvery 1
 	}
+
+	
 }
 
 project(':par-connector') {
 	def rExec
 	def rSrc
 	def env = [:]
+	def schedProcess
 	
 	configurations {
 		copyJars 
@@ -79,7 +97,7 @@ project(':par-connector') {
 		 copyJars "org.ow2.proactive_grid_cloud_portal:rest-client:1.5.0-SNAPSHOT"
 	}
 
-	task pkg() << {
+	task pkg << {
 		// copy source
 		copy {
 			from file("${projectDir}/src/main/r")
@@ -106,7 +124,14 @@ project(':par-connector') {
 		}		
 	}
 
-	task setEnv() << {
+	task copyLibs() << {
+		copy {
+			from configurations.copyJars
+			into file("${buildDir}/dependency-libs")
+		}
+	}
+
+	task setEnv << {
 		System.getenv().each() { k,v -> 
 			env.put(k, v)
 		}
@@ -120,13 +145,13 @@ project(':par-connector') {
 			} else {
 				ldLib = new File(env.get('JAVA_HOME'), 'lib/i386/client')
 			}
-			assert ldLib.exists() : "Cannot locate LD_LIBRARY_PATH: " + ldLib.getAbsolutePath()
+			assert ldLib.exists() : "Cannot locate LD_LIBRARY_PATH " + ldLib.getAbsolutePath()
 			env.put('LD_LIBRARY_PATH', ldLib.getAbsolutePath())
 		}
                 
 	}
 
-	task setRExec() << {
+	task setRExec << {
 		if (System.properties["os.name"].toLowerCase().contains("windows")) {
 			def ARCH = System.getenv()["ProgramFiles(x86)"] != null ? "x64" : "i386"
 			rExec = System.getenv()["R_HOME"] + File.separator +  "bin" + File.separator + ARCH + File.separator + "R.exe"
@@ -135,9 +160,108 @@ project(':par-connector') {
 		}
 	}
 
-	task setRSrc() << {
+	task setRSrc << {
 		rSrc = file("${buildDir}/r-pkg-src").getAbsolutePath()
 	}
+
+	task reinstallRPackage << {
+		
+		// build r package
+		def rLibs
+		if (System.properties["os.name"].toLowerCase().contains("windows")) {
+			rLibs = new File(System.getenv()['R_HOME'], 'library')
+		} else  {
+			rLibs = file(System.getenv()['R_LIBS'])
+		}
+		assert rLibs.exists() : ""
+		def p = file("${buildDir}").listFiles().find { it.name.endsWith('.tar.gz') ||  it.name.endsWith('.tgz') || it.name.endsWith('.zip') }
+		assert p.exists() : "Cannot locate PARConnector installation package."
+
+		// remove previous installation
+		exec {
+			workingDir "${buildDir}"
+			commandLine rExec, "CMD", "REMOVE", "--library=" + rLibs.getAbsolutePath() , "PARConnector"
+			environment env
+		}
+	
+		// re-install 
+		exec {
+			workingDir "${buildDir}"
+			commandLine rExec, "CMD", "INSTALL", "--no-multiarch", "--library=" + rLibs.getAbsolutePath(), p.getAbsolutePath()
+			environment env
+		}
+
+	}
+
+	task installJars << { 
+		copy {
+			println "${rootDir}/par-script/build/libs/"
+			from file("${rootDir}/par-script/build/libs/")
+			from configurations.addons
+			into file("${System.getenv()['SCHEDULER_HOME']}/addons")
+		}
+		
+	}
+
+	task startScheduler << {
+		schedProcess = ["jrunscript", "start-server.js"].execute(null, new File("${System.getenv()['SCHEDULER_HOME']}", 'bin'))
+		try {
+			schedProcess.inputStream.eachLine {
+				println '>> ' + it
+				if (it.contains('terminate all')) {
+					throw new Exception()
+				}
+			}
+		} catch (e) {}
+
+		try {
+			int value = schedProcess.exitValue();
+			if (value != 0) {
+				throw new Exception("Could not start the Scheduler, start-server.js exited with code " + value);
+			}
+		} catch (IllegalThreadStateException e) {/* the process is still running */}
+
+	}
+
+	task runFuncTests << {
+		def funcTestsDir = file("${buildDir}/r-functional-tests")
+		copy { 
+			from file("${projectDir}/src/main/test/r/")
+			into funcTestsDir
+		} 
+		def testEnv = []
+		env.each() { k,v  ->
+			testEnv << k + '=' + v 
+		}
+		funcTestsDir.listFiles().each {
+			if (it.getName().startsWith('test')) {
+				println '\n######################\n#   RUNNING functional test ' + it + ' ... \n######################'	
+				def proc = [rExec, '--quiet' ,'--vanilla', '--args','QUITONERROR', '<', it].execute(testEnv, funcTestsDir)
+				proc.out << it.getText()
+				proc.out.close()
+				proc.waitForProcessOutput(System.out, System.err)
+				assert proc.waitFor() == 0 : "Error has occurred while running  $it."
+			}
+		}
+
+	}
+
+
+	task stopScheduler << {
+		println '\n######################\n#   SHUTTING down the Scheduler ... \n######################'    
+		try {
+			schedProcess.out << 'exit\n';
+			schedProcess.out.close();
+		} catch (e) {e.printStackTrace()}
+		schedProcess.waitFor();		
+	}
+
+
+	task functionalTests << { 
+		assert System.getenv()['SCHEDULER_HOME'] != null : "Environment variable 'SCHEDULER_HOME' is not set." 
+	} 
+	
+	functionalTests.dependsOn pkg, reinstallRPackage, installJars, startScheduler, runFuncTests, stopScheduler
 
 	pkg.dependsOn propertyCheck, setEnv, setRExec, setRSrc
 }
