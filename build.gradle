@@ -1,5 +1,7 @@
 apply plugin: 'java'
 
+defaultTasks 'clean', 'build'
+
 buildscript {
 	repositories {
 		if (project.hasProperty('useMavenLocal')) {
