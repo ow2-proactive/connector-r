@@ -1,6 +1,6 @@
 
 # this test tests function dependency transfer, both for main function and for parameter functions
-source("functionalTests/utils.r")
+source("./utils.r")
 
 library("PARConnector");
 cat("*** Trying to connect to http://localhost:8080/rest/rest ***","\n") 

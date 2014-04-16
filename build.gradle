@@ -70,6 +70,7 @@ project(':par-script') {
 
 		compile "org.objectweb.proactive:programming-extension-dataspaces:5.5.0-SNAPSHOT"
 		compile "org.ow2.proactive:scheduler-api:3.5.0-SNAPSHOT"
+		compile "org.ow2.proactive:scheduler-node:3.5.0-SNAPSHOT"
 		compile "org.ow2.proactive:common-api:3.5.0-SNAPSHOT"
 		compile "org.ow2.proactive:rm-node:3.5.0-SNAPSHOT"
 
@@ -162,22 +163,21 @@ project(':par-connector') {
 		}
 	}
 
-	task setRSrc << {
+	task setRSrc() << {
 		rSrc = file("${buildDir}/r-pkg-src").getAbsolutePath()
 	}
 
-	task reinstallRPackage << {
-		
-		// build r package
+	task reinstallRPackage() << {
 		def rLibs
 		if (System.properties["os.name"].toLowerCase().contains("windows")) {
 			rLibs = new File(System.getenv()['R_HOME'], 'library')
 		} else  {
 			rLibs = file(System.getenv()['R_LIBS'])
 		}
-		assert rLibs.exists() : ""
+		assert rLibs.exists() : "R lib directory does not exist."
+
 		def p = file("${buildDir}").listFiles().find { it.name.endsWith('.tar.gz') ||  it.name.endsWith('.tgz') || it.name.endsWith('.zip') }
-		assert p.exists() : "Cannot locate PARConnector installation package."
+		assert p.exists() : "PAR-Connector package does not exist."
 
 		// remove previous installation
 		exec {
@@ -185,7 +185,7 @@ project(':par-connector') {
 			commandLine rExec, "CMD", "REMOVE", "--library=" + rLibs.getAbsolutePath() , "PARConnector"
 			environment env
 		}
-	
+
 		// re-install 
 		exec {
 			workingDir "${buildDir}"
@@ -195,10 +195,10 @@ project(':par-connector') {
 
 	}
 
-	task installJars << { 
+	task installJars() << { 
+		assert project(':par-script').jar.archivePath.exists() : "par-script jar file does not exist."
 		copy {
-			println "${rootDir}/par-script/build/libs/"
-			from file("${rootDir}/par-script/build/libs/")
+			from project(':par-script').jar.archivePath
 			from configurations.addons
 			into file("${System.getenv()['SCHEDULER_HOME']}/addons")
 		}
@@ -228,7 +228,7 @@ project(':par-connector') {
 	task runFuncTests << {
 		def funcTestsDir = file("${buildDir}/r-functional-tests")
 		copy { 
-			from file("${projectDir}/src/main/test/r/")
+			from file("${projectDir}/src/main/test/r/functionalTests")
 			into funcTestsDir
 		} 
 		def testEnv = []
@@ -238,6 +238,9 @@ project(':par-connector') {
 		funcTestsDir.listFiles().each {
 			if (it.getName().startsWith('test')) {
 				println '\n######################\n#   RUNNING functional test ' + it + ' ... \n######################'	
+				println rExec
+				println testEnv
+				println funcTestsDir
 				def proc = [rExec, '--quiet' ,'--vanilla', '--args','QUITONERROR', '<', it].execute(testEnv, funcTestsDir)
 				proc.out << it.getText()
 				proc.out.close()
@@ -263,6 +266,8 @@ project(':par-connector') {
 		assert System.getenv()['SCHEDULER_HOME'] != null : "Environment variable 'SCHEDULER_HOME' is not set." 
 	} 
 	
+	
+
 	functionalTests.dependsOn pkg, reinstallRPackage, installJars, startScheduler, runFuncTests, stopScheduler
 
 	pkg.dependsOn propertyCheck, setEnv, setRExec, setRSrc
