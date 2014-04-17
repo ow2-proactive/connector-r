@@ -195,14 +195,14 @@ project(':par-connector') {
         }
     }
 
-    task installJars << { 
+    task installJars << {
+        assert project(':par-script').jar.archivePath.exists() : "par-script jar file does not exist."
         copy {
             println "Installing jars from: ${rootDir}/par-script/build/libs/"
-            from "${rootDir}/par-script/build/libs/"
+            from project(':par-script').jar.archivePath
             from configurations.addons
             into "${schedHome}/addons"
         }
-		
     }
 
     task startScheduler << {
