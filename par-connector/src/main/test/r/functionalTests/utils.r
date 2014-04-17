@@ -16,6 +16,9 @@ createFiles <- function(prefix, nb) {
     name <- paste0(prefix,i)
     if(!file.exists(name)) {
       file.create(name, showWarnings = TRUE)
+      fileConn<-file(name)
+      writeLines(c("Hello","World"), fileConn)
+      close(fileConn)
     }    
   }
 }
