@@ -46,10 +46,16 @@ merge <- function(...) {
 }
 
 # testing with numeric indexes in file names
-
-if(!file.exists("in")) {
-  file.create("in", showWarnings = TRUE)
+# The input file will be ducplicated 4 times by the split function
+# then renamed into out_ by split function then all out_ will be
+# into one single file
+if(file.exists("in")) {
+  file.remove('in')
 }
+file.create("in", showWarnings = TRUE)
+fileConn<-file("in")
+writeLines(c("-","-"), fileConn)
+close(fileConn)
 
 if(file.exists("out")) {
   file.remove("out")
