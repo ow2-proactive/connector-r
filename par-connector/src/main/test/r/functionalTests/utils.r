@@ -14,12 +14,13 @@ options(
 createFiles <- function(prefix, nb) {
   for (i in 1:nb) {
     name <- paste0(prefix,i)
-    if(!file.exists(name)) {
-      file.create(name, showWarnings = TRUE)
-      fileConn<-file(name)
-      writeLines(c("Hello","World"), fileConn)
-      close(fileConn)
-    }    
+    if (file.exists(name)) {
+      file.remove(name)
+    }
+    file.create(name, showWarnings = TRUE)
+    fileConn<-file(name)
+    writeLines(c("Hello","World"), fileConn)
+    close(fileConn)
   }
 }
 
