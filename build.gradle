@@ -14,7 +14,6 @@ buildscript {
         maven { url 'http://repo.activeeon.com/content/repositories/thirdparty/' }
         maven { url 'http://spoon.gforge.inria.fr/repositories/releases/' }
     }
-	
 }
 
 allprojects {
@@ -24,7 +23,7 @@ allprojects {
     }
 
     dependencies {
-        addons "org.rosuda:jriengine:0.5.x" 
+        addons "org.rosuda:jriengine:0.5.x"
         addons "org.rosuda:jri:0.5.x"
         addons "org.rosuda:jrs:28r"
         addons "org.rosuda:rengine:1.7.x"
@@ -35,8 +34,7 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'base'
-
+    //apply plugin: 'base'
     group = 'org.ow2.proactive.r_connector'
     version = '0.9-SNAPSHOT'
 
@@ -48,17 +46,17 @@ subprojects {
 project(':par-script') {
     apply plugin: 'java'
 
-    dependencies {		
+    dependencies {
         compile configurations.addons
-                
+
         compile 'org.apache.commons:commons-lang3:3.1'
 
         compile 'org.objectweb.proactive:programming-extension-dataspaces:5.5.0-SNAPSHOT'
-        compile 'org.ow2.proactive:scheduler-api:3.5.0-SNAPSHOT'                
-        compile 'org.ow2.proactive:scheduler-node:3.5.0-SNAPSHOT'                
+        compile 'org.ow2.proactive:scheduler-api:3.5.0-SNAPSHOT'
+        compile 'org.ow2.proactive:scheduler-node:3.5.0-SNAPSHOT'
         compile 'org.ow2.proactive:common-api:3.5.0-SNAPSHOT'
-        compile 'org.ow2.proactive:rm-node:3.5.0-SNAPSHOT'                                
-                                
+        compile 'org.ow2.proactive:rm-node:3.5.0-SNAPSHOT'
+
         testCompile 'junit:junit:4.11'
     }
 
@@ -66,47 +64,40 @@ project(':par-script') {
     test {
         forkEvery 1
         testLogging.showStandardStreams = true
-        testLogging.exceptionFormat = 'full'           
-            
-        afterTest { desc, result ->                 
+        testLogging.exceptionFormat = 'full'
+
+        afterTest { desc, result ->
             println '------> Executed test ' + desc.name + ' ['+desc.className + '] with result: ' + result.resultType
         }
-    }                
+    }
 }
 
-project(':par-connector') {                 
-    
+project(':par-connector') {
+
     def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
     def isMac = System.properties['os.name'].toLowerCase().contains('mac')
     def isLinux = System.properties['os.name'].toLowerCase().contains('linux')
     def jHome = System.getenv('JAVA_HOME')
-    def rHome = System.getenv('R_HOME') //'C:\\Program Files\\R\\R-3.1.0' // 
-    def rLibs = System.getenv('R_LIBS') //'C:\\Program Files\\R\\R-3.1.0\\library'
+    def rHome = System.getenv('R_HOME')
+    def rLibs = System.getenv('R_LIBS')
     def schedHome = System.getenv('SCHEDULER_HOME')
-    
+
     def rExec
     def rScript
     def env = [:]
-    def schedProcess	
-        
-    task propertyCheck() << {
+    def schedProcess
+
+    task propertyCheck(dependsOn: [project(':par-script').test, project(':par-script').build]) << {
         println 'Checking required environment variables'
         assert jHome != null : 'Environment variable JAVA_HOME is not set'
         assert file(jHome).exists() != null : 'The path given by JAVA_HOME does not exists'
         assert rHome != null : 'Environment variable R_HOME is not set'
         assert rLibs != null : 'Environment variable R_LIBS is not set' // todo this should be optional
         assert schedHome != null : 'Environment variable SCHEDULER_HOME is not set'
-    }        
-
-    task copyLibs() << {
-        copy {
-            from configurations.restJars
-            into "${buildDir}/dependency-libs"
-        }
     }
 
-    task setEnv << {
-        System.getenv().each() { k,v -> 
+    task setEnv(dependsOn: propertyCheck) << {
+        System.getenv().each() { k,v ->
             env.put(k, v)
         }
         if (!isMac) {
@@ -122,10 +113,10 @@ project(':par-connector') {
             assert ldLib.exists() : 'Cannot locate LD_LIBRARY_PATH ' + ldLib.getAbsolutePath()
             env.put('LD_LIBRARY_PATH', ldLib.getAbsolutePath())
         }
-                
+
     }
 
-    task setRExec << {
+    task setRExec(dependsOn: setEnv) << {
         if (isWindows) {
             def ARCH = System.getenv('ProgramFiles(x86)') != null ? 'x64' : 'i386'
             rExec = rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'R.exe'
@@ -135,38 +126,44 @@ project(':par-connector') {
             rScript = rHome + File.separator + 'bin' + File.separator + 'Rscript'
         }
     }
-        
-    task pkg << {
-            
-        def rSrc = "${buildDir}/r-pkg-src"                
+
+    task copyLibs(dependsOn: setRExec) << {
+        copy {
+            from configurations.restJars
+            into "${buildDir}/dependency-libs"
+        }
+    }
+
+    task pkg(dependsOn: copyLibs) << {
+
+        def rSrc = "${buildDir}/r-pkg-src"
         // copy source
         copy {
             from "${projectDir}/src/main/r"
             into rSrc
         }
-        // copy jars	
+        // copy jars
         copy {
             from configurations.restJars
             into "${rSrc}/inst/java"
         }
-		
+
         println 'Checking R add-on package ...'
-        exec { 
+        exec {
             workingDir buildDir
             commandLine rExec, 'CMD', 'check', '--no-codoc', '--no-manual', '--no-multiarch', 'PARConnector'
             environment env
         }
-                		
+
         println 'Building R add-on package ...'
         exec {
             workingDir buildDir
             commandLine rExec, 'CMD', 'INSTALL', '--build', '--preclean', '--with-keep.source', '--no-multiarch', rSrc
             environment env
-        }		
-    }    
-			
-    task reinstallRPackage << {
-		
+        }
+    }
+
+    task reinstallRPackage(dependsOn: pkg) << {
         // TODO: IF R_LIBS IS NOT DEFINED
         // build r package
         //def rLibs
@@ -175,11 +172,11 @@ project(':par-connector') {
         } else  {
             rLibs = file(rLibs)
         }
-        assert rLibs.exists() : ''
-        println '---------------------------'
+        assert rLibs.exists() : 'Unable to locate r libs'
+
         def p = file(buildDir).listFiles().find { it.name.endsWith('.tar.gz') ||  it.name.endsWith('.tgz') || it.name.endsWith('.zip') }
         assert p.exists() : 'Cannot locate PARConnector installation package.'
-		
+
         println 'Removing previous installation'
         exec {
             workingDir buildDir
@@ -195,7 +192,7 @@ project(':par-connector') {
         }
     }
 
-    task installJars << {
+    task installJars(dependsOn: reinstallRPackage) << {
         assert project(':par-script').jar.archivePath.exists() : "par-script jar file does not exist."
         copy {
             println "Installing jars from: ${rootDir}/par-script/build/libs/"
@@ -205,7 +202,7 @@ project(':par-connector') {
         }
     }
 
-    task startScheduler << {
+    task startScheduler(dependsOn: reinstallRPackage) << {
         schedProcess = ['jrunscript', 'start-server.js'].execute(null, new File(schedHome, 'bin'))
         try {
             schedProcess.inputStream.eachLine {
@@ -215,7 +212,7 @@ project(':par-connector') {
                 }
             }
         } catch (e) {}
-        
+
         try {
             int value = schedProcess.exitValue();
             if (value != 0) {
@@ -224,37 +221,34 @@ project(':par-connector') {
         } catch (IllegalThreadStateException e) {/* the process is still running */}
     }
 
-    task runFuncTests << {            
-        println '----------------------------------------'
-        println '----RUNNING FUNCTIONAL TEST-------------'
-        println '----------------------------------------'        
+    task runFuncTests(dependsOn: startScheduler) << {
         def funcTestsDir = file("${projectDir}/src/main/test/r/functionalTests")
-        funcTestsDir.listFiles().each {            
-            if (it.getName().startsWith('test')) {
-                println '\n######################\n#   RUNNING functional test ' + it + ' ... \n######################'	
+        funcTestsDir.listFiles().each {
+            if (it.getName().startsWith('testWorkflowIOFiles.R')){//'test')) {
+                println '\n######################\n#   RUNNING functional test ' + it + ' ... \n######################'
                 def toRun = ""+it.getAbsolutePath()
                 exec {
                     workingDir funcTestsDir
                     //commandLine rExec, '--quiet' ,'--vanilla', '--args', 'QUITONERROR', '<', it
-                    commandLine rScript, '--slave', '--verbose', '--no-save', '--no-restore-history', toRun
+                    commandLine rScript, '--slave', '--verbose', '--no-save', '--no-restore-history', toRun, 'QUITONERROR'
                     environment env
-                }                
+                }
             }
         }
     }
-        
-    runFuncTests.mustRunAfter startScheduler
 
-    task stopScheduler << {
-        println '\n######################\n#   SHUTTING down the Scheduler ... \n######################'    
+    task stopScheduler(dependsOn: runFuncTests) << {
+        println '\n######################\n#   SHUTTING down the Scheduler ... \n######################'
         try {
             schedProcess.out << 'exit\n';
             schedProcess.out.close();
         } catch (e) {e.printStackTrace()}
         schedProcess.waitFor();
     }
-	
-    pkg.dependsOn project(':par-script').test, project(':par-script').build
-    pkg.dependsOn propertyCheck, setEnv, setRExec
-    test.dependsOn pkg, reinstallRPackage, installJars, startScheduler, runFuncTests, stopScheduler
+
+    task build(dependsOn: stopScheduler)
+
+    //pkg.dependsOn
+    //pkg.dependsOn propertyCheck, setEnv, setRExec
+    //test.dependsOn pkg, //reinstallRPackage, installJars, startScheduler, runFuncTests, stopScheduler
 }
