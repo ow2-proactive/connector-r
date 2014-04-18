@@ -224,7 +224,7 @@ project(':par-connector') {
     task runFuncTests(dependsOn: startScheduler) << {
         def funcTestsDir = file("${projectDir}/src/main/test/r/functionalTests")
         funcTestsDir.listFiles().each {
-            if (it.getName().startsWith('testWorkflowIOFiles.R')){//'test')) {
+            if (it.getName().startsWith('test')) {
                 println '\n######################\n#   RUNNING functional test ' + it + ' ... \n######################'
                 def toRun = ""+it.getAbsolutePath()
                 exec {
