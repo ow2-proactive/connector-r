@@ -5,6 +5,7 @@ import static javax.script.ScriptEngine.NAME;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +13,6 @@ import java.util.List;
 import javax.script.ScriptEngine;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ow2.proactive.rm.util.process.Environment;
 import org.rosuda.jrs.RScriptFactory;
 
 /**
@@ -75,7 +75,8 @@ public final class PARScriptFactory extends RScriptFactory {
 					if (!(new File(rHome).exists())) {
 						throw new FileNotFoundException("The path " + rHome + " given by the Windows Registry key does not exists");
 					}
-					Environment.setenv("R_HOME", rHome, true);
+
+					PARScriptFactory.setEnvVar("R_HOME", rHome);
 				} catch (Exception e) {
 					throw new IllegalStateException("Unable to locate R homedir from Windows Registry, it seems R is not installed, please define the R_HOME env variable", e);
 				}
@@ -89,7 +90,7 @@ public final class PARScriptFactory extends RScriptFactory {
 					if (!(new File(rHome).exists())) {
 						throw new FileNotFoundException("The usual " + rHome + " path does not exists");
 					}
-					Environment.setenv("R_HOME", rHome, true);
+					PARScriptFactory.setEnvVar("R_HOME", rHome);
 				} catch (Exception e) {
 					throw new IllegalStateException("Unable to locate R homedir, the R_HOME env variable must be defined", e);
 				}
@@ -103,11 +104,11 @@ public final class PARScriptFactory extends RScriptFactory {
 					if (!(new File(rHome).exists())) {
 						throw new FileNotFoundException("The usual " + rHome + " path does not exists");
 					}
-					Environment.setenv("R_HOME", rHome, true);
+					PARScriptFactory.setEnvVar("R_HOME", rHome);
 				} catch (Exception e) {
 					throw new IllegalStateException("Unable to locate R homedir, the R_HOME env variable must be defined", e);
 				}
-			}			
+			}
 			dynamicAddLibraryPathLinux(rHome);
 		}
 	}
@@ -146,7 +147,7 @@ public final class PARScriptFactory extends RScriptFactory {
 		// Update the current process 'Path' environment variable
 		try {
 			String varValue = System.getenv("Path");
-			Environment.setenv("Path", varValue + File.pathSeparator + rLibraryPath, true);
+			PARScriptFactory.setEnvVar("Path", varValue + File.pathSeparator + rLibraryPath);
 		} catch (Exception e) {
 			throw new IllegalStateException(
 					"Unable to add R lib to Path environment variable " + rLibraryPath, e);
@@ -228,4 +229,24 @@ public final class PARScriptFactory extends RScriptFactory {
 		newPaths[newPaths.length - 1] = pathToAdd;
 		usrPathsField.set(null, newPaths);
 	}
+
+		private static void setEnvVar(String var, String value){
+			Class<?> clazz;
+			try {
+				clazz = Class.forName("org.ow2.proactive.rm.util.process.Environment");
+			} catch (Exception e) {
+				// This can occur for scheduler > 3.4.0
+				try {
+					clazz = Class.forName("org.ow2.proactive.scheduler.util.process.Environment");
+				} catch (Exception ee) {
+					throw new IllegalStateException("Unable to load Environement class required to set the env variable " + var, e);
+				}
+			}
+			try {
+				Method method = clazz.getMethod("setenv", String.class, String.class, Boolean.TYPE);
+				method.invoke(null, var, value, true);
+			} catch (Exception e) {
+				throw new IllegalStateException("Unable to set the env variable " + var, e);
+			}
+		}
 }
