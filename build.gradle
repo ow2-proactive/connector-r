@@ -77,6 +77,8 @@ project(':par-script') {
 
 project(':par-connector') {
 
+    def noScheduler = System.getProperty('noScheduler') != null
+
     def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
     def isMac = System.properties['os.name'].toLowerCase().contains('mac')
     def isLinux = System.properties['os.name'].toLowerCase().contains('linux')
@@ -206,6 +208,9 @@ project(':par-connector') {
     }
 
     task startScheduler(dependsOn: reinstallRPackage) << {
+        if (noScheduler) {
+            return
+        }
         schedProcess = ['jrunscript', 'start-server.js'].execute(null, new File(schedHome, 'bin'))
         try {
             schedProcess.inputStream.eachLine {
@@ -241,6 +246,9 @@ project(':par-connector') {
     }
 
     task stopScheduler(dependsOn: runFuncTests) << {
+        if (noScheduler) {
+            return;
+        }
         println '\n######################\n#   SHUTTING down the Scheduler ... \n######################'
         try {
             schedProcess.out << 'exit\n';
