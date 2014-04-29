@@ -19,7 +19,9 @@ buildscript {
 allprojects {
     configurations {
         addons
-        restJars
+        restJars.exclude group: 'org.objectweb.proactive', module: 'programming-annotation'
+        restJars.exclude group: 'org.objectweb.proactive', module: 'programming-core' 
+        restJars.exclude group: 'org.objectweb.proactive', module: 'programming-extension-annotation' 
     }
 
     dependencies {
@@ -29,6 +31,7 @@ allprojects {
         addons "org.rosuda:rengine:1.7.x"
         addons "org.rosuda:rserveengine:1.7.x"
 
+        restJars 'xerces:xercesImpl:2.8.1'
         restJars 'org.ow2.proactive_grid_cloud_portal:rest-client:1.5.0-SNAPSHOT'
     }
 }
