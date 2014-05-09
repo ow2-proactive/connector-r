@@ -61,87 +61,88 @@ public class TestLocalspace {
 
 		@Override
 		public void close() throws FileSystemException {
+			throw new UnsupportedOperationException();
 		}
-
+		
 		@Override
 		public void copyFrom(DataSpacesFileObject arg0, FileSelector arg1)
 				throws FileSystemException {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void createFile() throws FileSystemException {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void createFolder() throws FileSystemException {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public boolean delete() throws FileSystemException {
-			return false;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public int delete(FileSelector arg0) throws FileSystemException {
-			return 0;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public DataSpacesFileObject ensureExistingOrSwitch()
 				throws FileSystemException, SpaceNotFoundException {
-
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public boolean exists() throws FileSystemException {
-
-			return false;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public List<DataSpacesFileObject> findFiles(FileSelector arg0)
 				throws FileSystemException {
-
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void findFiles(FileSelector arg0, boolean arg1,
 				List<DataSpacesFileObject> arg2) throws FileSystemException {
-
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public List<String> getAllRealURIs() {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public List<String> getAllSpaceRootURIs() {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public DataSpacesFileObject getChild(String arg0)
 				throws FileSystemException {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public List<DataSpacesFileObject> getChildren()
 				throws FileSystemException {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public FileContent getContent() throws FileSystemException {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public DataSpacesFileObject getParent() throws FileSystemException {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
@@ -151,72 +152,74 @@ public class TestLocalspace {
 
 		@Override
 		public String getSpaceRootURI() {
-
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public FileType getType() throws FileSystemException {
-
-			return null;
-		}
+			throw new UnsupportedOperationException();		}
 
 		@Override
 		public String getVirtualURI() {
-
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public boolean hasSpaceCapability(Capability arg0) {
-
-			return false;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public boolean isContentOpen() {
-
-			return false;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public boolean isHidden() throws FileSystemException {
-
-			return false;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public boolean isReadable() throws FileSystemException {
-
-			return false;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public boolean isWritable() throws FileSystemException {
-
-			return false;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void moveTo(DataSpacesFileObject arg0)
 				throws FileSystemException {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void refresh() throws FileSystemException {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public DataSpacesFileObject resolveFile(String arg0)
 				throws FileSystemException {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public DataSpacesFileObject switchToSpaceRoot(String arg0)
 				throws FileSystemException, SpaceNotFoundException {
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
+		@Override
+		public String getBaseName() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String getPath() {
+			throw new UnsupportedOperationException();
+		}
 	}
 }
