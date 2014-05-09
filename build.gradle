@@ -74,6 +74,14 @@ project(':par-script') {
             println '------> Executed test ' + desc.name + ' ['+desc.className + '] with result: ' + result.resultType
         }
     }
+
+    task copyDependenciesToLib() << {
+	copy {
+        from configurations.testCompile
+        into "${buildDir}/dependencies-lib"
+	}
+    }
+	
 }
 
 project(':par-connector') {
@@ -201,7 +209,7 @@ project(':par-connector') {
         }
     }
 
-    task startScheduler(dependsOn: reinstallRPackage) << {
+    task startScheduler(dependsOn: installJars) << {
         if (noScheduler) {
             return
         }
