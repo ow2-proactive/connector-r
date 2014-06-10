@@ -17,8 +17,8 @@ import org.objectweb.proactive.extensions.dataspaces.api.FileSelector;
 import org.objectweb.proactive.extensions.dataspaces.api.FileType;
 import org.objectweb.proactive.extensions.dataspaces.exceptions.FileSystemException;
 import org.objectweb.proactive.extensions.dataspaces.exceptions.SpaceNotFoundException;
+import org.ow2.parscript.PARScriptEngine;
 import org.ow2.parscript.PARScriptFactory;
-import org.ow2.proactive.scheduler.task.launcher.TaskLauncher;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
@@ -39,7 +39,7 @@ public class TestLocalspace {
 
         String rScript = "result=getwd();";
 
-        Map<String, Object> aBindings = Collections.singletonMap(TaskLauncher.DS_SCRATCH_BINDING_NAME,
+        Map<String, Object> aBindings = Collections.singletonMap(PARScriptEngine.DS_SCRATCH_BINDING_NAME,
                 (Object) dsfo);
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
@@ -52,7 +52,7 @@ public class TestLocalspace {
     }
 
     class MockedDSFO implements DataSpacesFileObject {
-        private URI uri;
+        private final URI uri;
 
         public MockedDSFO(URI uri) {
             this.uri = uri;

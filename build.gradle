@@ -57,7 +57,6 @@ project(':par-script') {
 
         compile 'org.objectweb.proactive:programming-extension-dataspaces:5.5.0-SNAPSHOT'
         compile 'org.ow2.proactive:scheduler-api:3.5.0-SNAPSHOT'
-        compile 'org.ow2.proactive:scheduler-node:3.5.0-SNAPSHOT'
         compile 'org.ow2.proactive:common-api:3.5.0-SNAPSHOT'
         compile 'org.ow2.proactive:rm-node:3.5.0-SNAPSHOT'
 
@@ -81,7 +80,7 @@ project(':par-script') {
         into "${buildDir}/dependencies-lib"
 	}
     }
-	
+
 }
 
 project(':par-connector') {
