@@ -16,7 +16,6 @@ import javax.script.ScriptException;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
-import org.ow2.proactive.scheduler.task.launcher.TaskLauncher;
 import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.TaskScript;
 import org.rosuda.REngine.REXP;
@@ -37,6 +36,12 @@ import org.rosuda.jrs.RexpConvert;
  * @author Activeeon Team
  */
 public class PARScriptEngine extends RScriptEngine {
+
+    public static final String DS_SCRATCH_BINDING_NAME = "localspace";
+    public static final String DS_INPUT_BINDING_NAME = "input";
+    public static final String DS_OUTPUT_BINDING_NAME = "output";
+    public static final String DS_GLOBAL_BINDING_NAME = "global";
+    public static final String DS_USER_BINDING_NAME = "user";
 
     /** Initially we don't know how many messages will be callbacked */
     private final LinkedList<String> callbackedErrorMessages;
@@ -175,7 +180,7 @@ public class PARScriptEngine extends RScriptEngine {
      * to the local space of the task.
      */
     private void assignLocalSpace(Bindings bindings) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(TaskLauncher.DS_SCRATCH_BINDING_NAME);
+        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_SCRATCH_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
@@ -189,7 +194,7 @@ public class PARScriptEngine extends RScriptEngine {
     }
 
     private void assignUserSpace(Bindings bindings) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(TaskLauncher.DS_USER_BINDING_NAME);
+        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_USER_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
@@ -207,7 +212,7 @@ public class PARScriptEngine extends RScriptEngine {
     }
 
     private void assignGlobalSpace(Bindings bindings) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(TaskLauncher.DS_GLOBAL_BINDING_NAME);
+        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_GLOBAL_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
@@ -225,7 +230,7 @@ public class PARScriptEngine extends RScriptEngine {
     }
 
     private void assignInputSpace(Bindings bindings) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(TaskLauncher.DS_INPUT_BINDING_NAME);
+        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_INPUT_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
@@ -243,7 +248,7 @@ public class PARScriptEngine extends RScriptEngine {
     }
 
     private void assignOutputSpace(Bindings bindings) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(TaskLauncher.DS_OUTPUT_BINDING_NAME);
+        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_OUTPUT_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
