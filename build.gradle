@@ -9,10 +9,7 @@ buildscript {
             mavenLocal()
         }
         mavenCentral()
-        maven { url 'http://repo.activeeon.com/content/repositories/snapshots/' }
-        maven { url 'http://repo.activeeon.com/content/repositories/releases/' }
-        maven { url 'http://repo.activeeon.com/content/repositories/thirdparty/' }
-        maven { url 'http://spoon.gforge.inria.fr/repositories/releases/' }
+        maven { url 'http://repo.activeeon.com/content/groups/proactive/' }
     }
 }
 
@@ -75,10 +72,10 @@ project(':par-script') {
     }
 
     task copyDependenciesToLib() << {
-	copy {
-        from configurations.testCompile
-        into "${buildDir}/dependencies-lib"
-	}
+        copy {
+            from configurations.testCompile
+            into "${buildDir}/dependencies-lib"
+        }
     }
 
 }
