@@ -4,8 +4,7 @@ defaultTasks 'clean', 'build'
 
 buildscript {
     repositories {
-        if (project.hasProperty('useMavenLocal')) {
-            println 'Use mavel local repository'
+        if (project.hasProperty('local')) {
             mavenLocal()
         }
         mavenCentral()
@@ -27,7 +26,7 @@ allprojects {
         addons "org.rosuda:rserveengine:1.7.x"
 
         restJars 'xerces:xercesImpl:2.8.1'
-        restJars 'org.ow2.proactive_grid_cloud_portal:rest-client:3.5.0-SNAPSHOT'
+        restJars 'org.ow2.proactive_grid_cloud_portal:rest-client:6.0.0-SNAPSHOT'
     }
 }
 
@@ -52,10 +51,10 @@ project(':par-script') {
 
         compile 'org.apache.commons:commons-lang3:3.1'
 
-        compile 'org.objectweb.proactive:programming-extension-dataspaces:5.5.0-SNAPSHOT'
-        compile 'org.ow2.proactive:scheduler-api:3.5.0-SNAPSHOT'
-        compile 'org.ow2.proactive:common-api:3.5.0-SNAPSHOT'
-        compile 'org.ow2.proactive:rm-node:3.5.0-SNAPSHOT'
+        compile 'org.objectweb.proactive:programming-extension-dataspaces:6.0.0-SNAPSHOT'
+        compile 'org.ow2.proactive:scheduler-api:6.0.0-SNAPSHOT'
+        compile 'org.ow2.proactive:common-api:6.0.0-SNAPSHOT'
+        compile 'org.ow2.proactive:rm-node:6.0.0-SNAPSHOT'
 
         testCompile 'junit:junit:4.11'
     }
@@ -72,10 +71,10 @@ project(':par-script') {
     }
 
     task copyDependenciesToLib() << {
-        copy {
-            from configurations.testCompile
-            into "${buildDir}/dependencies-lib"
-        }
+	copy {
+        from configurations.testCompile
+        into "${buildDir}/dependencies-lib"
+	}
     }
 
 }
