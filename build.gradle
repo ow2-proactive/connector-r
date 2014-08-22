@@ -189,6 +189,7 @@ project(':par-connector') {
 
         println 'Renaming ' + packageFile + ' to ' + renamedPackageFile + ' ...'
         packageFile.renameTo(renamedPackageFile)
+        packageFile = renamedPackageFile
     }
 
     task reinstallRPackage(dependsOn: pkg) << {
@@ -201,14 +202,14 @@ project(':par-connector') {
         }
         assert rLibs.exists() : 'Unable to locate r libs'
         
-        println 'Removing previous installation'
+        println 'Removing previous installation ...'
         exec {
             workingDir buildDir
             commandLine rExec, 'CMD', 'REMOVE', '--library=' + rLibs.getAbsolutePath() , 'PARConnector'
             environment env
         }
 
-        println 'Reinstallling'
+        println 'Reinstallling ...'
         exec {
             workingDir buildDir
             commandLine rExec, 'CMD', 'INSTALL', '--no-multiarch', '--library=' + rLibs.getAbsolutePath(), packageFile.getAbsolutePath()
