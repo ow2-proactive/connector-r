@@ -71,12 +71,11 @@ project(':par-script') {
     }
 
     task copyDependenciesToLib() << {
-	copy {
-        from configurations.testCompile
-        into "${buildDir}/dependencies-lib"
-	}
+        copy {
+            from configurations.testCompile
+            into "${buildDir}/dependencies-lib"
+        }
     }
-
 }
 
 project(':par-connector') {
@@ -95,6 +94,7 @@ project(':par-connector') {
     def rScript
     def env = [:]
     def schedProcess
+    def packageFile
 
     task propertyCheck(dependsOn: [project(':par-script').test, project(':par-script').build]) << {
         println 'Checking required environment variables'
@@ -163,22 +163,39 @@ project(':par-connector') {
             commandLine rExec, 'CMD', 'INSTALL', '--build', '--preclean', '--with-keep.source', '--no-multiarch', rSrc
             environment env
         }
+        
+        packageFile = file(buildDir).listFiles().find { 
+                        it.name.endsWith('tar.gz') ||
+                        it.name.endsWith('tgz') ||
+                        it.name.endsWith('zip') }
+
+        assert packageFile.exists() : 'Cannot locate PARConnector package. Probably it was not built ...'
+
+        def fileExtension
+        if (packageFile.endsWith('tar.gz'))
+            fileExtension = 'tar.gz'
+        else if (packageFile.endsWith('tgz'))
+            fileExtension = 'tgz'
+        else 
+            fileExtension = 'zip'
+        
+        def os = java.lang.management.ManagementFactory.operatingSystemMXBean
+        def renamedPackageFile = new File('PARConnector-'+version+'-'+os.arch+'-'+os.name+'.'+fileExtension)
+
+        println 'Renaming ' + packageFile + ' to ' + renamedPackageFile + ' ...'
+        packageFile.renameTo(renamedPackageFile)
     }
 
     task reinstallRPackage(dependsOn: pkg) << {
         // TODO: IF R_LIBS IS NOT DEFINED
-        // build r package
-        //def rLibs
+        // build r package        
         if (isWindows) {
             rLibs = new File(rHome, 'library')
         } else  {
             rLibs = file(rLibs)
         }
         assert rLibs.exists() : 'Unable to locate r libs'
-
-        def p = file(buildDir).listFiles().find { it.name.endsWith('.tar.gz') ||  it.name.endsWith('.tgz') || it.name.endsWith('.zip') }
-        assert p.exists() : 'Cannot locate PARConnector installation package.'
-
+        
         println 'Removing previous installation'
         exec {
             workingDir buildDir
@@ -189,7 +206,7 @@ project(':par-connector') {
         println 'Reinstallling'
         exec {
             workingDir buildDir
-            commandLine rExec, 'CMD', 'INSTALL', '--no-multiarch', '--library=' + rLibs.getAbsolutePath(), p.getAbsolutePath()
+            commandLine rExec, 'CMD', 'INSTALL', '--no-multiarch', '--library=' + rLibs.getAbsolutePath(), packageFile.getAbsolutePath()
             environment env
         }
     }
