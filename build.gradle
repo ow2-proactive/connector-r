@@ -171,18 +171,21 @@ project(':par-connector') {
 
         assert packageFile.exists() : 'Cannot locate PARConnector package. Probably it was not built ...'
 
-        def fileExtension        
+        // Renaming the package into PARConnector-VERSION-ARCH-OS.EXT
+
+        def fileExtension
         if (packageFile.getName().endsWith('tar.gz'))
-            fileExtension = 'tar.gz'            
+            fileExtension = 'tar.gz'
         else if (packageFile.getName().endsWith('tgz'))
             fileExtension = 'tgz'
         else 
-           fileExtension = 'zip'        
+           fileExtension = 'zip'
 
         def osName = (isWindows ? 'win' : (isLinux ? 'linux' : (isMac ? 'mac' : 'unknown')))
 
         def os = java.lang.management.ManagementFactory.operatingSystemMXBean
-        def renamedPackageFile = new File('PARConnector-'+version+'-'+os.arch+'-'+osName+'.'+fileExtension)
+        def newName = 'PARConnector-'+version+'-'+os.arch+'-'+osName+'.'+fileExtension
+        def renamedPackageFile = new File(packageFile.getParentFile(), newName)
 
         println 'Renaming ' + packageFile + ' to ' + renamedPackageFile + ' ...'
         packageFile.renameTo(renamedPackageFile)
