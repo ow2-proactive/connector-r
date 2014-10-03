@@ -26,14 +26,14 @@ allprojects {
         addons "org.rosuda:rserveengine:1.7.x"
 
         restJars 'xerces:xercesImpl:2.8.1'
-        restJars 'org.ow2.proactive_grid_cloud_portal:rest-client:6.0.0-SNAPSHOT'
+        restJars "org.ow2.proactive_grid_cloud_portal:rest-client:${schedulingVersion}"
     }
 }
 
 subprojects {
     //apply plugin: 'base'
     group = 'org.ow2.proactive.r_connector'
-    version = '0.9-SNAPSHOT'
+    version = "${r_connectorVersion}"
 
     rootProject.buildscript.repositories.each {
         repositories.add(it)
@@ -51,10 +51,10 @@ project(':par-script') {
 
         compile 'org.apache.commons:commons-lang3:3.1'
 
-        compile 'org.objectweb.proactive:programming-extension-dataspaces:6.0.0-SNAPSHOT'
-        compile 'org.ow2.proactive:scheduler-api:6.0.0-SNAPSHOT'
-        compile 'org.ow2.proactive:common-api:6.0.0-SNAPSHOT'
-        compile 'org.ow2.proactive:rm-node:6.0.0-SNAPSHOT'
+        compile "org.objectweb.proactive:programming-extension-dataspaces:${programmingVersion}"
+        compile "org.ow2.proactive:scheduler-api:${schedulingVersion}"
+        compile "org.ow2.proactive:common-api:${schedulingVersion}"
+        compile "org.ow2.proactive:rm-node:${schedulingVersion}"
 
         testCompile 'junit:junit:4.11'
     }
