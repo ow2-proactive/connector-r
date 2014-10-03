@@ -89,7 +89,7 @@ public class TestLocalspace {
         }
 
         @Override
-        public DataSpacesFileObject ensureExistingOrSwitch() throws FileSystemException,
+        public DataSpacesFileObject ensureExistingOrSwitch(boolean value) throws FileSystemException,
                 SpaceNotFoundException {
             throw new UnsupportedOperationException();
         }
