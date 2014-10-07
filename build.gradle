@@ -105,6 +105,11 @@ project(':par-connector') {
     def schedProcess
     def packageFile
     
+    // Remove stuff from previous builds
+    task clean << {
+        delete "${buildDir}"
+    }
+    
     // The following task will unzip the scheduler project into build/scheduler dir
     task distScheduler (type: Copy) {
         from mainArtifactsAsZipTree(configurations.scheduler)
@@ -267,7 +272,8 @@ project(':par-connector') {
              '-l', 'admin', '-p', 'admin', '-r', 'LocalNodes'].execute(null, new File(schedHome))
             try {
                 clientProcess.inputStream.eachLine {
-                    if (it.contains('successfully'))
+                    println '>> ' + it
+                    if (it.contains('deleted successfully'))
                         throw new Exception()
                 }
             } catch (e) {}
