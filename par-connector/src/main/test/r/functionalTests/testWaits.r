@@ -1,10 +1,6 @@
 source("./utils.r")
 
-library("PARConnector");
-
-cat("*** Trying to connect to http://localhost:8080/rest/rest ***","\n") 
-PAConnect(url='http://localhost:8080/rest/rest', login='demo', pwd='demo');
-cat("Sucessfully connected !!", "\n");
+connectForTests()
 
 PADebug(TRUE)
 
@@ -14,7 +10,7 @@ res <- PASolve(function(x)FALSE,1)
 # this should trigger a timout
 timeout <- FALSE
 v <- tryCatch(PAWaitFor(res,10), error = function(e) {print(e);TRUE})
-if (islist(v) || !v) {
+if (is.list(v) || !v) {
   msg <- paste0("Error timeout not received in PAWaitFor\n")
   stop(msg)
 }

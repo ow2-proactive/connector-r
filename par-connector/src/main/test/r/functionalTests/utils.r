@@ -1,4 +1,8 @@
+library("PARConnector");
 # Some function usefull functions for tests
+
+# Defautl url of the rest server
+REST_SERVER_URL <- "http://localhost:8080/rest"
 
 # Default timeout for PAWaitFor
 TEN_MINUTES <- 1000 * 60 * 60
@@ -32,4 +36,16 @@ removeFiles <- function(prefix, nb) {
       file.remove(name)
     }    
   }
+}
+
+connectForTests <- function() {    
+  cat("*** Connecting to ", REST_SERVER_URL, "\n") 
+  result = tryCatch({
+      PAConnect(url=REST_SERVER_URL, login='demo', pwd='demo')
+      cat("Sucessfully connected ...", "\n");
+  }, warning = function(w) {
+  }, error = function(e) {
+      cat("!! UNABLE TO CONNECT TO ", REST_SERVER_URL, "!!\n");
+  }, finally = {
+  })
 }
