@@ -8,6 +8,7 @@
 #'  @param login login of the user
 #'  @param pwd password of the user, if not provided a popup window will ask to type the password
 #'  @param cred (default to NULL) the path to an encrypt credential file which stores the login information (see ProActive Scheduler manual for more details)
+#'  @param insecure (default to FALSE) ignore invalid SSL certificate
 #'  @param .print.stack (default to TRUE) in case there is a connection problem, should the full Java stack trace be printed or simply the error message
 #'  @return a scheduler connection handle, which can be used in other PARConnector functions
 #'  @examples
@@ -17,7 +18,7 @@
 #'  }
 #'  @seealso \code{\link{PASolve}}
 PAConnect <- function(url, login, pwd, 
-                      cred=NULL, .print.stack = TRUE) {
+                      cred=NULL, insecure=FALSE, .print.stack = TRUE) {
   if (missing(url)) {
     url <- readline("Scheduler REST url:")
   } 
@@ -39,7 +40,11 @@ PAConnect <- function(url, login, pwd,
   j_try_catch({
     SchedulerClient <- J("org.ow2.proactive.scheduler.rest.SchedulerClient")
     client <- SchedulerClient$createInstance()
-    client$init(url, login, pwd)
+    if (insecure) {
+        client$initInsecure(url, login, pwd)
+    } else {
+        client$init(url, login, pwd)
+    }
   } , .handler = function(e,.print.stack) {
     print(str_c("Error in PAConnect(",url,") :"))
     PAHandler(e,.print.stack)
