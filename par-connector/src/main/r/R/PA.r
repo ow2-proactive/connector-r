@@ -587,6 +587,7 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
   dots <- list(...)  
   
   depVariableNames <- NULL
+  libraryDependencies <- NULL
   newenvir <-  new.env()
   
     
@@ -632,8 +633,9 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
         
         # if the parameter is a function, check for its dependencies
         if (typeof(dots[[i]]) == "closure") {
-          pairlist <- .PASolve_computeDependencies(dots[[i]], namelist <- depVariableNames, newenvir <- newenvir, envir=environment(dots[[i]]),.do.verbose=.debug)    
-          depVariableNames <- pairlist[["variableNames"]]
+          pairlist <- .PASolve_computeDependencies(dots[[i]], namelist = depVariableNames, newenvir <- newenvir, envir=environment(dots[[i]]),.do.verbose=.debug)    
+          depVariableNames <- c(depVariableNames, pairlist[["variableNames"]])
+          libraryDependencies <- c(libraryDependencies, pairlist[["libraryDependencies"]])
         }
       }
     }
@@ -706,6 +708,7 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
     
     pairlist <- .PASolve_computeDependencies(funname, namelist <- depVariableNames, newenvir <- newenvir, envir=envir,.do.verbose=.debug)    
     depVariableNames <- c(depVariableNames, pairlist[["variableNames"]])
+    libraryDependencies <- c(libraryDependencies, pairlist[["libraryDependencies"]])
   }
   
   # Create list of PATask
@@ -768,6 +771,12 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
     } else {
       total_script <- str_c(total_script, "ifelse(file.exists(\"",hash,"/",basename(env_file),"\"),load(\"",hash,"/",basename(env_file),"\"),stop(\"Could not find PASolve environment file : ",hash,"/",basename(env_file)," \"))\n")   
     }
+    if (!is.null(libraryDependencies)) {
+      for (j in 1:length(libraryDependencies)) {
+        total_script <- str_c(total_script,"library(",libraryDependencies[[j]],")\n")
+      }
+    }
+    
     if (.debug) {
       total_script <- str_c(total_script, "print(\"[DEBUG] Environment :\")\n")
       total_script <- str_c(total_script,"print(ls())\n")     
