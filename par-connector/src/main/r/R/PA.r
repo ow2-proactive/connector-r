@@ -783,7 +783,7 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
       total_script <- str_c(total_script, "print(\"[DEBUG] PASolveCall :\")\n")
       total_script <- str_c(total_script, "print(PASolveCall)\n")
     }
-    total_script <- str_c(total_script, "result <- eval(PASolveCall)\n")
+    total_script <- str_c(total_script, "result <- serialize(eval(PASolveCall), NULL)\n")
     if (.debug) {
       total_script <- str_c(total_script, "print(\"[DEBUG] Result :\")\n")
       total_script <- str_c(total_script, "print(result)\n")

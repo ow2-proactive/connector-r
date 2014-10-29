@@ -116,7 +116,7 @@ setClassUnion("PAJobResultOrMissing", c("PAJobResult", "missing"))
         cat("\n")
       }
       result <- .getRResultFromJavaResult(paresult, tresult, i, callback)
-      results[[tnames[i]]] <- result
+      results[[tnames[i]]] <- unserialize(result)
     }
   }
   return(results)
