@@ -46,7 +46,7 @@ public class PARScriptEngine extends RScriptEngine {
     private final LinkedList<String> callbackedErrorMessages;
 
     /** Singleton instance of this class */
-    private static PARScriptEngine instance;
+    private static PARScriptEngine singleInstance;
 
     /**
      * Create a instance of the JREngine by reflection.
@@ -54,8 +54,8 @@ public class PARScriptEngine extends RScriptEngine {
      * @return the instance of the engine
      */
     public static PARScriptEngine create() {
-        if (instance != null) {
-            return instance;
+        if (singleInstance != null) {
+            return singleInstance;
         }
         // Create the JRI engine by reflection
         String cls = "org.rosuda.REngine.JRI.JRIEngine";
@@ -68,7 +68,7 @@ public class PARScriptEngine extends RScriptEngine {
         } catch (Exception e) {
             throw new IllegalStateException("Unable to instantiate the REngine by reflection", e);
         }
-        return PARScriptEngine.instance = paRengine;
+        return PARScriptEngine.singleInstance = paRengine;
     }
 
     protected PARScriptEngine(boolean closeREPL) {
