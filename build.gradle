@@ -260,24 +260,21 @@ project(':par-connector') {
                     }
                 }
             }
-        } catch (Exception e) {
-            
         } finally {
-            if (noScheduler) {
-               return;
+            if (!noScheduler) {
+                println '\n######################\n#   SHUTTING down the Scheduler ... \n######################'
+                // Use client to remove 'LocalNodes' node source to avoid orphan nodes processes
+                def clientProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive_grid_cloud_portal.cli.CommonEntryPoint',
+                 '-l', 'admin', '-p', 'admin', '-r', 'LocalNodes'].execute(null, new File(schedHome))
+                try {
+                    clientProcess.inputStream.eachLine {
+                        println '>> ' + it
+                        if (it.contains('deleted successfully'))
+                            throw new Exception()
+                    }
+                } catch (e) {}
+                schedProcess.destroy();
             }
-            println '\n######################\n#   SHUTTING down the Scheduler ... \n######################'
-            // Use client to remove 'LocalNodes' node source to avoid orphan nodes processes
-            def clientProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive_grid_cloud_portal.cli.CommonEntryPoint',
-             '-l', 'admin', '-p', 'admin', '-r', 'LocalNodes'].execute(null, new File(schedHome))
-            try {
-                clientProcess.inputStream.eachLine {
-                    println '>> ' + it
-                    if (it.contains('deleted successfully'))
-                        throw new Exception()
-                }
-            } catch (e) {}
-            schedProcess.destroy();
         }
     }
     task build(dependsOn: runFuncTests)
