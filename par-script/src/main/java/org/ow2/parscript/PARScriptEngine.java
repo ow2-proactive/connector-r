@@ -36,7 +36,6 @@ import org.rosuda.jrs.RexpConvert;
  * @author Activeeon Team
  */
 public class PARScriptEngine extends RScriptEngine {
-
     public static final String DS_SCRATCH_BINDING_NAME = "localspace";
     public static final String DS_INPUT_BINDING_NAME = "input";
     public static final String DS_OUTPUT_BINDING_NAME = "output";
@@ -46,12 +45,18 @@ public class PARScriptEngine extends RScriptEngine {
     /** Initially we don't know how many messages will be callbacked */
     private final LinkedList<String> callbackedErrorMessages;
 
+    /** Singleton instance of this class */
+    private static PARScriptEngine instance;
+
     /**
-     * Create a instance of the JREngine by reflection
-     *
+     * Create a instance of the JREngine by reflection.
+     * This method is not thread-safe.
      * @return the instance of the engine
      */
     public static PARScriptEngine create() {
+        if (instance != null) {
+            return instance;
+        }
         // Create the JRI engine by reflection
         String cls = "org.rosuda.REngine.JRI.JRIEngine";
         String[] args = { "--vanilla", "--slave" };
@@ -63,7 +68,7 @@ public class PARScriptEngine extends RScriptEngine {
         } catch (Exception e) {
             throw new IllegalStateException("Unable to instantiate the REngine by reflection", e);
         }
-        return paRengine;
+        return PARScriptEngine.instance = paRengine;
     }
 
     protected PARScriptEngine(boolean closeREPL) {
