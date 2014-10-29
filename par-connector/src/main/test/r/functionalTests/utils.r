@@ -5,7 +5,9 @@ library("PARConnector");
 REST_SERVER_URL <- "http://localhost:8080/rest"
 
 # Default timeout for PAWaitFor
-TEN_MINUTES <- 1000 * 60 * 60
+TEN_MINUTES <- 1000 * 60 * 10
+
+PADebug(TRUE)
 
 # error handler to quit the R session on error
 options(

@@ -2,8 +2,6 @@ source("./utils.r")
 
 connectForTests()
 
-PADebug(TRUE)
-
 n <- 4
 
 progressfunc <- function(x) {

@@ -2,8 +2,6 @@ source("./utils.r")
 
 connectForTests()
 
-PADebug(TRUE)
-
 # test PAWaitFor with timeout
 
 res <- PASolve(function(x)FALSE,1)

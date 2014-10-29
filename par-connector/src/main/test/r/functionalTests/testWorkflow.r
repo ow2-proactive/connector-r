@@ -2,8 +2,6 @@ source("./utils.r")
 
 connectForTests()
 
-PADebug(TRUE)
-
 # simple split merge
 r=PASolve(
   PAM("sum",

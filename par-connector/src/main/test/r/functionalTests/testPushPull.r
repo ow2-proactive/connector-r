@@ -2,8 +2,6 @@ source("./utils.r")
 
 connectForTests()
 
-PADebug(TRUE)
-
 if(!file.exists("foo.txt")) {
   file.create("foo.txt", showWarnings = TRUE)
 }

@@ -2,8 +2,6 @@ source("./utils.r")
 
 connectForTests()
 
-PADebug(TRUE)
-
 # split merge with I/O Files
 
 split <- function(ind) {
