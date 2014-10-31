@@ -1,4 +1,4 @@
-package org.ow2.parscript;
+package org.ow2.parscript.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

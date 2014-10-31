@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.ow2.parscript.PARScriptFactory;
+import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
@@ -28,7 +29,7 @@ public class TestDetectFromRegistry {
 
     @Test
     public void test() throws Exception {
-        if (!PARScriptFactory.isWindows) {
+        if (!RLibPathConfigurator.isWindows) {
             return;
         }
 
@@ -41,7 +42,7 @@ public class TestDetectFromRegistry {
                 pb.directory(new File(System.getProperty("user.dir")));
                 String fs = File.separator;
                 String javaExe = System.getProperty("java.home") + fs + "bin" + fs +
-                    (PARScriptFactory.isWindows ? "java.exe" : "java");
+                    (RLibPathConfigurator.isWindows ? "java.exe" : "java");
                 ArrayList<String> command = new ArrayList<String>();
                 command.add(javaExe);
                 command.add("-D" + TAG);

@@ -21,9 +21,7 @@ allprojects {
     dependencies {
         addons "org.rosuda:jriengine:0.5.x"
         addons "org.rosuda:jri:0.5.x"
-        addons "org.rosuda:jrs:28r"
         addons "org.rosuda:rengine:1.7.x"
-        addons "org.rosuda:rserveengine:1.7.x"
     }
 }
 
@@ -40,13 +38,14 @@ subprojects {
 project(':par-script') {
     apply plugin: 'java'
 
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
 
     dependencies {
         compile configurations.addons
 
         compile 'org.apache.commons:commons-lang3:3.1'
+        compile group: 'com.google.guava', name: 'guava', version: '17.0'
 
         compile "org.objectweb.proactive:programming-extension-dataspaces:${programmingVersion}"
         compile "org.ow2.proactive:scheduler-api:${schedulingVersion}"

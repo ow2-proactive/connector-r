@@ -1,19 +1,24 @@
 package org.ow2.parscript;
 
+import com.google.common.base.Joiner;
+import com.google.common.io.CharStreams;
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.script.AbstractScriptEngine;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
+import javax.script.ScriptEngineFactory;
 import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scripting.Script;
@@ -23,56 +28,61 @@ import org.rosuda.REngine.REXPJavaReference;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.REngine;
+import org.rosuda.REngine.REngineCallbacks;
 import org.rosuda.REngine.REngineException;
-import org.rosuda.jrs.RScriptEngine;
-import org.rosuda.jrs.RexpConvert;
-
+import org.rosuda.REngine.REngineOutputInterface;
 
 /**
- * R implementation of ScriptEngine using REngine (JRI or Rserve). Sub-class of
- * the RScriptEngine, adds support for types of objects filled into bindings by
- * the ProActive Scheduler ScriptExecutable.
+ * R implementation of ScriptEngine using REngine through JRI. Sub-class of the
+ * RScriptEngine, adds support for types of objects filled into bindings by the
+ * ProActive Scheduler ScriptExecutable.
  *
  * @author Activeeon Team
  */
-public class PARScriptEngine extends RScriptEngine {
+public class PARScriptEngine extends AbstractScriptEngine implements REngineCallbacks, REngineOutputInterface {
+
     public static final String DS_SCRATCH_BINDING_NAME = "localspace";
     public static final String DS_INPUT_BINDING_NAME = "input";
     public static final String DS_OUTPUT_BINDING_NAME = "output";
     public static final String DS_GLOBAL_BINDING_NAME = "global";
     public static final String DS_USER_BINDING_NAME = "user";
 
-    /** Initially we don't know how many messages will be callbacked */
+    /**
+     * Initially we don't know how many messages will be callbacked
+     */
     private final LinkedList<String> callbackedErrorMessages;
-
-    /** Singleton instance of this class */
-    private static PARScriptEngine singleInstance;
+    /**
+     * The instance of factory that has created this engine
+     */
+    private PARScriptFactory factory;
+    /**
+     * Underlying R implementation.
+     */
+    private REngine engine;
 
     /**
-     * Create a instance of the JREngine by reflection.
-     * This method is not thread-safe.
+     * Create a instance of the JREngine by reflection. This method is not
+     * thread-safe.
+     *
      * @return the instance of the engine
      */
-    public static PARScriptEngine create() {
-        if (singleInstance != null) {
-            return singleInstance;
-        }
+    public static PARScriptEngine create(PARScriptFactory factory) {
         // Create the JRI engine by reflection
         String cls = "org.rosuda.REngine.JRI.JRIEngine";
-        String[] args = { "--vanilla", "--slave" };
+        String[] args = {"--vanilla", "--slave"};
 
-        PARScriptEngine paRengine = new PARScriptEngine(false);
+        PARScriptEngine paRengine = new PARScriptEngine(factory);
         try {
             paRengine.engine = REngine.engineForClass(cls, args, paRengine, /* runREPL */
                     false);
         } catch (Exception e) {
             throw new IllegalStateException("Unable to instantiate the REngine by reflection", e);
         }
-        return PARScriptEngine.singleInstance = paRengine;
+        return paRengine;
     }
 
-    protected PARScriptEngine(boolean closeREPL) {
-        super(closeREPL);
+    protected PARScriptEngine(PARScriptFactory factory) {
+        this.factory = factory;
         this.callbackedErrorMessages = new LinkedList<String>();
     }
 
@@ -99,12 +109,12 @@ public class PARScriptEngine extends RScriptEngine {
 
         Object resultValue;
         try {
-            REXP rexp = super.engine.parseAndEval(script);
+            REXP rexp = engine.parseAndEval(script);
             // If the 'result' variable is explicitly defined in the global
             // environment it is considered as the task result instead of the
             // result exp
 
-            REXP resultRexp = super.engine.get(TaskScript.RESULT_VARIABLE, null, true);
+            REXP resultRexp = engine.get(TaskScript.RESULT_VARIABLE, null, true);
             if (resultRexp != null) {
                 resultValue = RexpConvert.rexp2jobj(resultRexp);
             } else {
@@ -112,7 +122,7 @@ public class PARScriptEngine extends RScriptEngine {
             }
             if (resultValue == null) {
                 resultValue = true; // TaskResult.getResult() returns true by
-                                    // default
+                // default
             }
             bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
         } catch (Exception rme) {
@@ -120,12 +130,22 @@ public class PARScriptEngine extends RScriptEngine {
         }
 
         if (!this.callbackedErrorMessages.isEmpty()) {
-            String mess = StringUtils
-                    .join(this.callbackedErrorMessages, System.getProperty("line.separator"));
+            String mess = Joiner.on(System.getProperty("line.separator")).join(this.callbackedErrorMessages);
             throw new ScriptException(mess);
         }
 
         return resultValue;
+    }
+
+    @Override
+    public Object eval(Reader reader, ScriptContext context) throws ScriptException {
+        String s;
+        try {
+            s = CharStreams.toString(reader);
+        } catch (IOException ex) {
+            throw new ScriptException(ex);
+        }
+        return eval(s, context);
     }
 
     private void assignArguments(Bindings bindings) {
@@ -134,7 +154,7 @@ public class PARScriptEngine extends RScriptEngine {
             return;
         }
         try {
-            super.engine.assign("args", new REXPString(args));
+            engine.assign("args", new REXPString(args));
         } catch (REXPMismatchException e) {
             e.printStackTrace();
         } catch (REngineException e) {
@@ -148,10 +168,9 @@ public class PARScriptEngine extends RScriptEngine {
             return;
         }
         try {
-            super.engine.parseAndEval("{ library(rJava); .jinit() }");
-            super.engine.assign("jTaskProgress", new REXPJavaReference(progress));
-            super.engine
-                    .parseAndEval("set_progress = function(x) { .jcall(jTaskProgress, \"V\", \"set\", as.integer(x)) }");
+            engine.parseAndEval("{ library(rJava); .jinit() }");
+            engine.assign("jTaskProgress", new REXPJavaReference(progress));
+            engine.parseAndEval("set_progress = function(x) { .jcall(jTaskProgress, \"V\", \"set\", as.integer(x)) }");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -174,7 +193,7 @@ public class PARScriptEngine extends RScriptEngine {
         }
         try {
             REXP rexp = RexpConvert.jobj2rexp(resultsMap);
-            super.engine.assign(TaskScript.RESULTS_VARIABLE, rexp);
+            engine.assign(TaskScript.RESULTS_VARIABLE, rexp);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -191,8 +210,8 @@ public class PARScriptEngine extends RScriptEngine {
         }
         try {
             String path = convertToRPath(dsfo);
-            super.engine.parseAndEval("setwd('" + path + "')");
-            super.engine.assign("localspace", new REXPString(path));
+            engine.parseAndEval("setwd('" + path + "')");
+            engine.assign("localspace", new REXPString(path));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -210,7 +229,7 @@ public class PARScriptEngine extends RScriptEngine {
             path = dsfo.getRealURI();
         }
         try {
-            super.engine.assign("userspace", new REXPString(path));
+            engine.assign("userspace", new REXPString(path));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -228,7 +247,7 @@ public class PARScriptEngine extends RScriptEngine {
             path = dsfo.getRealURI();
         }
         try {
-            super.engine.assign("globalspace", new REXPString(path));
+            engine.assign("globalspace", new REXPString(path));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -246,7 +265,7 @@ public class PARScriptEngine extends RScriptEngine {
             path = dsfo.getRealURI();
         }
         try {
-            super.engine.assign("inputspace", new REXPString(path));
+            engine.assign("inputspace", new REXPString(path));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -264,13 +283,15 @@ public class PARScriptEngine extends RScriptEngine {
             path = dsfo.getRealURI();
         }
         try {
-            super.engine.assign("outputspace", new REXPString(path));
+            engine.assign("outputspace", new REXPString(path));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    /** R paths are not antislash friendly */
+    /**
+     * R paths are not antislash friendly
+     */
     private String convertToRPath(DataSpacesFileObject dsfo) throws Exception {
         String path = dsfo.getRealURI();
         URI uri = new URI(path);
@@ -295,5 +316,37 @@ public class PARScriptEngine extends RScriptEngine {
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
+    }
+
+    // REngineOutputInterface methods
+    @Override
+    public void RFlushConsole(REngine eng) {
+        Writer writer = getContext().getWriter();
+        try {
+            writer.flush();
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
+
+    @Override
+    public void RShowMessage(REngine eng, String msg) {
+        Writer writer = getContext().getErrorWriter();
+        try {
+            writer.write(msg);
+            writer.flush();
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
+
+    @Override
+    public Bindings createBindings() {
+        return new SimpleBindings();
+    }
+
+    @Override
+    public ScriptEngineFactory getFactory() {
+        return this.factory;
     }
 }
