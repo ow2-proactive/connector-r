@@ -177,7 +177,7 @@ public class RexpConvert {
     /**
      * Convert from R expression to boolean[].
      */
-    private static boolean[] asBooleans(REXP rexp) {
+    static boolean[] asBooleans(REXP rexp) {
         return ((REXPLogical) rexp).isTRUE();
     }
 
@@ -185,7 +185,7 @@ public class RexpConvert {
      * Convert from R expression to Java List.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static List asList(REXP rexp) throws REXPMismatchException {
+    static List asList(REXP rexp) throws REXPMismatchException {
         RList rlist = rexp.asList();
         List list = new ArrayList(rlist.size());
         for (Object o : rlist) {
@@ -198,7 +198,7 @@ public class RexpConvert {
      * Convert from R expression to Java Map.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static Map asMap(REXP rexp) throws REXPMismatchException {
+    static Map asMap(REXP rexp) throws REXPMismatchException {
         RList rlist = rexp.asList();
         int len = rlist.size();
         Map map = new LinkedHashMap(len * 2);
@@ -213,7 +213,7 @@ public class RexpConvert {
     /**
      * Convert from R expression to Java array.
      */
-    private static Object asArray(REXP rexp, Class<?> type) throws REXPMismatchException {
+    static Object asArray(REXP rexp, Class<?> type) throws REXPMismatchException {
         RList rlist = rexp.asList();
         int len = rlist.size();
         Object array = Array.newInstance(type, len);
@@ -227,7 +227,7 @@ public class RexpConvert {
     /**
      * Convert from R expression to Java RObject.
      */
-    private static Object asRObject(REXP rexp, Class<?> type) {
+    static Object asRObject(REXP rexp, Class<?> type) {
         try {
             RList rlist = rexp.asList();
             Object obj = type.newInstance();
@@ -249,7 +249,7 @@ public class RexpConvert {
     /**
      * Convert from R expression to Java Bean. No real checking.
      */
-    private static Object asBean(REXP rexp, Class<?> type) {
+    static Object asBean(REXP rexp, Class<?> type) {
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(type);
             PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();
@@ -280,7 +280,7 @@ public class RexpConvert {
      * Convert from R expression to Java Enum.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static Enum asEnum(REXP rexp, Class<?> type) throws REXPMismatchException {
+    static Enum asEnum(REXP rexp, Class<?> type) throws REXPMismatchException {
         return Enum.valueOf((Class<Enum>) type, rexp.asString());
     }
 
@@ -335,7 +335,7 @@ public class RexpConvert {
     /**
      * Convert from Java double matrix to R expression.
      */
-    private static REXP matrix2rexp(double[][] mat) {
+    static REXP matrix2rexp(double[][] mat) {
         int nrow = mat.length;
         int ncol = mat[0].length;
         double[] ret = new double[ncol * nrow];
@@ -353,7 +353,7 @@ public class RexpConvert {
     /**
      * Convert from Java Map to R expression.
      */
-    private static REXP map2rexp(Map<?, ?> map) {
+    static REXP map2rexp(Map<?, ?> map) {
         int len = map.size();
         String[] names = new String[len];
         REXP[] rexps = new REXP[len];
@@ -369,14 +369,14 @@ public class RexpConvert {
     /**
      * Convert name value pairs to R expression.
      */
-    private static REXP namevalues2rexp(String[] names, REXP[] rexps) {
+    static REXP namevalues2rexp(String[] names, REXP[] rexps) {
         return new REXPGenericVector(new RList(rexps, names));
     }
 
     /**
      * Convert from Java List to R expression.
      */
-    private static REXP list2rexp(Collection<?> list) {
+    static REXP list2rexp(Collection<?> list) {
         List<REXP> rexps = new ArrayList<REXP>(list.size());
         for (Object o : list) {
             rexps.add(jobj2rexp(o));
@@ -387,7 +387,7 @@ public class RexpConvert {
     /**
      * Convert from Java Array to R expression.
      */
-    private static REXP array2rexp(Object array) {
+    static REXP array2rexp(Object array) {
         Class<?> type = array.getClass();
         if (type == Boolean[].class) {
             return jobj2rexp(copyArray(array, boolean[].class));
@@ -404,7 +404,7 @@ public class RexpConvert {
     /**
      * Copy array contents to new array type.
      */
-    private static <T> T copyArray(Object array, Class<T> newType) {
+    static <T> T copyArray(Object array, Class<T> newType) {
         int length = Array.getLength(array);
         @SuppressWarnings("unchecked")
         T array2 = (T) Array.newInstance(newType.getComponentType(), length);
@@ -418,7 +418,7 @@ public class RexpConvert {
     /**
      * Convert from Java RObject to R expression.
      */
-    private static REXP robject2rexp(Object obj) {
+    static REXP robject2rexp(Object obj) {
         Field[] fields = obj.getClass().getFields();
         int len = fields.length;
         REXP[] rexps = new REXP[len];
@@ -437,7 +437,7 @@ public class RexpConvert {
     /**
      * Convert from Java Bean to R expression.
      */
-    private static REXP bean2rexp(Object obj) {
+    static REXP bean2rexp(Object obj) {
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
             PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();

@@ -5,6 +5,7 @@ import com.google.common.io.CharStreams;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.Writer;
 import java.net.URI;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     public static final String DS_OUTPUT_BINDING_NAME = "output";
     public static final String DS_GLOBAL_BINDING_NAME = "global";
     public static final String DS_USER_BINDING_NAME = "user";
+    public static final String TASK_SCRIPT_VARIABLES = "variables";
 
     /**
      * Initially we don't know how many messages will be callbacked
@@ -106,6 +108,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         this.assignGlobalSpace(bindings);
         this.assignInputSpace(bindings);
         this.assignOutputSpace(bindings);
+        Map<String,Serializable> variablesMap = this.assignVariables(bindings);
 
         Object resultValue;
         try {
@@ -125,7 +128,15 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 // default
             }
             bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
+                        
+            // Retrieve variables map from R and merge them with the java one
+            if (variablesMap != null) {
+                REXP variablesRexp = engine.get(TASK_SCRIPT_VARIABLES, null, true);
+                Map newMap = RexpConvert.asMap(variablesRexp);
+                variablesMap.putAll(newMap);
+            }
         } catch (Exception rme) {
+            rme.printStackTrace();
             throw new ScriptException(rme);
         }
 
@@ -197,6 +208,19 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    private Map<String, Serializable> assignVariables(Bindings bindings) {
+         Map<String, Serializable> variables = (Map<String, Serializable>)bindings.get(TASK_SCRIPT_VARIABLES);
+         if (variables != null) {
+             try {
+                 REXP rexp = RexpConvert.jobj2rexp(variables);
+                 engine.assign(TASK_SCRIPT_VARIABLES, rexp);
+             } catch (Exception e) {
+                 e.printStackTrace();
+             }
+         }
+         return variables;
     }
 
     /**
@@ -287,7 +311,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }    
 
     /**
      * R paths are not antislash friendly
