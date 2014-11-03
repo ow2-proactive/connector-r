@@ -142,6 +142,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
 
         if (!this.callbackedErrorMessages.isEmpty()) {
             String mess = Joiner.on(System.getProperty("line.separator")).join(this.callbackedErrorMessages);
+            this.callbackedErrorMessages.clear();
             throw new ScriptException(mess);
         }
 
