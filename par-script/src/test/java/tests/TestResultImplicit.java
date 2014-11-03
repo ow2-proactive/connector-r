@@ -2,13 +2,13 @@ package tests;
 
 import java.io.Serializable;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ow2.parscript.PARScriptFactory;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 
 /**
@@ -22,7 +22,7 @@ public class TestResultImplicit {
     @Test
     public void testResult() throws Exception {
         double expectedResult = 1d;
-        String rScript = "v=" + expectedResult;
+        String rScript = "rm(list = ls()); v=" + expectedResult;
 
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);

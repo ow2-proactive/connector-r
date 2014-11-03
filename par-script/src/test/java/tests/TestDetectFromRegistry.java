@@ -7,14 +7,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ow2.parscript.PARScriptFactory;
 import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
+import org.junit.Test;
 
 
 /**
@@ -22,7 +20,6 @@ import org.ow2.proactive.scripting.TaskScript;
  *
  * @author Activeeon Team
  */
-@RunWith(JUnit4.class)
 public class TestDetectFromRegistry {
 
     public static String TAG = "test.detect.registry";
@@ -71,7 +68,7 @@ public class TestDetectFromRegistry {
             ScriptResult<Serializable> res = taskScript.execute();
 
             org.junit.Assert.assertEquals("The detection of R homedir from Windows Registry is broken",
-                    "mingw32", (String) res.getResult());
+                    "mingw32", res.getResult());
         }
     }
 }

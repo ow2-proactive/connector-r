@@ -4,14 +4,12 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ow2.parscript.PARScriptFactory;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 /**
@@ -19,7 +17,6 @@ import org.ow2.proactive.scripting.TaskScript;
  *
  * @author Activeeon Team
  */
-@RunWith(JUnit4.class)
 public class TestArgs {
 
     @Test
@@ -33,6 +30,6 @@ public class TestArgs {
         ScriptResult<Serializable> res = taskScript.execute(aBindings);
 
         Assert.assertEquals("The arguments are not transfered by the engine to the script", args[2],
-                (String) res.getResult());
+          res.getResult());
     }
 }

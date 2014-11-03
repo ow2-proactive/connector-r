@@ -7,9 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.objectweb.proactive.extensions.dataspaces.api.Capability;
 import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
 import org.objectweb.proactive.extensions.dataspaces.api.FileContent;
@@ -22,6 +19,7 @@ import org.ow2.parscript.PARScriptFactory;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
+import org.junit.Test;
 
 
 /**
@@ -29,7 +27,6 @@ import org.ow2.proactive.scripting.TaskScript;
  *
  * @author Activeeon Team
  */
-@RunWith(JUnit4.class)
 public class TestLocalspace {
 
     @Test

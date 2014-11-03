@@ -6,9 +6,6 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ow2.parscript.PARScriptFactory;
 import org.ow2.proactive.scheduler.common.job.JobId;
 import org.ow2.proactive.scheduler.common.task.TaskId;
@@ -18,6 +15,7 @@ import org.ow2.proactive.scheduler.common.task.flow.FlowAction;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
+import org.junit.Test;
 
 
 /**
@@ -27,7 +25,6 @@ import org.ow2.proactive.scripting.TaskScript;
  *
  * @author Activeeon Team
  */
-@RunWith(JUnit4.class)
 public class TestResults {
     @Test
     public void test() throws Exception {

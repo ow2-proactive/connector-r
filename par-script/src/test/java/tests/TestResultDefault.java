@@ -2,13 +2,11 @@ package tests;
 
 import java.io.Serializable;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ow2.parscript.PARScriptFactory;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
+import org.junit.Test;
 
 
 /**
@@ -16,12 +14,11 @@ import org.ow2.proactive.scripting.TaskScript;
  *
  * @author Activeeon Team
  */
-@RunWith(JUnit4.class)
 public class TestResultDefault {
 
     @Test
     public void testResult() throws Exception {
-        String rScript = "";
+        String rScript = "rm(list = ls())";
 
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
