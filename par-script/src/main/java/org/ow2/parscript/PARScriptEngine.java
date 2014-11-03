@@ -139,12 +139,20 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             rme.printStackTrace();
             throw new ScriptException(rme);
         }
+        
+        // Change working dir to avoid keeping a file handle
+        try {
+            String tmp = System.getProperty("java.io.tmpdir").replace("\\","/");
+            engine.parseAndEval("setwd('" + tmp + "')");
+        } catch (Exception e) {
+            throw new ScriptException(e);
+        }
 
         if (!this.callbackedErrorMessages.isEmpty()) {
             String mess = Joiner.on(System.getProperty("line.separator")).join(this.callbackedErrorMessages);
             this.callbackedErrorMessages.clear();
             throw new ScriptException(mess);
-        }
+        }                        
 
         return resultValue;
     }
@@ -308,7 +316,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             path = dsfo.getRealURI();
         }
         try {
-            engine.assign("outputspace", new REXPString(path));
+            engine.assign("outputspace", new REXPString(path));            
         } catch (Exception e) {
             e.printStackTrace();
         }
