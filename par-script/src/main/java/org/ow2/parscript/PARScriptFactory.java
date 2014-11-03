@@ -41,19 +41,18 @@ public final class PARScriptFactory implements ScriptEngineFactory {
         if (key == null) {
             return null;
         }
-        switch (key) {
-            case NAME:
-                return ENGINE_NAME;
-            case ENGINE:
-                return getEngineName();
-            case ScriptEngine.ENGINE_VERSION:
-                return getEngineVersion();
-            case LANGUAGE:
-                return getLanguageName();
-            case ScriptEngine.LANGUAGE_VERSION:
-                return getLanguageVersion();
-            default:
-                return null;
+        if (key.equals(NAME)) {
+            return ENGINE_NAME;
+        } else if (key.equals(ENGINE)) {
+            return getEngineName();
+        } else if (key.equals(ScriptEngine.ENGINE_VERSION)) {
+            return getEngineVersion();
+        } else if (key.equals(LANGUAGE)) {
+            return getLanguageName();
+        } else if (key.equals(ScriptEngine.LANGUAGE_VERSION)) {
+            return getLanguageVersion();
+        } else {
+            return null;
         }
     }
 
