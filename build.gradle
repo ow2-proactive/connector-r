@@ -1,7 +1,5 @@
 apply plugin: 'java'
 
-defaultTasks 'clean', 'build'
-
 buildscript {
     repositories {
         if (project.hasProperty('local')) {
@@ -12,26 +10,25 @@ buildscript {
     }
 }
 
-allprojects {
-    configurations {
-        addons
-    }
-    
-    // rosuda jars are required for both par-connector and par-script
-    dependencies {
-        addons "org.rosuda:jriengine:0.5.x"
-        addons "org.rosuda:jri:0.5.x"
-        addons "org.rosuda:rengine:1.7.x"
-    }
-}
-
 subprojects {
-    //apply plugin: 'base'
+    apply plugin: 'maven'
+
     group = 'org.ow2.proactive.r_connector'
     version = "${r_connectorVersion}"
 
     rootProject.buildscript.repositories.each {
         repositories.add(it)
+    }
+
+    configurations {
+        addons
+    }
+
+    // rosuda jars are required for both par-connector and par-script
+    dependencies {
+        addons "org.rosuda:jriengine:0.5.x"
+        addons "org.rosuda:jri:0.5.x"
+        addons "org.rosuda:rengine:1.7.x"
     }
 }
 
@@ -57,9 +54,10 @@ project(':par-script') {
 }
 
 project(':par-connector') {
+    apply plugin: 'base'
+
     configurations {
         scheduler
-        
         restJars
     }
 
@@ -70,29 +68,108 @@ project(':par-connector') {
         restJars "org.ow2.proactive_grid_cloud_portal:rest-client:${schedulingVersion}"
     }
 
-    def noScheduler = System.getProperty('noScheduler') != null
-
     def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
     def isMac = System.properties['os.name'].toLowerCase().contains('mac')
     def isLinux = System.properties['os.name'].toLowerCase().contains('linux')
-    def jHome = System.getenv('JAVA_HOME')
-    def rHome = System.getenv('R_HOME') 
-    def rLibs = System.getenv('R_LIBS')
+
+    def rHome = System.getenv('R_HOME')
     def schedHome = "${rootProject.buildDir}/scheduler"
+
+    def rSrc = "${buildDir}/r-pkg-src"
 
     def rExec
     def rScript
-    def env = [:]
-    def schedProcess
-    def packageFile
-    
-    // Remove stuff from previous builds
-    task clean << {
-        delete "${buildDir}"
+    if (isWindows) {
+        def ARCH = System.getenv('ProgramFiles(x86)') != null ? 'x64' : 'i386'
+        rExec = rHome ? rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'R.exe' : 'R.exe'
+        rScript = rHome ? rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'Rscript.exe' : 'Rscript.exe'
+    } else {
+        rExec = rHome ? rHome + File.separator + 'bin' + File.separator + 'R' : 'R'
+        rScript = rHome ? rHome + File.separator + 'bin' + File.separator + 'Rscript' : 'Rscript'
     }
-    
+
+    def env = [:]
+    env.putAll(System.getenv())
+    if (!isMac) {
+        env.put('JAVA_HOME', env.get('JAVA_HOME') + File.separator + 'jre')
+    }
+    if (isLinux) {
+        def ldLib
+        if (System.getProperty('os.arch').contains('64')) {
+            ldLib = new File(env.get('JAVA_HOME'), 'lib/amd64/server')
+        } else {
+            ldLib = new File(env.get('JAVA_HOME'), 'lib/i386/client')
+        }
+        assert ldLib.exists(): 'Cannot locate LD_LIBRARY_PATH ' + ldLib.getAbsolutePath()
+        env.put('LD_LIBRARY_PATH', ldLib.getAbsolutePath())
+    }
+
+    def schedProcess
+
+    task copyRSources(type: Copy){
+        from fileTree("${projectDir}/src/main/r")
+        into rSrc
+    }
+
+    task copyRDependencies(type: Copy) {
+        from configurations.restJars
+        into "${rSrc}/inst/java"
+    }
+
+    task checkRPackage(type: Exec, dependsOn: [copyRSources, copyRDependencies]) {
+        inputs.dir(rSrc)
+        outputs.dir(buildDir)
+        workingDir buildDir
+        commandLine rExec, 'CMD', 'check', '--no-codoc', '--no-manual', '--no-multiarch', rSrc
+        environment env
+    }
+
+    task buildRPackage(type: Exec, dependsOn: [copyRSources, copyRDependencies, checkRPackage]) {
+        inputs.dir(rSrc)
+        outputs.dir(buildDir)
+        workingDir buildDir
+        commandLine rExec, 'CMD', 'INSTALL', '--build', '--preclean', '--with-keep.source', '--no-multiarch', rSrc
+        environment env
+    }
+    task build(dependsOn: buildRPackage)
+
+    task reinstallRPackage(dependsOn: buildRPackage) << {
+        def rLibs
+        if (isWindows) {
+            rLibs = new File(rHome, 'library')
+        } else {
+            assert System.getenv('R_LIBS') : 'R_LIBS must be defined'
+            rLibs = file(System.getenv('R_LIBS'))
+        }
+        assert rLibs.exists(): 'Unable to locate r libs'
+
+        logger.info('Removing previous installation ...')
+        exec {
+            workingDir buildDir
+            commandLine rExec, 'CMD', 'REMOVE', '--library=' + rLibs.getAbsolutePath(), 'PARConnector'
+            environment env
+        }
+
+        logger.info('Reinstallling ...')
+        def packageFile = file(buildDir).listFiles().find {
+            it.name.endsWith('tar.gz') ||
+                    it.name.endsWith('tgz') ||
+                    it.name.endsWith('zip') }
+        exec {
+            workingDir buildDir
+            commandLine rExec, 'CMD', 'INSTALL', '--no-multiarch', '--library=' + rLibs.getAbsolutePath(), packageFile.getAbsolutePath()
+            environment env
+        }
+    }
+
+    task installJars(type: Copy) {
+        from project(':par-script').jar
+        from configurations.addons
+        into "${schedHome}/addons"
+    }
+
     // The following task will unzip the scheduler project into build/scheduler dir
-    task distScheduler (type: Copy) {
+    task distScheduler(type: Copy) {
         from mainArtifactsAsZipTree(configurations.scheduler)
         into "${rootProject.buildDir}/scheduler"
         eachFile { fileCopyDetails ->
@@ -101,114 +178,7 @@ project(':par-connector') {
         includeEmptyDirs = false
     }
 
-    task propertyCheck(dependsOn: [distScheduler, project(':par-script').test, project(':par-script').build]) << {
-        println 'Checking required environment variables'
-        assert jHome != null : 'Environment variable JAVA_HOME is not set'
-        assert file(jHome).exists() != null : 'The path given by JAVA_HOME does not exists'
-        assert rHome != null : 'Environment variable R_HOME is not set'
-        assert rLibs != null : 'Environment variable R_LIBS is not set' // todo this should be optional        
-    }
-
-    task setEnv(dependsOn: propertyCheck) << {
-        System.getenv().each() { k,v ->
-            env.put(k, v)
-        }
-        if (!isMac) {
-            env.put('JAVA_HOME', env.get('JAVA_HOME') + File.separator + 'jre')
-        }
-        if (isLinux) {
-            def ldLib
-            if (System.getProperty('os.arch').contains('64')) {
-                ldLib = new File(env.get('JAVA_HOME'), 'lib/amd64/server')
-            } else {
-                ldLib = new File(env.get('JAVA_HOME'), 'lib/i386/client')
-            }
-            assert ldLib.exists() : 'Cannot locate LD_LIBRARY_PATH ' + ldLib.getAbsolutePath()
-            env.put('LD_LIBRARY_PATH', ldLib.getAbsolutePath())
-        }
-    }
-
-    task setRExec(dependsOn: setEnv) << {
-        if (isWindows) {
-            def ARCH = System.getenv('ProgramFiles(x86)') != null ? 'x64' : 'i386'
-            rExec = rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'R.exe'
-            rScript = rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'Rscript.exe'
-        } else {
-            rExec = rHome + File.separator + 'bin' + File.separator + 'R'
-            rScript = rHome + File.separator + 'bin' + File.separator + 'Rscript'
-        }
-    }
-
-    task pkg(dependsOn: setRExec) << {
-        def rSrc = "${buildDir}/r-pkg-src"
-        copy { // toolbox sources
-            from "${projectDir}/src/main/r"
-            into rSrc
-        }
-        copy { // jars for rest client
-            from configurations.restJars
-            into "${rSrc}/inst/java"
-        }
-
-        println 'Checking R add-on package ...'
-        exec {
-            workingDir buildDir
-            commandLine rExec, 'CMD', 'check', '--no-codoc', '--no-manual', '--no-multiarch', 'PARConnector'
-            environment env
-        }
-
-        println 'Building R add-on package ...'
-        exec {
-            workingDir buildDir
-            commandLine rExec, 'CMD', 'INSTALL', '--build', '--preclean', '--with-keep.source', '--no-multiarch', rSrc
-            environment env
-        }
-        
-        packageFile = file(buildDir).listFiles().find { 
-                        it.name.endsWith('tar.gz') ||
-                        it.name.endsWith('tgz') ||
-                        it.name.endsWith('zip') }
-
-        assert packageFile.exists() : 'Cannot locate PARConnector package. Probably it was not built ...'
-    }
-
-    task reinstallRPackage(dependsOn: pkg) << {
-        if (isWindows) {
-            rLibs = new File(rHome, 'library')
-        } else  {
-            rLibs = file(rLibs)
-        }
-        assert rLibs.exists() : 'Unable to locate r libs'
-        
-        println 'Removing previous installation ...'
-        exec {
-            workingDir buildDir
-            commandLine rExec, 'CMD', 'REMOVE', '--library=' + rLibs.getAbsolutePath() , 'PARConnector'
-            environment env
-        }
-
-        println 'Reinstallling ...'
-        exec {
-            workingDir buildDir
-            commandLine rExec, 'CMD', 'INSTALL', '--no-multiarch', '--library=' + rLibs.getAbsolutePath(), packageFile.getAbsolutePath()
-            environment env
-        }
-    }
-
-    task installJars(dependsOn: reinstallRPackage) << {
-        assert project(':par-script').jar.archivePath.exists() : "par-script jar file does not exist."
-        copy {
-            println "Installing jars from: ${rootDir}/par-script/build/libs/"
-            from project(':par-script').jar.archivePath
-            from configurations.addons
-            into "${schedHome}/addons"
-        }
-    }
-
-    task startScheduler(dependsOn: installJars) << {
-        if (noScheduler) {
-            return
-        }
+    task startScheduler(dependsOn: [distScheduler, installJars, reinstallRPackage]) << {
         schedProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive.scheduler.util.SchedulerStarter', '-ln', '2'].execute(null, new File(schedHome))
         try {
             schedProcess.inputStream.eachLine {
@@ -217,14 +187,16 @@ project(':par-connector') {
                     throw new Exception()
                 }
             }
-        } catch (e) {}
+        } catch (ignored) {
+        }
 
         try {
             int value = schedProcess.exitValue();
             if (value != 0) {
                 throw new Exception('Could not start the Scheduler java exited with code ' + value);
             }
-        } catch (IllegalThreadStateException e) {/* the process is still running */}
+        } catch (IllegalThreadStateException e) {/* the process is still running */
+        }
     }
 
     task runFuncTests(dependsOn: startScheduler) << {
@@ -233,7 +205,7 @@ project(':par-connector') {
             funcTestsDir.listFiles().each {
                 if (it.getName().startsWith('test')) {
                     println '\n######################\n#   RUNNING functional test ' + it + ' ... \n######################'
-                    def toRun = ""+it.getAbsolutePath()
+                    def toRun = "" + it.getAbsolutePath()
                     exec {
                         workingDir funcTestsDir
                         commandLine rScript, '--slave', '--verbose', '--no-save', '--no-restore-history', toRun, 'QUITONERROR'
@@ -242,29 +214,27 @@ project(':par-connector') {
                 }
             }
         } finally {
-            if (!noScheduler) {
-                println '\n######################\n#   SHUTTING down the Scheduler ... \n######################'
-                // Use client to remove 'LocalNodes' node source to avoid orphan nodes processes
-                def clientProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive_grid_cloud_portal.cli.CommonEntryPoint',
-                 '-l', 'admin', '-p', 'admin', '-r', 'LocalNodes'].execute(null, new File(schedHome))
-                try {
-                    clientProcess.inputStream.eachLine {
-                        println '>> ' + it
-                        if (it.contains('deleted successfully'))
-                            throw new Exception()
-                    }
-                } catch (e) {}
-                schedProcess.destroy();
+            println '\n######################\n#   SHUTTING down the Scheduler ... \n######################'
+            // Use client to remove 'LocalNodes' node source to avoid orphan nodes processes
+            def clientProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive_grid_cloud_portal.cli.CommonEntryPoint',
+                                 '-l', 'admin', '-p', 'admin', '-r', 'LocalNodes'].execute(null, new File(schedHome))
+            try {
+                clientProcess.inputStream.eachLine {
+                    println '>> ' + it
+                    if (it.contains('deleted successfully'))
+                        throw new Exception()
+                }
+            } catch (e) {
             }
+            schedProcess.destroy();
         }
     }
-    task build(dependsOn: runFuncTests)
 }
 
 def mainArtifacts(configuration) {
     configuration.resolvedConfiguration.firstLevelModuleDependencies.moduleArtifacts.file
 }
 
-def mainArtifactsAsZipTree(configuration) { 
+def mainArtifactsAsZipTree(configuration) {
     zipTree(mainArtifacts(configuration)[0][0])
 }
