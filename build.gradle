@@ -107,7 +107,6 @@ project(':par-connector') {
         } else {
             ldLib = new File(env.get('JAVA_HOME'), 'lib/i386/client')
         }
-        assert ldLib.exists(): 'Cannot locate LD_LIBRARY_PATH ' + ldLib.getAbsolutePath()
         env.put('LD_LIBRARY_PATH', ldLib.getAbsolutePath())
     }
 
