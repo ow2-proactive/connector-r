@@ -1,6 +1,7 @@
 package org.ow2.parscript;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.StandardSystemProperty;
 import com.google.common.io.CharStreams;
 import java.io.File;
 import java.io.IOException;
@@ -108,9 +109,10 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         this.assignGlobalSpace(bindings);
         this.assignInputSpace(bindings);
         this.assignOutputSpace(bindings);
-        Map<String,Serializable> variablesMap = this.assignVariables(bindings);
+        Map<String, Serializable> variablesMap = this.assignVariables(bindings);
 
-        Object resultValue;
+        Exception nonUserFatalEx = null;
+        Object resultValue = false;
         try {
             REXP rexp = engine.parseAndEval(script);
             // If the 'result' variable is explicitly defined in the global
@@ -128,31 +130,40 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 // default
             }
             bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
-                        
+
             // Retrieve variables map from R and merge them with the java one
             if (variablesMap != null) {
                 REXP variablesRexp = engine.get(TASK_SCRIPT_VARIABLES, null, true);
                 Map newMap = RexpConvert.asMap(variablesRexp);
                 variablesMap.putAll(newMap);
             }
-        } catch (Exception rme) {
-            rme.printStackTrace();
-            throw new ScriptException(rme);
-        }
-        
-        // Change working dir to avoid keeping a file handle
-        try {
-            String tmp = System.getProperty("java.io.tmpdir").replace("\\","/");
-            engine.parseAndEval("setwd('" + tmp + "')");
         } catch (Exception e) {
-            throw new ScriptException(e);
+            nonUserFatalEx = new IllegalStateException("A non user fatal exception has occured during script execution", e);
         }
 
+        // Fix for PRC-30: Always change working dir to avoid keeping a file handle on task temp dir
+        try {
+            engine.parseAndEval("setwd(tempdir())");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Fix for PRC-29: Always clean errors to avoid side-effect for consecutive execution
         if (!this.callbackedErrorMessages.isEmpty()) {
-            String mess = Joiner.on(System.getProperty("line.separator")).join(this.callbackedErrorMessages);
+            StringBuilder errBld = new StringBuilder();
+            String sp = StandardSystemProperty.LINE_SEPARATOR.value();
+            Joiner.on(sp).appendTo(errBld, this.callbackedErrorMessages);
             this.callbackedErrorMessages.clear();
-            throw new ScriptException(mess);
-        }                        
+            if (nonUserFatalEx != null) {
+                errBld.append(sp).append(nonUserFatalEx);
+            }
+            throw new ScriptException(errBld.toString());
+        }
+
+        // If non user fatal exception throw it
+        if (nonUserFatalEx != null) {
+            throw new ScriptException(nonUserFatalEx);
+        }
 
         return resultValue;
     }
@@ -218,18 +229,18 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             e.printStackTrace();
         }
     }
-    
+
     private Map<String, Serializable> assignVariables(Bindings bindings) {
-         Map<String, Serializable> variables = (Map<String, Serializable>)bindings.get(TASK_SCRIPT_VARIABLES);
-         if (variables != null) {
-             try {
-                 REXP rexp = RexpConvert.jobj2rexp(variables);
-                 engine.assign(TASK_SCRIPT_VARIABLES, rexp);
-             } catch (Exception e) {
-                 e.printStackTrace();
-             }
-         }
-         return variables;
+        Map<String, Serializable> variables = (Map<String, Serializable>) bindings.get(TASK_SCRIPT_VARIABLES);
+        if (variables != null) {
+            try {
+                REXP rexp = RexpConvert.jobj2rexp(variables);
+                engine.assign(TASK_SCRIPT_VARIABLES, rexp);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return variables;
     }
 
     /**
@@ -316,11 +327,11 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             path = dsfo.getRealURI();
         }
         try {
-            engine.assign("outputspace", new REXPString(path));            
+            engine.assign("outputspace", new REXPString(path));
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }    
+    }
 
     /**
      * R paths are not antislash friendly
