@@ -14,7 +14,7 @@ subprojects {
     apply plugin: 'maven'
 
     group = 'org.ow2.proactive.r_connector'
-    version = "${r_connectorVersion}"
+    version = "${rConnectorVersion}"
 
     rootProject.buildscript.repositories.each {
         repositories.add(it)
