@@ -72,9 +72,9 @@ setMethod("setScript", "PATask",
 setMethod("getQuoteExp", "PATask",
           function(object) {
             if (object@scatter.index == 0) {
-              return(bquote(results[[.(getName(object))]]))
+              return(bquote(unserialize(results[[.(getName(object))]])))
             } else {
-              return(bquote(results[[.(getName(object))]][[.(object@scatter.index)]]))                       
+              return(bquote(unserialize(results[[.(getName(object))]])[[.(object@scatter.index)]]))
             }
           } 
 )

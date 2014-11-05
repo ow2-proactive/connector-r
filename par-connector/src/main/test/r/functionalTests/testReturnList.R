@@ -2,8 +2,6 @@ source("./utils.r")
 
 connectForTests()
 
-PADebug(F)
-
 f <- function(x) list(1, 2)
 
 res <- PASolve(f, 1)
