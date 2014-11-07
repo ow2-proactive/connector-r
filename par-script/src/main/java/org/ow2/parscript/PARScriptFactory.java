@@ -26,7 +26,7 @@ public final class PARScriptFactory implements ScriptEngineFactory {
     public static final String R_FILE_EXTENSION = "R";
     public static final List<String> R_MIME_TYPES = null;
 
-    public PARScriptFactory(){
+    public PARScriptFactory() {
         // Initialize the engine as soon as possible
         this.getScriptEngine();
     }
@@ -63,27 +63,10 @@ public final class PARScriptFactory implements ScriptEngineFactory {
 
     @Override
     public ScriptEngine getScriptEngine() {
-        ScriptEngine eng = (ScriptEngine) System.getProperties().get(ENGINE_NAME);
-        if (eng != null) {
-            return eng;
-        }
-
-        // Check if the path to rJava is already setted
-        String libPath = System.getProperty("java.library.path");
-        if (libPath == null || !libPath.contains("jri")) {
-            try {
-                RLibPathConfigurator.configureLibraryPath();
-            } catch (Exception e) {
-                throw new IllegalStateException("Unable to configure the library path for R", e);
-            }
-        }
-        Properties props = System.getProperties();
         try {
-            PARScriptEngine e = PARScriptEngine.create(this);
-            props.put(ENGINE_NAME, e);
-            return e;
+            return PARScriptEngine.create(this);
         } catch (Exception e) {
-             throw new RuntimeException("Unable to create the PARScriptEngine" , e);
+            throw new RuntimeException("Unable to create the PARScriptEngine", e);
         }
     }
 
