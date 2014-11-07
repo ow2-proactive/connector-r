@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.io.Writer;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,13 +16,11 @@ import javax.script.AbstractScriptEngine;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
-import static org.ow2.parscript.PARScriptFactory.ENGINE_NAME;
 import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scripting.Script;
@@ -31,11 +28,9 @@ import org.ow2.proactive.scripting.TaskScript;
 import org.rosuda.REngine.JRI.JRIEngine;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPJavaReference;
-import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.REngine;
 import org.rosuda.REngine.REngineCallbacks;
-import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.REngineOutputInterface;
 
 /**
@@ -65,7 +60,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     private JRIEngine engine;
 
     /**
-     * Create a instance of the JREngine by reflection. This method is not
+     * Creates a instance of the PARScriptEngine, that wraps an instance of JRIEngine. This method is not
      * thread-safe.
      *
      * @return the instance of the engine
