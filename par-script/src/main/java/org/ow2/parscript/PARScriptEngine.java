@@ -59,9 +59,11 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
      */
     private JRIEngine engine;
 
+    private String lastErrorMessage;
+
     /**
-     * Creates a instance of the PARScriptEngine, that wraps an instance of JRIEngine. This method is not
-     * thread-safe.
+     * Creates a instance of the PARScriptEngine, that wraps an instance of
+     * JRIEngine. This method is not thread-safe.
      *
      * @return the instance of the engine
      */
@@ -87,7 +89,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
 
         PARScriptEngine e = new PARScriptEngine(factory);
         try {
-            e.engine = (JRIEngine) JRIEngine.createEngine(args, e, /* runREPL */ true);
+            e.engine = (JRIEngine) JRIEngine.createEngine(args, e, /* runREPL */ false);
         } catch (Exception ex) {
             throw new IllegalStateException("Unable to instantiate the JRIEngine", ex);
         }
@@ -122,14 +124,16 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         this.assignOutputSpace(bindings, ctx);
         Map<String, Serializable> variablesMap = this.assignVariables(bindings, ctx);
 
-        Object resultValue = false;
-        REXP rexp = null;
         try {
-            rexp = engine.parseAndEval(script);
-        } catch (Exception ex) {
-            this.writeExceptionToError(ex, ctx);
-            throw new ScriptException(ex.getMessage());
-        } finally {
+            Object resultValue = false;
+
+            REXP rexp = this.engine.parseAndEval(script);
+
+            // PRC-32 A ScriptException() must be thrown if the script calls stop() function
+            Exception toThrow = null;
+            if (this.lastErrorMessage != null) {
+                toThrow = new ScriptException(this.lastErrorMessage);
+            }
 
             // If the 'result' variable is explicitly defined in the global
             // environment it is considered as the task result instead of the
@@ -145,6 +149,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                     resultValue = true; // TaskResult.getResult() returns true by default
                 }
                 bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
+
                 // Retrieve variables map from R and merge them with the java one
                 if (variablesMap != null) {
                     REXP variablesRexp = engine.get(TASK_SCRIPT_VARIABLES, null, true);
@@ -155,6 +160,21 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 this.writeExceptionToError(ex, ctx);
             }
 
+            // PRC-32 A ScriptException() must be thrown if the script calls stop() function
+            if (toThrow != null) {
+                throw toThrow;
+            }
+
+            return resultValue;
+        } catch (ScriptException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            this.writeExceptionToError(ex, ctx);
+            throw new ScriptException(ex.getMessage());
+        } finally {
+            // Clear last error message
+            this.lastErrorMessage = null;
+
             // Fix for PRC-30: Always change working dir to avoid keeping a file handle on task temp dir
             try {
                 engine.parseAndEval("setwd(tempdir())");
@@ -162,7 +182,6 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 this.writeExceptionToError(ex, ctx);
             }
         }
-        return resultValue;
     }
 
     @Override
@@ -360,6 +379,10 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         if (oType == 0) {
             writer = getContext().getWriter();
         } else if (oType == 1) {
+            // Intercept error message
+            if (text.startsWith("Error:")) {
+                this.lastErrorMessage = text;
+            }
             writer = getContext().getErrorWriter();
         } else {
             // unkwnown output type

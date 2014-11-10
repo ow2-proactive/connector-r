@@ -8,6 +8,9 @@ package tests;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import javax.script.ScriptContext;
 import org.junit.After;
 import org.junit.Assert;
@@ -39,13 +42,23 @@ public class TestStopInScript {
 
     @Test
     public void test() throws Exception {
+        HashMap<String, Serializable> variablesMap = new HashMap<String, Serializable>(1);
+        variablesMap.put("toto", "badValue");
+
         String errorMessage = "bad input";
-        String rScript = "result=FALSE; stop('" + errorMessage + "');";
+        String expectedVariableValue = "goodValue";
+
+        String rScript = "variables$toto='" + expectedVariableValue + "';warning('attention');stop('" + errorMessage + "');";
+
+        Map<String, Object> aBindings = Collections.singletonMap(PARScriptEngine.TASK_SCRIPT_VARIABLES, (Object) variablesMap);
+
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
-        ScriptResult<Serializable> res = taskScript.execute();
+        ScriptResult<Serializable> res = taskScript.execute(aBindings);
+        Assert.assertTrue("The script exception must contain the message of stop() function", res.getException().getMessage().contains(errorMessage));
         Assert.assertTrue("The script error output must contain the stop message", customErrWriter.toString().contains(errorMessage));
-        Assert.assertEquals("Even if the script ends with an error the result variable must be read", Boolean.FALSE, (Boolean) res.getResult());
+        Assert.assertEquals("Even if the script is stoppped with stop() all changes in the variables map must be done", expectedVariableValue, variablesMap.get("toto"));
+
     }
 
     @After
