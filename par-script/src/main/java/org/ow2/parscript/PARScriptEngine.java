@@ -130,7 +130,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         this.assignGlobalSpace(bindings, ctx);
         this.assignInputSpace(bindings, ctx);
         this.assignOutputSpace(bindings, ctx);
-        Map<String, Serializable> variablesMap = this.assignVariables(bindings, ctx);
+        Map<String, Serializable> jobVariables = this.assignVariables(bindings, ctx);
 
         try {
             Object resultValue = false;
@@ -142,10 +142,10 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 toThrow = new ScriptException(this.lastErrorMessage);
             }
 
-            // If the 'result' variable is explicitly defined in the global
-            // environment it is considered as the task result instead of the
-            // result exp
             try {
+                // If the 'result' variable is explicitly defined in the global
+                // environment it is considered as the task result instead of the
+                // result exp
                 REXP resultRexp = engine.get(TaskScript.RESULT_VARIABLE, null, true);
                 if (resultRexp != null) {
                     resultValue = RexpConvert.rexp2jobj(resultRexp);
@@ -157,12 +157,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 }
                 bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
 
-                // Retrieve variables map from R and merge them with the java one
-                if (variablesMap != null) {
-                    REXP variablesRexp = engine.get(TASK_SCRIPT_VARIABLES, null, true);
-                    Map newMap = RexpConvert.asMap(variablesRexp);
-                    variablesMap.putAll(newMap);
-                }
+                this.updateJobVariables(jobVariables);
             } catch (Exception ex) {
                 this.writeExceptionToError(ex, ctx);
             }
@@ -203,6 +198,20 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             throw new ScriptException(ex);
         }
         return eval(s, context);
+    }
+    
+    /** Retrieve variables map from R and merge them with the java one */
+    private void updateJobVariables(Map<String, Serializable> jobVariables) throws Exception {
+        if (jobVariables == null)
+            return;
+        
+        // Fix for PRC-35: NullPointerException in PARScriptEngine.eval()
+        REXP variablesRexp = engine.get(TASK_SCRIPT_VARIABLES, null, true);        
+        if (variablesRexp == null)
+            return;
+        
+        Map newMap = RexpConvert.asMap(variablesRexp);
+        jobVariables.putAll(newMap);
     }
 
     private void enableWarnings(ScriptContext ctx) {

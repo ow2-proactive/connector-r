@@ -42,7 +42,7 @@ public class TestParseError {
         ScriptResult<Serializable> res = taskScript.execute();
         Throwable t = res.getException();
         org.junit.Assert.assertNotNull("An invalid script must generate an exception", t);
-        org.junit.Assert.assertTrue("The the exception message must contain parse error", t.getMessage().contains("Parse error"));
+        org.junit.Assert.assertTrue("The exception message must contain parse error", t.getMessage().contains("Parse error"));
     }
 
     @After
