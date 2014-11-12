@@ -41,6 +41,7 @@ import org.rosuda.REngine.REngineOutputInterface;
  */
 public class PARScriptEngine extends AbstractScriptEngine implements REngineCallbacks, REngineOutputInterface {
 
+    public static final String IS_FORKED = "is.forked";
     public static final String DS_SCRATCH_BINDING_NAME = "localspace";
     public static final String DS_INPUT_BINDING_NAME = "input";
     public static final String DS_OUTPUT_BINDING_NAME = "output";
@@ -68,6 +69,11 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
      * The task progress from 0 to 100
      */
     private AtomicInteger taskProgress;
+
+    /**
+     * Enabled if this engine is not running inside a forked node
+     */
+    private final boolean dumpErrorsIfNotForked;
 
     /**
      * Creates a instance of the PARScriptEngine, that wraps an instance of
@@ -107,6 +113,8 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
 
     protected PARScriptEngine(PARScriptFactory factory) {
         this.factory = factory;
+        // Fix for PRC-36: With Scheduling 6.0.1 if script tasks are not forked the error output is lost
+        this.dumpErrorsIfNotForked = !System.getProperties().contains(IS_FORKED);
     }
 
     @Override
@@ -176,7 +184,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         } finally {
             // Clear last error message
             this.lastErrorMessage = null;
-            
+
             // Clear progress
             this.taskProgress = null;
 
@@ -199,17 +207,21 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         }
         return eval(s, context);
     }
-    
-    /** Retrieve variables map from R and merge them with the java one */
+
+    /**
+     * Retrieve variables map from R and merge them with the java one
+     */
     private void updateJobVariables(Map<String, Serializable> jobVariables) throws Exception {
-        if (jobVariables == null)
+        if (jobVariables == null) {
             return;
-        
+        }
+
         // Fix for PRC-35: NullPointerException in PARScriptEngine.eval()
-        REXP variablesRexp = engine.get(TASK_SCRIPT_VARIABLES, null, true);        
-        if (variablesRexp == null)
+        REXP variablesRexp = engine.get(TASK_SCRIPT_VARIABLES, null, true);
+        if (variablesRexp == null) {
             return;
-        
+        }
+
         Map newMap = RexpConvert.asMap(variablesRexp);
         jobVariables.putAll(newMap);
     }
@@ -241,7 +253,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             return;
         }
         try {
-            engine.parseAndEval("set_progress = function(x) { message('"+TASK_PROGRESS_MSG+"=', as.integer(x), appendLF = FALSE) }");
+            engine.parseAndEval("set_progress = function(x) { message('" + TASK_PROGRESS_MSG + "=', as.integer(x), appendLF = FALSE) }");
         } catch (Exception ex) {
             writeExceptionToError(ex, ctx);
         }
@@ -397,7 +409,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         if (oType == 0) {
             writer = getContext().getWriter();
         } else if (oType == 1) {
-            
+
             // Intercept error message
             if (text.startsWith("Error:")) {
                 this.lastErrorMessage = text;
@@ -411,6 +423,13 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             }
 
             writer = getContext().getErrorWriter();
+            
+            // Fix for PRC-36: With Scheduling 6.0.1 if script tasks are not forked the error output is lost
+            // Dump errors if not inside a forked node
+            if (this.dumpErrorsIfNotForked) {
+                System.err.print(text);
+            }
+
         } else {
             // unkwnown output type
         }
