@@ -3,12 +3,9 @@ package org.ow2.parscript;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
-
-import org.ow2.parscript.util.RLibPathConfigurator;
 
 import static javax.script.ScriptEngine.ENGINE;
 import static javax.script.ScriptEngine.LANGUAGE;
@@ -25,8 +22,8 @@ public final class PARScriptFactory implements ScriptEngineFactory {
     private static final String R_ENGINE_VERSION = "1";
     private static final String R_LANGUAGE_NAME = "R";
     private static final String R_LANGUAGE_VERSION = "2";
-    private static final List<String> R_FILE_EXTENSIONS = Arrays.asList("R", "r");
-    private static final List<String> ENGINE_NAMES = Arrays.asList("R", "r");
+    private static final List<String> R_FILE_EXTENSIONS = Arrays.asList("R", "r", "parscript");
+    private static final List<String> ENGINE_NAMES = Arrays.asList("R", "r", "parscript");
     private static final List<String> R_MIME_TYPES = Collections.singletonList("text/x-R");
 
     public PARScriptFactory() {
