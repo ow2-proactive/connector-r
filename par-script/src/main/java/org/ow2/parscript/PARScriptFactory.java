@@ -1,16 +1,18 @@
 package org.ow2.parscript;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
 import javax.script.ScriptEngine;
-import static javax.script.ScriptEngine.ENGINE;
-import static javax.script.ScriptEngine.LANGUAGE;
-import static javax.script.ScriptEngine.NAME;
 import javax.script.ScriptEngineFactory;
 
 import org.ow2.parscript.util.RLibPathConfigurator;
+
+import static javax.script.ScriptEngine.ENGINE;
+import static javax.script.ScriptEngine.LANGUAGE;
+import static javax.script.ScriptEngine.NAME;
 
 /**
  * R implementation of ScriptEngineFactory for the ProActive Scheduler Worker.
@@ -19,12 +21,13 @@ import org.ow2.parscript.util.RLibPathConfigurator;
  */
 public final class PARScriptFactory implements ScriptEngineFactory {
 
-    public static final String ENGINE_NAME = "parscript";
-    public static final String R_ENGINE_VERSION = "6";
-    public static final String R_LANGUAGE_NAME = "R";
-    public static final String R_LANGUAGE_VERSION = "2";
-    public static final String R_FILE_EXTENSION = "R";
-    public static final List<String> R_MIME_TYPES = null;
+    public static final String ENGINE_NAME = "R";
+    private static final String R_ENGINE_VERSION = "1";
+    private static final String R_LANGUAGE_NAME = "R";
+    private static final String R_LANGUAGE_VERSION = "2";
+    private static final List<String> R_FILE_EXTENSIONS = Arrays.asList("R", "r");
+    private static final List<String> ENGINE_NAMES = Arrays.asList("R", "r");
+    private static final List<String> R_MIME_TYPES = Collections.singletonList("text/x-R");
 
     public PARScriptFactory() {
         // Initialize the engine as soon as possible
@@ -38,7 +41,7 @@ public final class PARScriptFactory implements ScriptEngineFactory {
 
     @Override
     public List<String> getNames() {
-        return Collections.singletonList(ENGINE_NAME);
+        return ENGINE_NAMES;
     }
 
     @Override
@@ -77,7 +80,7 @@ public final class PARScriptFactory implements ScriptEngineFactory {
 
     @Override
     public List<String> getExtensions() {
-        return Collections.singletonList(ENGINE_NAME);
+        return R_FILE_EXTENSIONS;
     }
 
     @Override
@@ -107,7 +110,7 @@ public final class PARScriptFactory implements ScriptEngineFactory {
 
     @Override
     public String getOutputStatement(String toDisplay) {
-        return "print('" + toDisplay + "');";
+        return "cat('" + toDisplay + "');";
     }
 
     @Override
