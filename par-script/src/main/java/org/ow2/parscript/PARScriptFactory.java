@@ -26,11 +26,6 @@ public final class PARScriptFactory implements ScriptEngineFactory {
     private static final List<String> ENGINE_NAMES = Arrays.asList("R", "r", "parscript");
     private static final List<String> R_MIME_TYPES = Collections.singletonList("text/x-R");
 
-    public PARScriptFactory() {
-        // Initialize the engine as soon as possible
-        this.getScriptEngine();
-    }
-
     @Override
     public String getEngineName() {
         return ENGINE_NAME;
