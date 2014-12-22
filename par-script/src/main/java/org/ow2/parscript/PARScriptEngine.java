@@ -10,10 +10,9 @@ import java.io.Writer;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.script.AbstractScriptEngine;
 
+import javax.script.AbstractScriptEngine;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngineFactory;
@@ -50,6 +49,8 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     public static final String TASK_SCRIPT_VARIABLES = "variables";
     public static final String TASK_PROGRESS_MSG = "taskProgress";
 
+    private static PARScriptEngine instance;
+
     /**
      * The instance of factory that has created this engine
      */
@@ -76,39 +77,32 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     private final boolean dumpErrorsIfNotForked;
 
     /**
-     * Creates a instance of the PARScriptEngine, that wraps an instance of
-     * JRIEngine. This method is not thread-safe.
+     * Creates or retrieves a singleton instance of the PARScriptEngine, that wraps an instance of
+     * JRIEngine.
      *
-     * @return the instance of the engine
+     * @return the singleton instance of the engine
      */
-    public static PARScriptEngine create(PARScriptFactory factory) {
-        // System properties are used to store the single instance of the
-        // engine to allow sharing an engine between mutliple class loaders
-        Properties props = System.getProperties();
-        PARScriptEngine eng = (PARScriptEngine) props.get(PARScriptFactory.ENGINE_NAME);
-        if (eng != null) {
-            return eng;
-        }
+    public static synchronized PARScriptEngine create(PARScriptFactory factory) {
+        if (instance == null) {
+            // Check if the path to rJava is already set
+            String libPath = System.getProperty("java.library.path");
+            if (libPath == null || !libPath.contains("jri")) {
+                try {
+                    RLibPathConfigurator.configureLibraryPath();
+                } catch (Exception e) {
+                    throw new IllegalStateException("Unable to configure the library path for R", e);
+                }
+            }
+            String[] args = { "--vanilla", "--slave" };
 
-        // Check if the path to rJava is already setted
-        String libPath = System.getProperty("java.library.path");
-        if (libPath == null || !libPath.contains("jri")) {
+            instance = new PARScriptEngine(factory);
             try {
-                RLibPathConfigurator.configureLibraryPath();
-            } catch (Exception e) {
-                throw new IllegalStateException("Unable to configure the library path for R", e);
+                instance.engine = (JRIEngine) JRIEngine.createEngine(args, instance, false);
+            } catch (Exception ex) {
+                throw new IllegalStateException("Unable to instantiate the JRIEngine", ex);
             }
         }
-        String[] args = {"--vanilla", "--slave"};
-
-        PARScriptEngine e = new PARScriptEngine(factory);
-        try {
-            e.engine = (JRIEngine) JRIEngine.createEngine(args, e, /* runREPL */ false);
-        } catch (Exception ex) {
-            throw new IllegalStateException("Unable to instantiate the JRIEngine", ex);
-        }
-        props.put(PARScriptFactory.ENGINE_NAME, e);
-        return e;
+        return instance;
     }
 
     protected PARScriptEngine(PARScriptFactory factory) {
