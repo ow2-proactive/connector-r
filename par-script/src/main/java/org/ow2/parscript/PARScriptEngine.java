@@ -1,6 +1,5 @@
 package org.ow2.parscript;
 
-import com.google.common.io.CharStreams;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +23,7 @@ import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.TaskScript;
+import com.google.common.io.CharStreams;
 import org.rosuda.REngine.JRI.JRIEngine;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPString;
@@ -312,7 +312,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         if (dsfo == null) {
             return;
         }
-        String path = null;
+        String path;
         try {
             path = convertToRPath(dsfo);
         } catch (Exception e) {
@@ -330,7 +330,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         if (dsfo == null) {
             return;
         }
-        String path = null;
+        String path;
         try {
             path = convertToRPath(dsfo);
         } catch (Exception e) {
@@ -348,7 +348,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         if (dsfo == null) {
             return;
         }
-        String path = null;
+        String path;
         try {
             path = convertToRPath(dsfo);
         } catch (Exception e) {
@@ -366,7 +366,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         if (dsfo == null) {
             return;
         }
-        String path = null;
+        String path;
         try {
             path = convertToRPath(dsfo);
         } catch (Exception e) {
@@ -424,12 +424,12 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 System.err.print(text);
             }
 
-        } else {
-            // unkwnown output type
         }
         try {
-            writer.write(text);
-            writer.flush();
+            if(writer != null){
+                writer.write(text);
+                writer.flush();
+            }
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
