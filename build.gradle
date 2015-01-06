@@ -54,6 +54,7 @@ project(':par-script') {
     task addon(type: Zip){
         from configurations.addons
         from jar
+        from 'README.txt'
     }
 
     artifacts { archives addon }
