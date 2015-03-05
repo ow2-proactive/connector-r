@@ -47,7 +47,7 @@ public class TestResults {
                 (Object) results);
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
-        ScriptResult<Serializable> res = taskScript.execute(aBindings);
+        ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
 
         Serializable value = res.getResult();
         org.junit.Assert.assertTrue("Invalid result type of the R script", value instanceof double[]);

@@ -27,7 +27,7 @@ public class TestArgs {
         Map<String, Object> aBindings = Collections.singletonMap(TaskScript.ARGUMENTS_NAME, (Object) args);
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
-        ScriptResult<Serializable> res = taskScript.execute(aBindings);
+        ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
 
         Assert.assertEquals("The arguments are not transfered by the engine to the script", args[2],
           res.getResult());

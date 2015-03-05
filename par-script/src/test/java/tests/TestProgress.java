@@ -27,7 +27,7 @@ public class TestProgress {
                 (Object) progress);
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
-        /* ScriptResult<Serializable> res = */taskScript.execute(aBindings);
+        taskScript.execute(aBindings, System.out, System.err);
 
         org.junit.Assert.assertEquals("The progress is incorrect, it seems the engine doesn't transmit "
             + " the progress to the script as expected", expectedProgress, progress.intValue());

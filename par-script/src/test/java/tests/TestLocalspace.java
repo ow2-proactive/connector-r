@@ -40,7 +40,7 @@ public class TestLocalspace {
                 (Object) dsfo);
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
-        ScriptResult<Serializable> res = taskScript.execute(aBindings);
+        ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
 
         String resPath = (String) res.getResult();
         org.junit.Assert.assertNotNull("No result from R script", resPath);
