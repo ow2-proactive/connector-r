@@ -137,7 +137,6 @@ setMethod("addSelectionScript" ,"PATask" ,
                  }
 )
 
-
 setMethod("toString","PATask",
   function(x, width = NULL, ...) {
             object <- x
