@@ -73,29 +73,30 @@ setMethod(
         }
       }
     }
-    
-    
-    jobj <- tresult$value()              
-    if (class(jobj) == "jobjRef") {               
-      rexp <- J("org.rosuda.jrs.RexpConvert")$jobj2rexp(jobj)                
-      eng <- .jengine()                
-      eng.assign("tmpoutput",rexp)   
-      if (!is.null(callback)) {
-        return(callback(tmpoutput))
-      }
-      else {
-        return(tmpoutput)
-      }
-    } else {    
-      if (!is.null(callback)) {
-        return(callback(jobj))
-      }
-      else {
-        return(jobj)
-      }
-    } 
+
+    jobj <- tresult$value()
+    robj <- .unserializeObj(jobj)
+
+    if (!is.null(callback)) {
+       return(callback(robj))
+    }
+    return(robj)
   }
-  
+
+}
+
+.unserializeObj <- function(obj) {
+    if (class(obj) == "jobjRef") {
+      rexp <- J("org.rosuda.jrs.RexpConvert")$jobj2rexp(obj)
+      eng <- .jengine()
+      eng.assign("tmpoutput",rexp)
+      obj <- tmpoutput
+    }
+    if (is.na(obj) || is.null(obj)) {
+      return(obj)
+    } else {
+      return(unserialize(obj))
+    }
 }
 
 setClassUnion("PAJobResultOrMissing", c("PAJobResult", "missing"))
@@ -103,7 +104,7 @@ setClassUnion("PAJobResultOrMissing", c("PAJobResult", "missing"))
 .getAvailableResults <- function(paresult, callback) {
 
   tnames <- paresult@task.names
-  results <- vector("list",length(tnames))
+  results <- setNames(vector("list",length(tnames)),tnames)
   for (i in 1:length(tnames)) {  
     tresult <- paresult@results$get(tnames[i])
     
@@ -116,12 +117,11 @@ setClassUnion("PAJobResultOrMissing", c("PAJobResult", "missing"))
         cat("\n")
       }
       result <- .getRResultFromJavaResult(paresult, tresult, i, callback)
-      if (is.na(result)) {
-        results[[tnames[i]]] <- NA
-      } else if (is.null(result)) {
+      if (is.null(result)) {
         # nothing to do, the list is initialized with null elements
+        # i.e. list[[i]] <- NULL actually removes the element i in the list
       } else {
-        results[[tnames[i]]] <- unserialize(result)
+        results[[tnames[i]]] <- result
       }
     }
   }
