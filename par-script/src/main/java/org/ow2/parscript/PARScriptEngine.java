@@ -7,6 +7,9 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.Writer;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,6 +25,7 @@ import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
 import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scripting.Script;
+import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.TaskScript;
 import com.google.common.io.CharStreams;
 import org.rosuda.REngine.JRI.JRIEngine;
@@ -161,6 +165,12 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 }
                 bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
 
+                // in case the SelectionScript result is assigned in the engine, retrieve it
+                REXP ssResultRexp = engine.get(SelectionScript.RESULT_VARIABLE, null, true);
+                if (ssResultRexp != null) {
+                    bindings.put(SelectionScript.RESULT_VARIABLE, RexpConvert.rexp2jobj(ssResultRexp));
+                }
+
                 this.updateJobVariables(jobVariables);
             } catch (Exception ex) {
                 this.writeExceptionToError(ex, ctx);
@@ -232,7 +242,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
 
     private void customizeErrors(ScriptContext ctx) {
         try {
-            engine.parseAndEval("options(error = function() cat(sprintf(\""+ERROR_TAG+"%s\",geterrmessage()), sep='', file=stderr()))");
+            engine.parseAndEval("options(error = function() cat(sprintf(\"" + ERROR_TAG + "%s\",geterrmessage()), sep='', file=stderr()))");
         } catch (Exception ex) {
             writeExceptionToError(ex, ctx);
         }
@@ -310,8 +320,11 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         }
         try {
             String path = convertToRPath(dsfo);
-            engine.parseAndEval("setwd('" + path + "')");
-            engine.assign("localspace", new REXPString(path));
+            Path fpath = Paths.get(path);
+            if (Files.exists(fpath) && Files.isWritable(fpath)) {
+                engine.parseAndEval("setwd('" + path + "')");
+                engine.assign("localspace", new REXPString(path));
+            }
         } catch (Exception ex) {
             writeExceptionToError(ex, ctx);
         }
@@ -433,7 +446,6 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             if (this.dumpErrorsIfNotForked) {
                 System.err.print(text);
             }
-
         }
         try {
             if(writer != null){
