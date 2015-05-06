@@ -48,6 +48,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     public static final String DS_USER_BINDING_NAME = "user";
     public static final String TASK_SCRIPT_VARIABLES = "variables";
     public static final String TASK_PROGRESS_MSG = "taskProgress";
+    public static final String ERROR_TAG = "<PARError> ";
 
     private static PARScriptEngine instance;
 
@@ -124,6 +125,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
 
         // Assign all script task related objects
         this.enableWarnings(ctx);
+        this.customizeErrors(ctx);
         this.assignArguments(bindings, ctx);
         this.assignProgress(bindings, ctx);
         this.assignResults(bindings, ctx);
@@ -223,6 +225,14 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     private void enableWarnings(ScriptContext ctx) {
         try {
             engine.parseAndEval("options(warn=1)");
+        } catch (Exception ex) {
+            writeExceptionToError(ex, ctx);
+        }
+    }
+
+    private void customizeErrors(ScriptContext ctx) {
+        try {
+            engine.parseAndEval("options(error = function() cat(sprintf(\""+ERROR_TAG+"%s\",geterrmessage()), sep='', file=stderr()))");
         } catch (Exception ex) {
             writeExceptionToError(ex, ctx);
         }
@@ -405,8 +415,8 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         } else if (oType == 1) {
 
             // Intercept error message
-            if (text.startsWith("Error:")) {
-                this.lastErrorMessage = text;
+            if (text.startsWith(ERROR_TAG)) {
+                this.lastErrorMessage = text.substring(ERROR_TAG.length());
             } else {
                 // Intercept progress message
                 if (text.startsWith(TASK_PROGRESS_MSG)) {
