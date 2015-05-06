@@ -101,11 +101,11 @@ setMethod(
 setClassUnion("PAJobResultOrMissing", c("PAJobResult", "missing"))
 
 .getAvailableResults <- function(paresult, callback) {
-  results <- list()
+
   tnames <- paresult@task.names
+  results <- vector("list",length(tnames))
   for (i in 1:length(tnames)) {  
     tresult <- paresult@results$get(tnames[i])
-    
     
     if (!is.null(tresult)) {
       log <- .getLogsFromJavaResult(paresult, tresult)
@@ -116,7 +116,13 @@ setClassUnion("PAJobResultOrMissing", c("PAJobResult", "missing"))
         cat("\n")
       }
       result <- .getRResultFromJavaResult(paresult, tresult, i, callback)
-      results[[tnames[i]]] <- unserialize(result)
+      if (is.na(result)) {
+        results[[tnames[i]]] <- NA
+      } else if (is.null(result)) {
+        # nothing to do, the list is initialized with null elements
+      } else {
+        results[[tnames[i]]] <- unserialize(result)
+      }
     }
   }
   return(results)
