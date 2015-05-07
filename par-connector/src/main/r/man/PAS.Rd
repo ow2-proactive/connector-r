@@ -54,6 +54,11 @@ PAS(funcOrFuncName, ..., varies = NULL, input.files = list(),
   (example list(INFO1 = "true"), adds the generic info
   INFO1 = "true" to the task)}
 
+  \item{run.as.me}{a boolean value which, if set to TRUE,
+  make the ProActive Task run under this user account
+  (impersonation), and not under the account of the
+  ProActive Scheduler}
+
   \item{client}{connection handle to the scheduler, if not
   provided the handle created by the last call to PAConnect
   will be used}

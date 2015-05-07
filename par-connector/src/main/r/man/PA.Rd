@@ -53,6 +53,11 @@ PA(funcOrFuncName, ..., varies = NULL, input.files = list(),
   (example list(INFO1 = "true"), adds the generic info
   INFO1 = "true" to the task)}
 
+  \item{run.as.me}{a boolean value which, if set to TRUE,
+  make the ProActive Task run under this user account
+  (impersonation), and not under the account of the
+  ProActive Scheduler}
+
   \item{isolate.io.files}{should input/output files be
   isolated in the remote executions, default FALSE.  If set
   to TRUE, when input and output files are copied to
