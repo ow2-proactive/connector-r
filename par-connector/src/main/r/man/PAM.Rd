@@ -49,6 +49,11 @@ PAM(funcOrFuncName, ..., varies = list(), input.files = list(),
   \item{property.selection.value}{is used in combination
   with property.selection.name}
 
+  \item{generic.information.list}{a list containing generic
+  informations to be added to the ProActive Task
+  (example list(INFO1 = "true"), adds the generic info
+  INFO1 = "true" to the task)}
+
   \item{client}{connection handle to the scheduler, if not
   provided the handle created by the last call to PAConnect
   will be used}

@@ -271,6 +271,7 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
 #'  @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
 #'  @param property.selection.value is used in combination with property.selection.name
+#'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
 #'  @param .debug debug mode
 #'  @return a PATask object which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
@@ -408,6 +409,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
 #'  @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
 #'  @param property.selection.value is used in combination with property.selection.name
+#'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
 #'  @param .debug debug mode
 #'  @return a PATask object which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions

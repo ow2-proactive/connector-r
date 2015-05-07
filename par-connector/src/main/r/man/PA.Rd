@@ -48,6 +48,11 @@ PA(funcOrFuncName, ..., varies = NULL, input.files = list(),
   \item{property.selection.value}{is used in combination
   with property.selection.name}
 
+  \item{generic.information.list}{a list containing generic
+  informations to be added to the ProActive Task
+  (example list(INFO1 = "true"), adds the generic info
+  INFO1 = "true" to the task)}
+
   \item{isolate.io.files}{should input/output files be
   isolated in the remote executions, default FALSE.  If set
   to TRUE, when input and output files are copied to

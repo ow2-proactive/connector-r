@@ -16,6 +16,8 @@ PAConnect(url, login, pwd, cred = NULL, .print.stack = TRUE)
   credential file which stores the login information (see
   ProActive Scheduler manual for more details)}
 
+  \item{insecure}{(default to FALSE) ignore invalid SSL certificate}
+
   \item{.print.stack}{(default to TRUE) in case there is a
   connection problem, should the full Java stack trace be
   printed or simply the error message}
