@@ -196,7 +196,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
 
             // Fix for PRC-30: Always change working dir to avoid keeping a file handle on task temp dir
             try {
-                engine.parseAndEval("setwd(tempdir())");
+                engine.parseAndEval("setwd(Sys.getenv(\"HOME\"))");
             } catch (Exception ex) {
                 this.writeExceptionToError(ex, ctx);
             }
