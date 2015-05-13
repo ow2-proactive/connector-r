@@ -18,6 +18,8 @@
 
 
 local({
+  require(devtools)
+  wd(pkg = "PARConnector", path = "")
   pkg.root <- getwd()
   print("Building PARConnector from :")
   print(pkg.root)  
@@ -27,4 +29,10 @@ local({
   # if this fails, there is a problem with classloading
   J("org.ow2.proactive.scripting.Script")
  })
+
+.findroot <- function() {
+  getwd()
+}
+  
+
 
