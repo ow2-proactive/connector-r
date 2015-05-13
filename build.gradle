@@ -81,7 +81,6 @@ project(':par-connector') {
 
     def rHome = System.getenv('R_HOME')
     def schedHome = "${rootProject.buildDir}/scheduler"
-
     def rSrc = "${buildDir}/r-pkg-src"
 
     def rExec
@@ -112,17 +111,31 @@ project(':par-connector') {
 
     def schedProcess
 
-    task copyRSources(type: Copy){
-        from fileTree("${projectDir}/src/main/r")
+    task copyRSources(type: Copy) {
+        from "${projectDir}/src/main/r"
+        include("**/*")
+        exclude("**/.*")
         into rSrc
     }
 
-    task copyRDependencies(type: Copy) {
+
+
+    task updateVersion(dependsOn: copyRSources) << {
+        def descFile = file("${rSrc}/DESCRIPTION")
+        def pattern = java.util.regex.Pattern.compile("Version: ((\\d+\\.)*(\\d+))")
+        def v = "${rConnectorVersion}".replace("-SNAPSHOT","")
+        def matcher = pattern.matcher(descFile.getText())
+        matcher.find()
+        def descFileContent = matcher.replaceFirst("Version: " + v)
+        descFile.write(descFileContent)
+    }
+
+    task copyRDependencies(type: Copy) << {
         from configurations.restJars
         into "${rSrc}/inst/java"
     }
 
-    task checkRPackage(type: Exec, dependsOn: [copyRSources, copyRDependencies]) {
+    task checkRPackage(type: Exec, dependsOn: [copyRSources, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -130,7 +143,7 @@ project(':par-connector') {
         environment env
     }
 
-    task buildRPackage(type: Exec, dependsOn: [copyRSources, copyRDependencies, checkRPackage]) {
+    task buildRPackage(type: Exec, dependsOn: [copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
