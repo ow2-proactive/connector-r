@@ -8,7 +8,7 @@ PAS(funcOrFuncName, ..., varies = NULL, input.files = list(),
   output.files = list(), in.dir = getwd(), out.dir = getwd(),
   hostname.selection = NULL, ip.selection = NULL,
   property.selection.name = NULL, property.selection.value = NULL,
-  generic.information.list = NULL, run.as.me = FALSE,
+  generic.information.list = NULL, run.as.me = FALSE, walltime = -1,
   isolate.io.files = FALSE, client = PAClient(), .debug = PADebug())
 }
 \arguments{
@@ -37,6 +37,8 @@ PAS(funcOrFuncName, ..., varies = NULL, input.files = list(),
 \item{generic.information.list}{a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)}
 
 \item{run.as.me}{a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler}
+
+\item{walltime}{the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)}
 
 \item{isolate.io.files}{should input/output files be isolated in the remote executions, default FALSE.}
 
