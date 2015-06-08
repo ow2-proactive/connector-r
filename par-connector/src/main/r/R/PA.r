@@ -300,7 +300,7 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  The results of those tasks are merged via the sum function, similar to sum( res[t2],res[t3],res[t4],res[t4]) , of course this is possible only with function which accept variable number of parameters
 #'  
 #'  }
-#'  @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}} 
+#'  @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}}
 PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   dots <- list(...)
   
@@ -370,7 +370,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
           nodes.number = nodes.number,
           topology = topology,
           generic.information.list = generic.information.list,
-          run.as.me = run.as.me, 
+          run.as.me = run.as.me,
           walltime = walltime,
           isolate.io.files = isolate.io.files,
           client = client, .debug = .debug)
@@ -448,7 +448,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  (PAS(function(out,ind){for (i in ind) {file.create(paste0(out,i))}}, "out", 1:4, output.files="out%2%") # will produce a split task of cardinality 4 that will create remotely the files out1, out2, out3 and out4 and transfer them back to the local machine
 #'
 #'  }       
-#'  @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}} 
+#'  @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
 PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   
   dots <- list(...)
@@ -594,7 +594,7 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  See examples in  PAS and PAM help sections for split/merge examples
 #'  
 #'  }
-#'  @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}} 
+#'  @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
 PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
   if (is.character(funcOrFuncName)) {
     fun <- match.fun(funcOrFuncName)
@@ -843,12 +843,12 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
     }
 
     jtsk <- getJavaObject(t)
-    
+
     if (nodes.number > 1) {
       td <- .jfield(J("org.ow2.proactive.topology.descriptor.TopologyDescriptor"), topology)
       jtsk$setParallelEnvironment(.jnew(J("org.ow2.proactive.scheduler.common.task.ParallelEnvironment"),nodes.number,td))
     }
-    
+
     if (!is.null(generic.information.list)) {
       for (j in names(generic.information.list)) {
         jtsk$addGenericInformation(j, generic.information.list[[j]])
@@ -856,11 +856,11 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
     }
 
     jtsk$setRunAsMe(run.as.me)
-    
+
     if (walltime > -1) {
       jtsk$setWallTime(.jlong(walltime))
     }
-    
+
     if (length(input.files) > 0) {
       tmp.input.files <- final.input.files[[i]]
       for (j in 1:length(tmp.input.files)) {        
