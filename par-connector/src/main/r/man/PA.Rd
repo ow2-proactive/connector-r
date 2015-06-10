@@ -8,6 +8,7 @@ PA(funcOrFuncName, ..., varies = NULL, input.files = list(),
   output.files = list(), in.dir = getwd(), out.dir = getwd(),
   hostname.selection = NULL, ip.selection = NULL,
   property.selection.name = NULL, property.selection.value = NULL,
+  nodes.number = 1, topology = "SINGLE_HOST",
   generic.information.list = NULL, run.as.me = FALSE,
   isolate.io.files = FALSE, client = PAClient(), .debug = PADebug())
 }
@@ -33,6 +34,10 @@ PA(funcOrFuncName, ..., varies = NULL, input.files = list(),
 \item{property.selection.name}{can be used to restrict the remote execution to a given JVM resource where the property is set to the according value}
 
 \item{property.selection.value}{is used in combination with property.selection.name}
+
+\item{nodes.number}{the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.}
+
+\item{topology}{a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.}
 
 \item{generic.information.list}{a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)}
 
