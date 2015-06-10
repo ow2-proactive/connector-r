@@ -102,6 +102,11 @@ public class TestLocalspace {
         }
 
         @Override
+        public List<DataSpacesFileObject> findFiles(org.apache.commons.vfs2.FileSelector selector) throws FileSystemException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void findFiles(FileSelector arg0, boolean arg1, List<DataSpacesFileObject> arg2)
                 throws FileSystemException {
             throw new UnsupportedOperationException();
