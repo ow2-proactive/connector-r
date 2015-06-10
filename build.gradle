@@ -130,7 +130,7 @@ project(':par-connector') {
         descFile.write(descFileContent)
     }
 
-    task copyRDependencies(type: Copy) << {
+    task copyRDependencies(type: Copy) {
         from configurations.restJars
         into "${rSrc}/inst/java"
     }
