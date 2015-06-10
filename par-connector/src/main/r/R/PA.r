@@ -271,6 +271,8 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
 #'  @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
 #'  @param property.selection.value is used in combination with property.selection.name
+#'  @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
+#'  @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
 #'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
 #'  @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
@@ -297,9 +299,8 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  The results of those tasks are merged via the sum function, similar to sum( res[t2],res[t3],res[t4],res[t4]) , of course this is possible only with function which accept variable number of parameters
 #'  
 #'  }
-#'  @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}}
-#' @export
-PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
+#'  @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}} 
+PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   dots <- list(...)
   
   # if we are merging find all list of tasks in parameters, construct new function call
@@ -338,6 +339,8 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
   newcall[["ip.selection"]] <- ip.selection
   newcall[["property.selection.name"]] <- property.selection.name
   newcall[["property.selection.value"]] <- property.selection.value
+  newcall[["nodes.number"]] <- nodes.number
+  newcall[["topology"]] <- topology
   newcall[["generic.information.list"]] <- generic.information.list
   newcall[["run.as.me"]] <- run.as.me
   newcall[["walltime"]] <- walltime
@@ -363,6 +366,8 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
           ip.selection = ip.selection,
           property.selection.name=property.selection.name,
           property.selection.value = property.selection.value,
+          nodes.number = nodes.number,
+          topology = topology,
           generic.information.list = generic.information.list,
           run.as.me = run.as.me, 
           walltime = walltime,
@@ -416,6 +421,8 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
 #'  @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
 #'  @param property.selection.value is used in combination with property.selection.name
+#'  @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
+#'  @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
 #'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
 #'  @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
@@ -439,14 +446,13 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  (PAS(function(out,ind){for (i in ind) {file.create(paste0(out,i))}}, "out", 1:4, output.files="out%2%") # will produce a split task of cardinality 4 that will create remotely the files out1, out2, out3 and out4 and transfer them back to the local machine
 #'
 #'  }       
-#'  @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
-#' @export
-PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
+#'  @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}} 
+PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   
   dots <- list(...)
    
   # we generate a task with a forced cardinality of 1
-  task <- PA(funcOrFuncName, ..., varies=list(),input.files=input.files, output.files=output.files, in.dir = in.dir, out.dir = out.dir, hostname.selection = hostname.selection, ip.selection = ip.selection, property.selection.name = property.selection.name, property.selection.value = property.selection.value, generic.information.list = generic.information.list, run.as.me = run.as.me, walltime = walltime, isolate.io.files = isolate.io.files, client = client, .debug = .debug)
+  task <- PA(funcOrFuncName, ..., varies=list(),input.files=input.files, output.files=output.files, in.dir = in.dir, out.dir = out.dir, hostname.selection = hostname.selection, ip.selection = ip.selection, property.selection.name = property.selection.name, property.selection.value = property.selection.value, nodes.number = nodes.number, topology = topology, generic.information.list = generic.information.list, run.as.me = run.as.me, walltime = walltime, isolate.io.files = isolate.io.files, client = client, .debug = .debug)
   if (length(task) > 1) {
     stop(paste0("Internal Error : Unexpected task list length, expected 1, received ",length(task)))
   }
@@ -555,6 +561,8 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
 #'  @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
 #'  @param property.selection.value is used in combination with property.selection.name
+#'  @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
+#'  @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
 #'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
 #'  @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
@@ -584,9 +592,8 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  See examples in  PAS and PAM help sections for split/merge examples
 #'  
 #'  }
-#'  @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
-#' @export
-PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
+#'  @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}} 
+PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
   if (is.character(funcOrFuncName)) {
     fun <- match.fun(funcOrFuncName)
     funname <- funcOrFuncName
@@ -834,6 +841,12 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
     }
 
     jtsk <- getJavaObject(t)
+    
+    if (nodes.number > 1) {
+      td <- .jfield(J("org.ow2.proactive.topology.descriptor.TopologyDescriptor"), topology)
+      jtsk$setParallelEnvironment(.jnew(J("org.ow2.proactive.scheduler.common.task.ParallelEnvironment"),nodes.number,td))
+    }
+    
     if (!is.null(generic.information.list)) {
       for (j in names(generic.information.list)) {
         jtsk$addGenericInformation(j, generic.information.list[[j]])
