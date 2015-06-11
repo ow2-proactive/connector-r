@@ -12,15 +12,16 @@
   J("org.ow2.proactive.scripting.Script")
   
   # activate some debug info
-  options(error = utils::dump.frames)
+  options(error = utils:::dump.frames)
   
 }
 
 
 local({
-  require(devtools)
-  require(rJava)
-  wd(pkg = "PARConnector", path = "")
+  if (Sys.getenv("RSTUDIO") == "1") {
+    require(devtools)
+    wd(pkg = "PARConnector", path = "")
+  }
   pkg.root <- getwd()
   print("Building PARConnector from :")
   print(pkg.root)  
