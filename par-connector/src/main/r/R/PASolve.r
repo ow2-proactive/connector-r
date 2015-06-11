@@ -29,7 +29,7 @@
 #'  @param jobName name of the ProActive job to be created
 #'  @param jobDescription description of this job
 #'  @param priority priority of this job
-#'  @param cancelOnError sets the cancelling mode mechanism whenever an error occur in one tasks, does it cancel the whole job ? Default to TRUE
+#'  @param cancelOnError sets the cancelling mode mechanism whenever an error occurs in one tasks, does it cancel the whole job ? Default to TRUE
 #'  @return a \code{\link{PAJobResult}} object which acts as a placeholder for receiving actual results
 #'  @examples
 #'  \dontrun{
