@@ -18,8 +18,10 @@
 
 
 local({
-  require(devtools)
-  wd(pkg = "PARConnector", path = "")
+  if (Sys.getenv("RSTUDIO") == "1") {
+    require(devtools)
+    wd(pkg = "PARConnector", path = "")
+  }
   pkg.root <- getwd()
   print("Building PARConnector from :")
   print(pkg.root)  
