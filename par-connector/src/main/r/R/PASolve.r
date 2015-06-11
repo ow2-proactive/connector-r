@@ -93,7 +93,7 @@
 #'  }
 #'  @seealso  \code{\link{PA}} \code{\link{PAS}} \code{\link{PAM}} \code{\link{PAWaitFor}} \code{\link{PAWaitAny}} \code{\link{PAConnect}}
 PASolve <- function(..., client = PAClient(), .debug = PADebug(), jobName = str_c("PARJob",.peekNewSolveId()) , jobDescription = "ProActive R Job", priority = "normal", cancelOnError = TRUE) {  
-  
+   
   dots <- list(...)
   
   if (length(dots) == 0) {
