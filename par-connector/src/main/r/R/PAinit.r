@@ -12,7 +12,7 @@
   J("org.ow2.proactive.scripting.Script")
   
   # activate some debug info
-  options(error = utils:::dump.frames)
+  options(error = utils::dump.frames)
   
 }
 

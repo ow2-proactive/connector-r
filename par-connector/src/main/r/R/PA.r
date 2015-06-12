@@ -275,6 +275,7 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
 #'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
+#'  @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
 #'  @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
 #'  @param .debug debug mode
@@ -425,6 +426,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
 #'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
+#'  @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
 #'  @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
 #'  @param .debug debug mode

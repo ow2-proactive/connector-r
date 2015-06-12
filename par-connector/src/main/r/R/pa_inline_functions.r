@@ -164,44 +164,42 @@ setGeneric(
 
 #' Waits for all results controlled by  a PAJobResult object
 #'
-#' PAWaitFor is used on a PAJobResult object to block the R interpreter until all results are available.
+#' PAWaitFor is used on a \code{\link{PAJobResult-class}} object to block the R interpreter until all results are available.
 #' The R result objects will be then returned inside a list. 
 #' It is possible to wait for a subset instead of the whole list by using subscript indexing : PAWaitFor(res[1:3]) will wait for only the results at index 1,2,3.
 #'
 #' @param paresult a PAJobResult object
 #' @param timeout a long value specifying an optional timeout in milisecond
+#' @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used  (internal)
 #' @param callback a single parameter function which can be called when results are received. It can be useful to udapte graphical user interfaces for examples. Default to NULL.
+#' @param ... Additional argument list which are not used
 #' 
 #' @return A list of results
-#' 
-#' @seealso \code{\link{PASolve}} and \code{\link{PAWaitAny}}
-#' 
+#' @rdname PAWaitFor
+#' @seealso \code{\link{PASolve}}, \code{\link{PAJobResult-class}} and \code{\link{PAWaitAny}}
 #' @export
-#' @docType methods
-#' @rdname PAWaitFor-methods
 setGeneric(
   name="PAWaitFor",
   def=function(paresult = PALastResult(), ...) {standardGeneric("PAWaitFor" )}  
 )
 
 
-#' Waits for the first available result among a list of results controlled by a PAJobResult object
+#' Waits for the first available result
 #'
-#' PAWaitAny is used on a PAJobResult object to block the R interpreter until the first result is available.
+#' PAWaitAny is used on a \code{\link{PAJobResult-class}} object to block the R interpreter until the first result is available.
 #' The R result object will be then returned as a factor, named by the task name. 
 #' If the PAWaitAny is called a second time, then the second result will be waited and returned. After all results are consumed, a call to PAWaitAny will return NA.
 #'
 #' @param paresult a PAJobResult object
 #' @param timeout a long value specifying an optional timeout in milisecond
+#' @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used (internal)
 #' @param callback a single parameter function which can be called when results are received. It can be useful to udapte graphical user interfaces for examples. Default to NULL.
-#'
+#' @param ... Additional argument list which are not used
+#' 
 #' @return A result
-#' 
-#' @seealso \code{\link{PASolve}} and \code{\link{PAWaitFor}}
-#' 
+#' @rdname PAWaitAny
+#' @seealso \code{\link{PASolve}}, \code{\link{PAJobResult-class}} and \code{\link{PAWaitAny}}
 #' @export
-#' @docType methods
-#' @rdname PAWaitAny-methods
 setGeneric(
   name="PAWaitAny",
   def=function(paresult = PALastResult(), ...) {standardGeneric("PAWaitAny" )}  
@@ -263,7 +261,9 @@ PAClient <- function(client = NULL) {
 #' 
 #' @param debug to set the debug mode to on (TRUE) or off (FALSE)
 #' @return the current or new state of the debug mode
+#' 
 #' @export
+#' @rdname PADebug
 PADebug <- function(debug=FALSE) {  
   if (exists(".is.debug", envir=cacheEnv)){
     .is.debug <- get(".is.debug", envir=cacheEnv)

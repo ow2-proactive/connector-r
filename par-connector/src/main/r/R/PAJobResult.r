@@ -1,7 +1,38 @@
-#' @export
-setClass(
+#' PAJobResult : stores a the result of a PASolve submission
+#' 
+#' PAJobResult is a proxy object (S4 classes) which displays the current state of tasks
+#' Methods can be called on this object to wait until results are available.
+#' 
+#' @slot job an S4 object of class PAJob (internal)
+#' @slot job.id the id of the job from ProActive Scheduler point of view
+#' @slot task.names names of tasks inside this job
+#' @slot client a connection to the scheduler (internal)
+#' @slot results a java object containing the Java results (internal)
+#' 
+#' @examples
+#'  \dontrun{
+#'      job <- PASolve('cos', 1:4)
+#'      
+#'      # get the job id
+#'      job@@job.id
+#'      
+#'      # status of task t1
+#'      job["t1"]
+#'      
+#'      # wait for all results
+#'      vals <- PAWaitFor(job)
+#'      
+#'      # wait for result of task t2
+#'      vals <- PAWaitFor(job["t2"])
+#'      
+#'      # wait for first available result
+#'      val <- PAWaitAny(job)
+#'  }
+#' 
+#' @exportClass PAJobResult
+setClass( 
   Class="PAJobResult", 
-  representation = representation(
+  slots = c(
     job = "PAJob",
     job.id = "character",
     task.names = "character",
@@ -26,6 +57,9 @@ PAJobResult <- function(job,jid,tnames, client) {
   new (Class="PAJobResult" , job = job, job.id = jid, task.names = tnames, client=client, results = results)
 }
 
+#' [] extract parts of PAJobResult
+#'
+#' @describeIn PAJobResult
 setMethod(
   f="[",
   signature="PAJobResult",
@@ -43,6 +77,9 @@ setMethod(
   }
 )
 
+#' [[]] extract parts of PAJobResult, equivalent to []
+#'
+#' @describeIn PAJobResult
 setMethod(
   f="[[",
   signature="PAJobResult",
@@ -129,7 +166,7 @@ setClassUnion("PAJobResultOrMissing", c("PAJobResult", "missing"))
   return(results)
 }
 
-
+#' @describeIn PAWaitFor
 setMethod("PAWaitFor","PAJobResultOrMissing", function(paresult = PALastResult(), timeout = .Machine$integer.max, client = PAClient(), callback = NULL) {
             
             if (client == NULL || is.jnull(client) ) {
@@ -169,6 +206,7 @@ setMethod("PAWaitFor","PAJobResultOrMissing", function(paresult = PALastResult()
           }
 )
 
+#' @describeIn PAWaitAny
 setMethod("PAWaitAny","PAJobResultOrMissing", function(paresult = PALastResult(), timeout = .Machine$integer.max, client = PAClient(), callback = NULL) {
   
   if (client == NULL || is.jnull(client) ) {
@@ -207,7 +245,6 @@ setMethod("PAWaitAny","PAJobResultOrMissing", function(paresult = PALastResult()
   
 }
 )
-
 
 setMethod("toString","PAJobResult",
           function(x, width = NULL, ...) {
