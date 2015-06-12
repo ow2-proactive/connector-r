@@ -21,16 +21,17 @@
 #' 
 #' \code{PASolve} take in parameter a list of PATasks produced by \code{\link{PA}} \code{\link{PAS}} or \code{\link{PAM}} calls and submits a new job to ProActive Scheduler. 
 #' 
-#' a \code{\link{PAJobResult}} object will be returned. The object will bear the current state of the job, which can be displayed simply by showing or printing the object.
+#' a \code{\link{PAJobResult-class}} object will be returned. The object will bear the current state of the job, which can be displayed simply by showing or printing the object.
 #' Special functions \code{\link{PAWaitFor}} and \code{\link{PAWaitAny}} can be used to wait for the results.
 #' 
 #'  @param ... list of PATasks produced by \code{\link{PA}} \code{\link{PAS}} or \code{\link{PAM}} calls
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
+#'  @param .debug Debug mode or not. Default is the value of the PADebug setting
 #'  @param jobName name of the ProActive job to be created
 #'  @param jobDescription description of this job
 #'  @param priority priority of this job
 #'  @param cancelOnError sets the cancelling mode mechanism whenever an error occur in one tasks, does it cancel the whole job ? Default to TRUE
-#'  @return a \code{\link{PAJobResult}} object which acts as a placeholder for receiving actual results
+#'  @return a \code{\link{PAJobResult-class}} object which acts as a placeholder for receiving actual results
 #'  @examples
 #'  \dontrun{
 #'  
@@ -90,7 +91,7 @@
 #'  $t6
 #'  [1] 30
 #'  }
-#'  @seealso  \code{\link{PA}} \code{\link{PAS}} \code{\link{PAM}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
+#'  @seealso  \code{\link{PA}} \code{\link{PAS}} \code{\link{PAM}} \code{\link{PAWaitFor}} \code{\link{PAWaitAny}} \code{\link{PAConnect}}
 PASolve <- function(..., client = PAClient(), .debug = PADebug(), jobName = str_c("PARJob",.peekNewSolveId()) , jobDescription = "ProActive R Job", priority = "normal", cancelOnError = TRUE) {  
   
   dots <- list(...)

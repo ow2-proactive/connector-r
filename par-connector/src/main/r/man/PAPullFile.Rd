@@ -15,6 +15,10 @@ PAPullFile(space, pathname, outputFile, client = PAClient(), .nb.tries = 2,
 \item{outputFile}{local path of the file where the file will be copied to. The file must be absolute}
 
 \item{client}{connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used}
+
+\item{.nb.tries}{number of total tries (in case of error during the transfer), default to 2}
+
+\item{.print.stack}{is the Java stack trace printed in case of error, default to TRUE}
 }
 \description{
 \code{PAPullFile} will transfer a file existing in a shared data space to the local computer. The Scheduler controls two main spaces :\cr

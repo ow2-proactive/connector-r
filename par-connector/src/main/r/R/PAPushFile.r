@@ -13,6 +13,7 @@
 #'  @param fileName name of the file that will be created in the remote data space
 #'  @param inputFile local path of the file
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
+#'  @param .print.stack is the Java stack trace printed in case of error, default to TRUE
 #'  @seealso  \code{\link{PAPullFile}}
 #'  @examples
 #'  \dontrun{

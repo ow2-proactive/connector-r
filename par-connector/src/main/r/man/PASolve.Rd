@@ -14,6 +14,8 @@ PASolve(..., client = PAClient(), .debug = PADebug(),
 
 \item{client}{connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used}
 
+\item{.debug}{Debug mode or not. Default is the value of the PADebug setting}
+
 \item{jobName}{name of the ProActive job to be created}
 
 \item{jobDescription}{description of this job}
@@ -23,13 +25,13 @@ PASolve(..., client = PAClient(), .debug = PADebug(),
 \item{cancelOnError}{sets the cancelling mode mechanism whenever an error occur in one tasks, does it cancel the whole job ? Default to TRUE}
 }
 \value{
-a \code{\link{PAJobResult}} object which acts as a placeholder for receiving actual results
+a \code{\link{PAJobResult-class}} object which acts as a placeholder for receiving actual results
 }
 \description{
 \code{PASolve} take in parameter a list of PATasks produced by \code{\link{PA}} \code{\link{PAS}} or \code{\link{PAM}} calls and submits a new job to ProActive Scheduler.
 }
 \details{
-a \code{\link{PAJobResult}} object will be returned. The object will bear the current state of the job, which can be displayed simply by showing or printing the object.
+a \code{\link{PAJobResult-class}} object will be returned. The object will bear the current state of the job, which can be displayed simply by showing or printing the object.
 Special functions \code{\link{PAWaitFor}} and \code{\link{PAWaitAny}} can be used to wait for the results.
 }
 \examples{
@@ -93,6 +95,6 @@ Special functions \code{\link{PAWaitFor}} and \code{\link{PAWaitAny}} can be use
  }
 }
 \seealso{
-\code{\link{PA}} \code{\link{PAS}} \code{\link{PAM}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
+\code{\link{PA}} \code{\link{PAS}} \code{\link{PAM}} \code{\link{PAWaitFor}} \code{\link{PAWaitAny}} \code{\link{PAConnect}}
 }
 

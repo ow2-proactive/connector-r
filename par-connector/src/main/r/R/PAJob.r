@@ -2,7 +2,7 @@
 
 setClass( 
   Class="PAJob", 
-  representation = representation(
+  slots = c(
        javaObject = "jobjRef",
        tasks = "list",
        hash = "character"            

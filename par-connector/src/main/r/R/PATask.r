@@ -2,7 +2,7 @@
 
 setClass( 
   Class="PATask", 
-  representation = representation(
+  slots = c(
      javaObject = "jobjRef",
      dependencies = "list",
      inputfiles = "list",
@@ -97,6 +97,8 @@ setReplaceMethod("addDependency" ,"PATask" ,
                    return(object)
                  }
 )
+
+
 setMethod("getDependencies" ,"PATask" ,
                  function(object) {
                    return(object@dependencies)

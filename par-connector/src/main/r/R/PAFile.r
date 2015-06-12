@@ -2,7 +2,7 @@
 
 setClass( 
   Class="PAFile", 
-  representation = representation(    
+  slots = c(
     filepath = "character", # absolute or relative local file path
     pathdest = "character", # data space path (can be empty if filepath is relative, in which case it will match the local relative path)
     space = "character", # remote data space name

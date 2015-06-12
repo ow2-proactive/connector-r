@@ -38,6 +38,8 @@ PAS(funcOrFuncName, ..., varies = NULL, input.files = list(),
 
 \item{run.as.me}{a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler}
 
+\item{isolate.io.files}{should input/output files be isolated in the remote executions, default FALSE.}
+
 \item{client}{connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used}
 
 \item{.debug}{debug mode}
@@ -70,6 +72,6 @@ The cardinality will be, like for \code{\link{PA}}, determined by analysing the 
  }
 }
 \seealso{
-\code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
+\code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAWaitFor}} \code{\link{PAWaitAny}} \code{\link{PAConnect}}
 }
 

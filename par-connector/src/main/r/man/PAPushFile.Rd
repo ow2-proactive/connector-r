@@ -17,6 +17,8 @@ PAPushFile(space, path, fileName, inputFile, client = PAClient(),
 \item{inputFile}{local path of the file}
 
 \item{client}{connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used}
+
+\item{.print.stack}{is the Java stack trace printed in case of error, default to TRUE}
 }
 \description{
 \code{PAPushFile} will copy a local file to a shared data space available to a ProActive Scheduler. The Scheduler controls two main spaces :\cr

@@ -273,6 +273,7 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  @param property.selection.value is used in combination with property.selection.name
 #'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
+#'  @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
 #'  @param .debug debug mode
 #'  @return a PATask object which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
@@ -296,7 +297,7 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  The results of those tasks are merged via the sum function, similar to sum( res[t2],res[t3],res[t4],res[t4]) , of course this is possible only with function which accept variable number of parameters
 #'  
 #'  }
-#'  @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}} 
+#'  @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAWaitFor}} \code{\link{PAWaitAny}} \code{\link{PAConnect}} 
 PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, generic.information.list = NULL, run.as.me = FALSE, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   dots <- list(...)
   
@@ -414,6 +415,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  @param property.selection.value is used in combination with property.selection.name
 #'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
+#'  @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
 #'  @param .debug debug mode
 #'  @return a PATask object which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
@@ -434,7 +436,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  (PAS(function(out,ind){for (i in ind) {file.create(paste0(out,i))}}, "out", 1:4, output.files="out%2%") # will produce a split task of cardinality 4 that will create remotely the files out1, out2, out3 and out4 and transfer them back to the local machine
 #'
 #'  }       
-#'  @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}} 
+#'  @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAWaitFor}} \code{\link{PAWaitAny}} \code{\link{PAConnect}} 
 PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, generic.information.list = NULL, run.as.me = FALSE, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   
   dots <- list(...)
@@ -577,7 +579,7 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  See examples in  PAS and PAM help sections for split/merge examples
 #'  
 #'  }
-#'  @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}} 
+#'  @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAWaitFor}} \code{\link{PAWaitAny}} \code{\link{PAConnect}} 
 PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, generic.information.list = NULL, run.as.me = FALSE, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
   if (is.character(funcOrFuncName)) {
     fun <- match.fun(funcOrFuncName)
