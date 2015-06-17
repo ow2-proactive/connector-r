@@ -1,4 +1,5 @@
-setClass( 
+#' @export
+setClass(
   Class="PAJobResult", 
   representation = representation(
     job = "PAJob",

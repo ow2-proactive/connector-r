@@ -135,7 +135,15 @@ project(':par-connector') {
         into "${rSrc}/inst/java"
     }
 
-    task checkRPackage(type: Exec, dependsOn: [copyRSources, updateVersion, copyRDependencies]) {
+    task generateDocumentation(type: Exec, dependsOn: [copyRSources, updateVersion, copyRDependencies]) {
+        inputs.dir(rSrc)
+        outputs.dir(buildDir)
+        workingDir rSrc
+        commandLine rExec, '-e', 'library(devtools);document()'
+        environment env
+    }
+
+    task checkRPackage(type: Exec, dependsOn: [generateDocumentation, copyRSources, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
