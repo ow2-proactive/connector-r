@@ -1,4 +1,4 @@
-
+#' @export
 PAGetResult <- function(job.id, 
                         client = PAClient()) {
   if (client == NULL || is.jnull(client) ) {

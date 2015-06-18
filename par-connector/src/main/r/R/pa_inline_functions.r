@@ -263,6 +263,7 @@ PAClient <- function(client = NULL) {
 #' 
 #' @param debug to set the debug mode to on (TRUE) or off (FALSE)
 #' @return the current or new state of the debug mode
+#' @export
 PADebug <- function(debug=FALSE) {  
   if (exists(".is.debug", envir=cacheEnv)){
     .is.debug <- get(".is.debug", envir=cacheEnv)

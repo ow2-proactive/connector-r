@@ -39,6 +39,7 @@ print_job_data <- function(job.data)  {
 #' 
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
 #'  @seealso \code{\link{PAConnect}}
+#' @export
 PAState <- function(client = PAClient()) {
   
   if (client == NULL || is.jnull(client) ) {

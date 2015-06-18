@@ -17,6 +17,7 @@
 #'  
 #'  }
 #'  @seealso \code{\link{PASolve}}
+#' @export
 PAConnect <- function(url, login, pwd, 
                       cred=NULL, insecure=FALSE, .print.stack = TRUE) {
   if (missing(url)) {

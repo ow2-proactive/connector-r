@@ -18,6 +18,7 @@
 #'  \dontrun{
 #'  PAPushFile("USER","/","in.txt", "in.txt") # will transfer local file in.txt to the USER space
 #'  }
+#' @export
 PAPushFile <- function(space, path, fileName, inputFile, 
                        client = PAClient(), .print.stack = TRUE) {
   

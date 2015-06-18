@@ -16,6 +16,7 @@
 #'  \dontrun{
 #'  PAPullFile("USER","/in.txt",file.path(getwd(),"in2.txt")) # will transfer file at USER/in.txt to a local file in2.txt
 #'  }
+#' @export
 PAPullFile <- function(space, pathname, outputFile, 
                        client = PAClient(), .nb.tries = 2, .print.stack = TRUE) {
   
