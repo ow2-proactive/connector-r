@@ -660,9 +660,10 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
         
         # if the parameter is a function, check for its dependencies
         if (typeof(dots[[i]]) == "closure") {
-          pairlist <- .PASolve_computeDependencies(dots[[i]], variableNames = depVariableNames, newenvir <- newenvir, envir=environment(dots[[i]]),.do.verbose=.debug)
+          pairlist <- .PASolve_computeDependencies(dots[[i]], variableNames = depVariableNames, newenvir = newenvir, envir=environment(dots[[i]]),.do.verbose=.debug)
           depVariableNames <- c(depVariableNames, pairlist[["variableNames"]])
           libraryDependencies <- c(libraryDependencies, pairlist[["libraryDependencies"]])
+          newenvir <- pairlist[["newenvir"]]
         }
       }
     }
@@ -733,9 +734,10 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
       assign(funname,fun,envir=envir)
     }
     
-    pairlist <- .PASolve_computeDependencies(funname, variableNames <- depVariableNames, newenvir <- newenvir, envir=envir,.do.verbose=.debug)
+    pairlist <- .PASolve_computeDependencies(funname, variableNames = depVariableNames, newenvir = newenvir, envir=envir,.do.verbose=.debug)
     depVariableNames <- c(depVariableNames, pairlist[["variableNames"]])
     libraryDependencies <- c(libraryDependencies, pairlist[["libraryDependencies"]])
+    newenvir <- pairlist[["newenvir"]]
   }
   
   # Create list of PATask
