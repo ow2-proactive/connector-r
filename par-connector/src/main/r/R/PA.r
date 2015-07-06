@@ -301,6 +301,7 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  
 #'  }
 #'  @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}}
+#'  @export
 PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   dots <- list(...)
   
@@ -449,6 +450,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'
 #'  }       
 #'  @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
+#'  @export
 PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   
   dots <- list(...)
@@ -595,6 +597,7 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  
 #'  }
 #'  @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult}} \code{\link{PAConnect}}
+#'  @export
 PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
   if (is.character(funcOrFuncName)) {
     fun <- match.fun(funcOrFuncName)
