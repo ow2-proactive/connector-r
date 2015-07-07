@@ -14,7 +14,7 @@
 #'  @param inputFile local path of the file
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
 #'  @param .print.stack is the Java stack trace printed in case of error, default to TRUE
-#'  @seealso  \code{\link{PAPullFile}}
+#'  @seealso  \code{\link{PAPullFile}} \code{\link{PADeleteFile}}
 #'  @examples
 #'  \dontrun{
 #'  PAPushFile("USER","/","in.txt", "in.txt") # will transfer local file in.txt to the USER space
