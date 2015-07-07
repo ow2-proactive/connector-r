@@ -80,6 +80,7 @@ print_task_data <- function(task.info)  {
 #'  @param job.id id of the proactive job 
 #'  @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
 #'  @seealso  \code{\link{PAState}}
+#' @export
 PAJobState <- function(job.id, 
                        client =  PAClient()) {
   

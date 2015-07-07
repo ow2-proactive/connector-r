@@ -37,8 +37,8 @@ print_job_data <- function(job.data)  {
 #' 
 #' \code{PAState} display the current state of the scheduler with a list of jobs
 #' 
-#'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
-#'  @seealso \code{\link{PAConnect}}
+#' @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
+#' @seealso \code{\link{PAConnect}}
 #' @export
 PAState <- function(client = PAClient()) {
   
