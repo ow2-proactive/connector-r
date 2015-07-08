@@ -143,7 +143,15 @@ project(':par-connector') {
         environment env
     }
 
-    task checkRPackage(type: Exec, dependsOn: [generateDocumentation, copyRSources, updateVersion, copyRDependencies]) {
+    task addLibsToNamespace(dependsOn: generateDocumentation) << {
+        def descFile = file("${rSrc}/NAMESPACE")
+        def nl = System.getProperty("line.separator")
+        def text = descFile.getText()
+        text = text.concat(nl + "import(rJava, stringr, codetools, devtools, gtools)" + nl)
+        descFile.write(text)
+    }
+
+    task checkRPackage(type: Exec, dependsOn: [addLibsToNamespace, generateDocumentation, copyRSources, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir

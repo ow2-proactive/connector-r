@@ -58,7 +58,9 @@ PAJobResult <- function(job,jid,tnames, client) {
 }
 
 #' [] extract parts of PAJobResult
-#'
+#' @param x object from which to extract element(s) or in which to replace element(s).
+#' @param i,j indices specifying elements to extract or replace.
+#' @param drop For matrices and arrays. If TRUE the result is coerced to the lowest possible dimension.
 #' @describeIn PAJobResult
 setMethod(
   f="[",
