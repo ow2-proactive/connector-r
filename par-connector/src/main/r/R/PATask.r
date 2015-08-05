@@ -197,10 +197,7 @@ setMethod("toString","PATask",
             if (jo$isRunAsMe()) {  
               output <- str_c(output,"  runAsMe : ",jo$isRunAsMe(),"\n")
             }
-            if (!is.null(jo$getResultPreview())) {  
-              output <- str_c(output,"  resultPreview : ",jo$getResultPreview(),"\n")
-            }
-            if (jo$getWallTime() > 0) {  
+            if (jo$getWallTime() > 0) {
               output <- str_c(output,"  wallTime : ",jo$getWallTime(),"\n")
             }
             if (length(object@dependencies) > 0) {      
