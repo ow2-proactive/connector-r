@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.script.AbstractScriptEngine;
 import javax.script.Bindings;
@@ -24,9 +23,11 @@ import javax.script.SimpleBindings;
 import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
 import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
+import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.TaskScript;
+import org.ow2.proactive.scripting.helper.progress.ProgressFile;
 import com.google.common.io.CharStreams;
 import org.rosuda.REngine.JRI.JRIEngine;
 import org.rosuda.REngine.REXP;
@@ -71,10 +72,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
      */
     private String lastErrorMessage;
 
-    /**
-     * The task progress from 0 to 100
-     */
-    private AtomicInteger taskProgress;
+    private String taskProgressFile;
 
     /**
      * Enabled if this engine is not running inside a forked node
@@ -191,9 +189,6 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
             // Clear last error message
             this.lastErrorMessage = null;
 
-            // Clear progress
-            this.taskProgress = null;
-
             // Fix for PRC-30: Always change working dir to avoid keeping a file handle on task temp dir
             try {
                 engine.parseAndEval("setwd(Sys.getenv(\"HOME\"))");
@@ -261,11 +256,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     }
 
     private void assignProgress(Bindings bindings, ScriptContext ctx) {
-        AtomicInteger progress = (AtomicInteger) bindings.get(TaskScript.PROGRESS_VARIABLE);
-        this.taskProgress = progress;
-        if (progress == null) {
-            return;
-        }
+        this.taskProgressFile = (String) bindings.get(SchedulerVars.PA_TASK_PROGRESS_FILE.toString());
         try {
             engine.parseAndEval("set_progress = function(x) { message('" + TASK_PROGRESS_MSG + "=', as.integer(x), appendLF = FALSE) }");
         } catch (Exception ex) {
@@ -434,7 +425,7 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 // Intercept progress message
                 if (text.startsWith(TASK_PROGRESS_MSG)) {
                     Integer value = Integer.parseInt(text.split("=")[1]);
-                    this.taskProgress.set(value);
+                    ProgressFile.setProgress(taskProgressFile, value);
                     return;
                 }
             }

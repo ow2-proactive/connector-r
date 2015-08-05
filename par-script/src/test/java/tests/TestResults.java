@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.swing.JPanel;
-
 import org.ow2.parscript.PARScriptFactory;
 import org.ow2.proactive.scheduler.common.job.JobId;
 import org.ow2.proactive.scheduler.common.task.TaskId;
@@ -112,17 +110,7 @@ public class TestResults {
         }
 
         @Override
-        public JPanel getGraphicalDescription() {
-            return null;
-        }
-
-        @Override
         public TaskLogs getOutput() {
-            return null;
-        }
-
-        @Override
-        public Map<String, String> getPropagatedProperties() {
             return null;
         }
 
@@ -139,11 +127,6 @@ public class TestResults {
         @Override
         public TaskId getTaskId() {
             return this.taskId;
-        }
-
-        @Override
-        public String getTextualDescription() {
-            return null;
         }
 
         @Override

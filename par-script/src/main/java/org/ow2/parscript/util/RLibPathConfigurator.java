@@ -199,7 +199,7 @@ public class RLibPathConfigurator {
     private static void setEnvVar(String var, String value) {
         Class<?> clazz;
         try {
-            clazz = Class.forName("org.ow2.proactive.rm.util.process.Environment");
+            clazz = Class.forName("org.ow2.proactive.utils.Environment");
         } catch (Exception e) {
             // This can occur for scheduler > 3.4.0
             try {
