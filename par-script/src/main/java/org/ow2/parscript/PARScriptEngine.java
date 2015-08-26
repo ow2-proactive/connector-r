@@ -305,16 +305,17 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
      * to the local space of the task.
      */
     private void assignLocalSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_SCRATCH_BINDING_NAME);
-        if (dsfo == null) {
+        String localSpace = (String) bindings.get(DS_SCRATCH_BINDING_NAME);
+
+        if (localSpace == null) {
             return;
         }
+
         try {
-            String path = convertToRPath(dsfo);
-            Path fpath = Paths.get(path);
+            Path fpath = Paths.get(localSpace);
             if (Files.exists(fpath) && Files.isWritable(fpath)) {
-                engine.parseAndEval("setwd('" + path + "')");
-                engine.assign("localspace", new REXPString(path));
+                engine.parseAndEval("setwd('" + localSpace + "')");
+                engine.assign("localspace", new REXPString(localSpace));
             }
         } catch (Exception ex) {
             writeExceptionToError(ex, ctx);
