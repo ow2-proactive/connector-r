@@ -23,6 +23,7 @@ import javax.script.SimpleBindings;
 import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
 import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
+import org.ow2.proactive.scheduler.core.properties.PASchedulerProperties;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.SelectionScript;
@@ -80,32 +81,46 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     private final boolean dumpErrorsIfNotForked;
 
     /**
-     * Creates or retrieves a singleton instance of the PARScriptEngine, that wraps an instance of
-     * JRIEngine.
+     * Creates or retrieves a singleton instance of the PARScriptEngine,
+     * that wraps an instance of JRIEngine.
      *
      * @return the singleton instance of the engine
      */
     public static synchronized PARScriptEngine create(PARScriptFactory factory) {
-        if (instance == null) {
-            // Check if the path to rJava is already set
-            String libPath = System.getProperty("java.library.path");
-            if (libPath == null || !libPath.contains("jri")) {
-                try {
-                    RLibPathConfigurator.configureLibraryPath();
-                } catch (Exception e) {
-                    throw new IllegalStateException("Unable to configure the library path for R", e);
-                }
-            }
-            String[] args = { "--vanilla", "--slave" };
+        if (isInForkedTask()) {
+            instance = createScriptEngine(factory);
+        } else if (instance == null) {
+            instance = createScriptEngine(factory);
+        }
 
-            instance = new PARScriptEngine(factory);
+        return instance;
+    }
+
+    private static PARScriptEngine createScriptEngine(PARScriptFactory factory) {
+        // Check if the path to rJava is already set
+        String libPath = System.getProperty("java.library.path");
+        if (libPath == null || !libPath.contains("jri")) {
             try {
-                instance.engine = (JRIEngine) JRIEngine.createEngine(args, instance, false);
-            } catch (Exception ex) {
-                throw new IllegalStateException("Unable to instantiate the JRIEngine", ex);
+                RLibPathConfigurator.configureLibraryPath();
+            } catch (Exception e) {
+                throw new IllegalStateException("Unable to configure the library path for R", e);
             }
         }
+        String[] args = { "--vanilla", "--slave" };
+
+        PARScriptEngine instance = new PARScriptEngine(factory);
+        try {
+            instance.engine = (JRIEngine) JRIEngine.createEngine(args, instance, false);
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to instantiate the JRIEngine", ex);
+        }
+
         return instance;
+    }
+
+
+    private static boolean isInForkedTask() {
+        return PASchedulerProperties.TASK_FORK.getValueAsBoolean();
     }
 
     protected PARScriptEngine(PARScriptFactory factory) {
@@ -194,6 +209,12 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
                 engine.parseAndEval("setwd(Sys.getenv(\"HOME\"))");
             } catch (Exception ex) {
                 this.writeExceptionToError(ex, ctx);
+            } finally {
+                if (isInForkedTask()) {
+                    if (!engine.close()) {
+                        this.writeExceptionToError(new Exception("Closing the underlying JRIEngine failed!"), ctx);
+                    }
+                }
             }
         }
     }
