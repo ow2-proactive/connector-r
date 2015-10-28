@@ -88,6 +88,11 @@ public class TestResults {
         public String value() {
             return this.name;
         }
+
+        @Override
+        public long longValue() {
+            return 0;
+        }
     }
 
     final class MockedTaskResult implements TaskResult {

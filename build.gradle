@@ -97,7 +97,9 @@ project(':par-connector') {
     def env = [:]
     env.putAll(System.getenv())
     if (!isMac) {
-        env.put('JAVA_HOME', env.get('JAVA_HOME') + File.separator + 'jre')
+        if (!env.get('JAVA_HOME').endsWith("jre")) {
+            env.put('JAVA_HOME', env.get('JAVA_HOME') + File.separator + 'jre')
+        }
     }
     if (isLinux) {
         def ldLib
@@ -139,7 +141,7 @@ project(':par-connector') {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir rSrc
-        commandLine rExec, '-e', 'library(devtools);document()'
+        commandLine rExec, '-e', 'library(devtools);library(rJava);document()'
         environment env
     }
 
@@ -214,7 +216,7 @@ project(':par-connector') {
     }
 
     task startScheduler(dependsOn: [distScheduler, installJars, reinstallRPackage]) << {
-        schedProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive.scheduler.util.SchedulerStarter', '-ln', '2'].execute(null, new File(schedHome))
+        schedProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive.scheduler.util.SchedulerStarter', '-ln', '2', '-t', '60000'].execute(null, new File(schedHome))
         try {
             schedProcess.inputStream.eachLine {
                 println '>> ' + it

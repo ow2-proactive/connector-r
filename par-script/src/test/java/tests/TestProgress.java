@@ -1,18 +1,19 @@
 package tests;
 
-import java.util.Collections;
-import java.util.Map;
-
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.ow2.parscript.PARScriptEngine;
 import org.ow2.parscript.PARScriptFactory;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
 import org.ow2.proactive.scripting.helper.progress.ProgressFile;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-import static org.junit.Assert.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -31,8 +32,10 @@ public class TestProgress {
         String rScript = "set_progress(" + expectedProgress + "); zebi=10;";
 
         String progressFilePath = tmpFolder.newFile().getAbsolutePath();
-        Map<String, Object> aBindings = Collections.singletonMap(
-                SchedulerVars.PA_TASK_PROGRESS_FILE.toString(), (Object) progressFilePath);
+        Map<String, Object> aBindings = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put(SchedulerVars.PA_TASK_PROGRESS_FILE.toString(), (Object) progressFilePath);
+        aBindings.put(PARScriptEngine.TASK_SCRIPT_VARIABLES, variables);
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
         taskScript.execute(aBindings, System.out, System.err);

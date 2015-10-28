@@ -1,26 +1,6 @@
 package org.ow2.parscript;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.Writer;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.script.AbstractScriptEngine;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptException;
-import javax.script.SimpleBindings;
-
-import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
+import com.google.common.io.CharStreams;
 import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.core.properties.PASchedulerProperties;
@@ -29,13 +9,16 @@ import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.TaskScript;
 import org.ow2.proactive.scripting.helper.progress.ProgressFile;
-import com.google.common.io.CharStreams;
 import org.rosuda.REngine.JRI.JRIEngine;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPString;
-import org.rosuda.REngine.REngine;
-import org.rosuda.REngine.REngineCallbacks;
-import org.rosuda.REngine.REngineOutputInterface;
+import org.rosuda.REngine.*;
+
+import javax.script.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * R implementation of ScriptEngine using REngine through JRI. Sub-class of the
@@ -48,10 +31,10 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
 
     public static final String IS_FORKED = "is.forked";
     public static final String DS_SCRATCH_BINDING_NAME = "localspace";
-    public static final String DS_INPUT_BINDING_NAME = "input";
-    public static final String DS_OUTPUT_BINDING_NAME = "output";
-    public static final String DS_GLOBAL_BINDING_NAME = "global";
-    public static final String DS_USER_BINDING_NAME = "user";
+    public static final String DS_INPUT_BINDING_NAME = "inputspace";
+    public static final String DS_OUTPUT_BINDING_NAME = "outputspace";
+    public static final String DS_GLOBAL_BINDING_NAME = "globalspace";
+    public static final String DS_USER_BINDING_NAME = "userspace";
     public static final String TASK_SCRIPT_VARIABLES = "variables";
     public static final String TASK_PROGRESS_MSG = "taskProgress";
     public static final String ERROR_TAG = "<PARError> ";
@@ -147,10 +130,10 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         this.assignProgress(bindings, ctx);
         this.assignResults(bindings, ctx);
         this.assignLocalSpace(bindings, ctx);
-        this.assignUserSpace(bindings, ctx);
-        this.assignGlobalSpace(bindings, ctx);
-        this.assignInputSpace(bindings, ctx);
-        this.assignOutputSpace(bindings, ctx);
+        this.assignSpace(bindings, ctx, DS_USER_BINDING_NAME, "userspace");
+        this.assignSpace(bindings, ctx, DS_GLOBAL_BINDING_NAME, "globalspace");
+        this.assignSpace(bindings, ctx, DS_INPUT_BINDING_NAME, "inputspace");
+        this.assignSpace(bindings, ctx, DS_OUTPUT_BINDING_NAME, "outputspace");
         Map<String, Serializable> jobVariables = this.assignVariables(bindings, ctx);
 
         try {
@@ -277,11 +260,18 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     }
 
     private void assignProgress(Bindings bindings, ScriptContext ctx) {
-        this.taskProgressFile = (String) bindings.get(SchedulerVars.PA_TASK_PROGRESS_FILE.toString());
-        try {
-            engine.parseAndEval("set_progress = function(x) { message('" + TASK_PROGRESS_MSG + "=', as.integer(x), appendLF = FALSE) }");
-        } catch (Exception ex) {
-            writeExceptionToError(ex, ctx);
+        Map<String, Serializable> variables = (Map<String, Serializable>) bindings.get(TASK_SCRIPT_VARIABLES);
+        if (variables != null) {
+            this.taskProgressFile = (String) variables.get(SchedulerVars.PA_TASK_PROGRESS_FILE.toString());
+            try {
+                if (taskProgressFile != null) {
+                    this.taskProgressFile = this.taskProgressFile.replace("\\", "/");
+                    String command = "set_progress <- function(x) { message('" + TASK_PROGRESS_MSG + "=', as.integer(x), appendLF = FALSE) }";
+                    engine.parseAndEval(command);
+                }
+            } catch (Exception ex) {
+                writeExceptionToError(ex, ctx);
+            }
         }
     }
 
@@ -333,8 +323,10 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         }
 
         try {
-            Path fpath = Paths.get(localSpace);
+            Path fpath = Paths.get(localSpace).normalize();
             if (Files.exists(fpath) && Files.isWritable(fpath)) {
+                // convert it to be accepted by R
+                localSpace = fpath.toString().replace("\\", "/");
                 engine.parseAndEval("setwd('" + localSpace + "')");
                 engine.assign("localspace", new REXPString(localSpace));
             }
@@ -343,87 +335,17 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         }
     }
 
-    private void assignUserSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_USER_BINDING_NAME);
-        if (dsfo == null) {
+    private void assignSpace(Bindings bindings, ScriptContext ctx, String bindingName, String varName) {
+        String space = (String) bindings.get(bindingName);
+        if (space == null) {
             return;
         }
-        String path;
+        space = space.replace("\\","/");
         try {
-            path = convertToRPath(dsfo);
-        } catch (Exception e) {
-            path = dsfo.getRealURI();
-        }
-        try {
-            engine.assign("userspace", new REXPString(path));
+            engine.assign(varName, new REXPString(space));
         } catch (Exception ex) {
             writeExceptionToError(ex, ctx);
         }
-    }
-
-    private void assignGlobalSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_GLOBAL_BINDING_NAME);
-        if (dsfo == null) {
-            return;
-        }
-        String path;
-        try {
-            path = convertToRPath(dsfo);
-        } catch (Exception e) {
-            path = dsfo.getRealURI();
-        }
-        try {
-            engine.assign("globalspace", new REXPString(path));
-        } catch (Exception ex) {
-            writeExceptionToError(ex, ctx);
-        }
-    }
-
-    private void assignInputSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_INPUT_BINDING_NAME);
-        if (dsfo == null) {
-            return;
-        }
-        String path;
-        try {
-            path = convertToRPath(dsfo);
-        } catch (Exception e) {
-            path = dsfo.getRealURI();
-        }
-        try {
-            engine.assign("inputspace", new REXPString(path));
-        } catch (Exception ex) {
-            writeExceptionToError(ex, ctx);
-        }
-    }
-
-    private void assignOutputSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_OUTPUT_BINDING_NAME);
-        if (dsfo == null) {
-            return;
-        }
-        String path;
-        try {
-            path = convertToRPath(dsfo);
-        } catch (Exception e) {
-            path = dsfo.getRealURI();
-        }
-        try {
-            engine.assign("outputspace", new REXPString(path));
-        } catch (Exception ex) {
-            writeExceptionToError(ex, ctx);
-        }
-    }
-
-    /**
-     * R paths are not antislash friendly
-     */
-    private String convertToRPath(DataSpacesFileObject dsfo) throws Exception {
-        String path = dsfo.getRealURI();
-        URI uri = new URI(path);
-        File f = new File(uri);
-        path = f.getCanonicalPath();
-        return path.replace("\\", "/");
     }
 
     /**

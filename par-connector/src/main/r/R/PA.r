@@ -815,10 +815,15 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
       total_script <- str_c(total_script, "print(\"[DEBUG] PASolveCall :\")\n")
       total_script <- str_c(total_script, "print(PASolveCall)\n")
     }
-    total_script <- str_c(total_script, "result <- serialize(eval(PASolveCall), NULL)\n")
+    if (.debug) {
+      total_script <- str_c(total_script, "res_unserialized <- eval(PASolveCall)\n")
+      total_script <- str_c(total_script, "result <- serialize(res_unserialized, NULL)\n")
+    } else {
+      total_script <- str_c(total_script, "result <- serialize(eval(PASolveCall), NULL)\n")
+    }
     if (.debug) {
       total_script <- str_c(total_script, "print(\"[DEBUG] Result :\")\n")
-      total_script <- str_c(total_script, "print(result)\n")
+      total_script <- str_c(total_script, "print(res_unserialized)\n")
       total_script <- str_c(total_script, "print(\"[DEBUG] Working directory content after script execution:\")\n")
       total_script <- str_c(total_script, "print(list.files(getwd()))\n")
     }
