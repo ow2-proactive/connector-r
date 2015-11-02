@@ -2,9 +2,9 @@ apply plugin: 'java'
 
 buildscript {
     repositories {
-        if (project.hasProperty('local')) {
+        //if (project.hasProperty('local')) {
             mavenLocal()
-        }
+        //}
         mavenCentral()
         maven { url 'http://repository.activeeon.com/content/groups/proactive/' }
     }
@@ -24,23 +24,34 @@ subprojects {
         addons
     }
 
-    // rosuda jars are required for both par-connector and par-script
-    dependencies {
-        addons "org.rosuda:jriengine:0.5.x"
-        addons "org.rosuda:jri:0.5.x"
-        addons "org.rosuda:rengine:1.7.x"
-    }
 }
 
-project(':par-script') {
+def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
+def isMac = System.properties['os.name'].toLowerCase().contains('mac')
+def isLinux = System.properties['os.name'].toLowerCase().contains('linux')
+def rHome = System.getenv('R_HOME')
+
+def rExec
+def rScript
+if (isWindows) {
+    def ARCH = System.getenv('ProgramFiles(x86)') != null ? 'x64' : 'i386'
+    rExec = rHome ? rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'R.exe' : 'R.exe'
+    rScript = rHome ? rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'Rscript.exe' : 'Rscript.exe'
+} else {
+    rExec = rHome ? rHome + File.separator + 'bin' + File.separator + 'R' : 'R'
+    rScript = rHome ? rHome + File.separator + 'bin' + File.separator + 'Rscript' : 'Rscript'
+}
+
+project(':pa-rengine-common') {
     apply plugin: 'java'
 
     sourceCompatibility = 1.7
 
     dependencies {
         compile configurations.addons
-
+        compile 'log4j:log4j:1.2.14'
         compile 'org.apache.commons:commons-lang3:3.1'
+        compile 'commons-io:commons-io:2.4'
         compile group: 'com.google.guava', name: 'guava', version: '17.0'
 
         compile "org.objectweb.proactive:programming-extension-dataspaces:${programmingVersion}"
@@ -51,7 +62,71 @@ project(':par-script') {
         testCompile 'junit:junit:4.11'
     }
 
+    task testJar(type: Jar) {
+        baseName = "test-${project.archivesBaseName}"
+        from sourceSets.test.output
+    }
+
+    configurations {
+        tests
+    }
+
+    artifacts {
+        tests testJar
+    }
+
+}
+
+project(':pa-rserve') {
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.7
+
+    dependencies {
+        compile configurations.addons
+        compile project(':pa-rengine-common')
+
+        addons "org.rosuda.REngine:REngine:2.1.0"
+        addons "org.rosuda.REngine:Rserve:1.8.1"
+
+        testCompile project(path: ':pa-rengine-common', configuration: 'tests')
+        testCompile 'junit:junit:4.11'
+    }
+
+    task installRserve(type: Exec) {
+        commandLine rExec, '-q', '--no-save', '-e', 'install.packages(\'Rserve\', repos=c(\'http://cran.r-project.org\'))'
+    }
+
     task addon(type: Zip){
+        from project(':pa-rengine-common').jar
+        from configurations.addons
+        from jar
+    }
+
+    artifacts { archives addon }
+    test.dependsOn(installRserve)
+    build.dependsOn(addon)
+}
+
+project(':pa-jri') {
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.7
+
+    dependencies {
+        compile configurations.addons
+        compile project(':pa-rengine-common')
+
+        addons "org.rosuda:jriengine:0.5.x"
+        addons "org.rosuda:jri:0.5.x"
+        addons "org.rosuda:rengine:1.7.x"
+
+        testCompile project(path: ':pa-rengine-common', configuration: 'tests')
+        testCompile 'junit:junit:4.11'
+    }
+
+    task addon(type: Zip) {
+        from project(':pa-rengine-common').jar
         from configurations.addons
         from jar
     }
@@ -60,12 +135,13 @@ project(':par-script') {
     build.dependsOn(addon)
 }
 
-project(':par-connector') {
+project(':pa-rconnector') {
     apply plugin: 'base'
 
     configurations {
         scheduler
         restJars
+        rengine
     }
 
     dependencies {
@@ -73,26 +149,15 @@ project(':par-connector') {
 
         restJars 'xerces:xercesImpl:2.8.1'
         restJars "org.ow2.proactive_grid_cloud_portal:rest-client:${schedulingVersion}"
+
+        rengine "org.rosuda.REngine:REngine:2.1.0"
     }
 
-    def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
-    def isMac = System.properties['os.name'].toLowerCase().contains('mac')
-    def isLinux = System.properties['os.name'].toLowerCase().contains('linux')
 
-    def rHome = System.getenv('R_HOME')
     def schedHome = "${rootProject.buildDir}/scheduler"
     def rSrc = "${buildDir}/r-pkg-src"
 
-    def rExec
-    def rScript
-    if (isWindows) {
-        def ARCH = System.getenv('ProgramFiles(x86)') != null ? 'x64' : 'i386'
-        rExec = rHome ? rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'R.exe' : 'R.exe'
-        rScript = rHome ? rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'Rscript.exe' : 'Rscript.exe'
-    } else {
-        rExec = rHome ? rHome + File.separator + 'bin' + File.separator + 'R' : 'R'
-        rScript = rHome ? rHome + File.separator + 'bin' + File.separator + 'Rscript' : 'Rscript'
-    }
+
 
     def env = [:]
     env.putAll(System.getenv())
@@ -120,8 +185,11 @@ project(':par-connector') {
         into rSrc
     }
 
+    task installrJava(type: Exec) {
+        commandLine rExec, '-q', '-no-save', '-e', 'install.packages(\'rJava\', repos=c(\'http://cran.r-project.org\'))'
+    }
 
-
+    // this task updates the version inside PARConnector package Description file
     task updateVersion(dependsOn: copyRSources) << {
         def descFile = file("${rSrc}/DESCRIPTION")
         def pattern = java.util.regex.Pattern.compile("Version: ((\\d+\\.)*(\\d+))")
@@ -133,15 +201,15 @@ project(':par-connector') {
     }
 
     task copyRDependencies(type: Copy) {
-        from configurations.restJars
+        from configurations.restJars, configurations.rengine
         into "${rSrc}/inst/java"
     }
 
-    task generateDocumentation(type: Exec, dependsOn: [copyRSources, updateVersion, copyRDependencies]) {
+    task generateDocumentation(type: Exec, dependsOn: [installrJava, copyRSources, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir rSrc
-        commandLine rExec, '-e', 'library(devtools);library(rJava);document()'
+        commandLine rExec, '-q', '-no-save', '-e', 'library(devtools);library(rJava);document()'
         environment env
     }
 
@@ -170,22 +238,8 @@ project(':par-connector') {
     }
     task build(dependsOn: buildRPackage)
 
+    // ReInstall PARConnector package to apply changes
     task reinstallRPackage(dependsOn: buildRPackage) << {
-        def rLibs
-        if (isWindows) {
-            rLibs = new File(rHome, 'library')
-        } else {
-            assert System.getenv('R_LIBS') : 'R_LIBS must be defined'
-            rLibs = file(System.getenv('R_LIBS'))
-        }
-        assert rLibs.exists(): 'Unable to locate r libs'
-
-        logger.info('Removing previous installation ...')
-        exec {
-            workingDir buildDir
-            commandLine rExec, 'CMD', 'REMOVE', '--library=' + rLibs.getAbsolutePath(), 'PARConnector'
-            environment env
-        }
 
         logger.info('Reinstallling ...')
         def packageFile = file(buildDir).listFiles().find {
@@ -194,14 +248,26 @@ project(':par-connector') {
                     it.name.endsWith('zip') }
         exec {
             workingDir buildDir
-            commandLine rExec, 'CMD', 'INSTALL', '--no-multiarch', '--library=' + rLibs.getAbsolutePath(), packageFile.getAbsolutePath()
+            commandLine rExec, 'CMD', 'INSTALL', '--no-multiarch', packageFile.getAbsolutePath()
             environment env
         }
     }
 
-    task installJars(type: Copy) {
-        from project(':par-script').jar
-        from configurations.addons
+    task clearAddons(type: Delete) {
+        delete fileTree(dir: "${schedHome}/addons", include: "*.jar")
+    }
+
+    task installPARserveJars(type: Copy) {
+        from project(':pa-rengine-common').jar
+        from project(':pa-rserve').jar
+        from project(":pa-rserve").configurations.addons
+        into "${schedHome}/addons"
+    }
+
+    task installPAJRIJars(type: Copy) {
+        from project(':pa-rengine-common').jar
+        from project(':pa-jri').jar
+        from project(":pa-jri").configurations.addons
         into "${schedHome}/addons"
     }
 
@@ -215,8 +281,31 @@ project(':par-connector') {
         includeEmptyDirs = false
     }
 
-    task startScheduler(dependsOn: [distScheduler, installJars, reinstallRPackage]) << {
-        schedProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive.scheduler.util.SchedulerStarter', '-ln', '2', '-t', '60000'].execute(null, new File(schedHome))
+    task changeSchedulerSettings(dependsOn: distScheduler) << {
+        def schediniFile = file("${rootProject.buildDir}/scheduler/config/scheduler/settings.ini")
+        def pattern = java.util.regex.Pattern.compile("pa\\.scheduler\\.task\\.fork=.*")
+        def matcher = pattern.matcher(schediniFile.getText())
+        matcher.find()
+        def fileContent = matcher.replaceFirst("pa.scheduler.task.fork=false")
+        schediniFile.write(fileContent)
+
+        def rminiFile = file("${rootProject.buildDir}/scheduler/config/rm/settings.ini")
+        def pattern2 = java.util.regex.Pattern.compile("pa\\.rm\\.nodelookup\\.timeout=.*")
+        def matcher2 = pattern2.matcher(rminiFile.getText())
+        matcher2.find()
+        def fileContent2 = matcher2.replaceFirst("pa.rm.nodelookup.timeout=60000")
+        rminiFile.write(fileContent2)
+    }
+
+
+    task startScheduler() << {
+        schedProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive.scheduler.util.SchedulerStarter', '-c', '-ln', '1', '-t', '60000'].execute(null, new File(schedHome))
+        //isWindows = System.properties['os.name'].toLowerCase().contains('windows')
+        //if (isWindows) {
+        //    schedProcess = ['cmd.exe', '/C', 'proactive-server', '-ln', '1'].execute(null, new File(schedHome, "bin"))
+        //} else {
+        //
+        // }
         try {
             schedProcess.inputStream.eachLine {
                 println '>> ' + it
@@ -236,7 +325,7 @@ project(':par-connector') {
         }
     }
 
-    task runFuncTests(dependsOn: startScheduler) << {
+    task runFuncTests() << {
         def funcTestsDir = file("${projectDir}/src/main/test/r/functionalTests")
         try {
             funcTestsDir.listFiles().each {
@@ -264,7 +353,28 @@ project(':par-connector') {
             } catch (e) {
             }
             schedProcess.destroy();
+            // workaround for killing PARServe on windows
+            if (isWindows) {
+                ['taskkill', '/F', '/im', 'RServe.exe'].execute()
+                ['taskkill', '/F', '/im', 'Rterm.exe'].execute()
+            }
         }
+    }
+
+    task startSchedulerPARserve(dependsOn: [distScheduler, clearAddons, installPARserveJars, changeSchedulerSettings, reinstallRPackage]) << {
+        tasks.startScheduler.execute()
+    }
+
+    task startSchedulerPAJRI(dependsOn: [distScheduler, clearAddons, installPAJRIJars, changeSchedulerSettings, reinstallRPackage]) << {
+        tasks.startScheduler.execute()
+    }
+
+    task runFuncTestsPARserve(dependsOn: startSchedulerPARserve) << {
+        tasks.runFuncTests.execute();
+    }
+
+    task runFuncTestsPAJRI(dependsOn: startSchedulerPAJRI) << {
+        tasks.runFuncTests.execute();
     }
 }
 
