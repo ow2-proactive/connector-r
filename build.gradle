@@ -282,7 +282,16 @@ project(':pa-rconnector') {
         commandLine rExec, 'CMD', 'INSTALL', '--build', '--preclean', '--with-keep.source', '--no-multiarch', rSrc
         environment env
     }
-    task build(dependsOn: buildRPackage)
+
+    task buildRPackageSrc(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
+        inputs.dir(rSrc)
+        outputs.dir(buildDir)
+        workingDir buildDir
+        commandLine rExec, 'CMD', 'build', '--preclean', '--no-resave-data', rSrc
+        environment env
+    }
+
+    task build(dependsOn: [buildRPackage, buildRPackageSrc])
 
     // ReInstall PARConnector package to apply changes
     task reinstallRPackage(dependsOn: [checkRCommands, buildRPackage]) << {
