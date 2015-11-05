@@ -18,7 +18,7 @@ public abstract class PAREngineFactory implements ScriptEngineFactory {
     public static final String ENGINE_NAME = "R";
     protected static final String R_ENGINE_VERSION = "1";
     protected static final String R_LANGUAGE_NAME = "R";
-    protected static final String R_LANGUAGE_VERSION = "2";
+    protected static final String R_LANGUAGE_VERSION = "3";
     protected static final List<String> R_FILE_EXTENSIONS = Arrays.asList("R", "r");
     protected static final List<String> ENGINE_NAMES = Arrays.asList("R", "r");
     protected static final List<String> R_MIME_TYPES = Collections.singletonList("text/x-R");

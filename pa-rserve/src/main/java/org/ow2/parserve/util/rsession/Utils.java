@@ -1,5 +1,7 @@
 package org.ow2.parserve.util.rsession;
 
+import org.apache.log4j.Logger;
+import org.objectweb.proactive.utils.OperatingSystem;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPList;
 import org.rosuda.REngine.REXPMismatchException;
@@ -21,8 +23,20 @@ import java.util.Properties;
 public class Utils {
 
     public final static String R_HOME_KEY = "R_HOME";
+    public static final String[] COMMON_R_INSTALL_DIRS = {
+            "/Library/Frameworks/R.framework/Resources",
+            "/usr/local/lib/R",
+            "/usr/lib/R",
+            "/usr/local",
+            "/sw",
+            "/usr/common",
+            "/opt"
+    };
+
     public static String R_HOME = null;
     static String separator = ",";
+
+    private static final Logger logger = Logger.getLogger(Utils.class);
 
     public static boolean isPortAvailable(int p) {
         try {
@@ -293,6 +307,27 @@ public class Utils {
         return o;
     }
 
+    public static String findRInstallPathWindow() throws IOException, InterruptedException {
+        Process rp = Runtime.getRuntime().exec("reg query HKLM\\Software\\R-core\\R");
+        Utils.RegistryHog regHog = new Utils.RegistryHog(rp.getInputStream(), true);
+        rp.waitFor();
+        regHog.join();
+        return regHog.getInstallPath();
+    }
+
+    public static String findRInstallPathLinuxMac() {
+        for (String dir : COMMON_R_INSTALL_DIRS) {
+            File fdir = new File(dir);
+            if (fdir.exists() && fdir.isDirectory()) {
+                File rExec = new File(dir, "bin/R");
+                if (rExec.exists() && rExec.canRead() && rExec.canExecute()) {
+                    return rExec.getAbsolutePath();
+                }
+            }
+        }
+        return null;
+    }
+
     public static boolean findR_HOME(String r_HOME) {
         Map<String, String> env = System.getenv();
         Properties prop = System.getProperties();
@@ -308,29 +343,15 @@ public class Utils {
             }
 
             if (R_HOME == null || !(new File(R_HOME).isDirectory())) {
-                R_HOME = "R";
-            }
-
-            if (R_HOME == null || !(new File(R_HOME).isDirectory())) {
                 R_HOME = null;
-                if (System.getProperty("os.name").contains("Win")) {
-                    for (int major = 20; major >= 0; major--) {
-                        //int major = 10;//known to work with R 2.9 only.
-                        if (R_HOME == null) {
-                            for (int minor = 10; minor >= 0; minor--) {
-                                //int minor = 0;
-                                r_HOME = "C:\\Program Files\\R\\R-3." + major + "." + minor + "\\";
-                                if (new File(r_HOME).exists()) {
-                                    R_HOME = r_HOME;
-                                    break;
-                                }
-                            }
-                        } else {
-                            break;
-                        }
+                if (OperatingSystem.getOperatingSystem().equals(OperatingSystem.windows)) {
+                    try {
+                        R_HOME = Utils.findRInstallPathWindow();
+                    } catch (Exception e) {
+                        logger.error("Error when querying registry for R installation",e);
                     }
                 } else {
-                    R_HOME = "/usr/lib/R/";
+                    R_HOME = findRInstallPathLinuxMac();
                 }
             }
         }
@@ -431,7 +452,7 @@ public class Utils {
     /**
      * helper class that consumes output of a process. In addition, it filter output of the REG command on Windows to look for InstallPath registry entry which specifies the location of R.
      */
-    static class RegistryHog extends Thread {
+    public static class RegistryHog extends Thread {
 
         public Process rProcess;
         InputStream is;

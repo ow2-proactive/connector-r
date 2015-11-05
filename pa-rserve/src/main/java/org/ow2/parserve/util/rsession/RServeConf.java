@@ -3,6 +3,8 @@ package org.ow2.parserve.util.rsession;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Properties;
 
 /**
@@ -80,7 +82,11 @@ public class RServeConf {
     }
 
     public boolean isLocal() {
-        return host == null || host.equals(DEFAULT_RSERVE_HOST) || host.equals("127.0.0.1");
+        try {
+            return host == null || InetAddress.getLocalHost().getHostName() == host || InetAddress.getByName(host).isLoopbackAddress();
+        } catch (UnknownHostException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override

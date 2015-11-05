@@ -76,11 +76,6 @@ public class RServeConnectionFactory {
                 http_proxy = conf.localRProperties.getProperty("http_proxy");
             }
             rServeDaemon.startDaemon(http_proxy);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-                logger.error(ie);
-            }
         }
     }
 

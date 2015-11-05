@@ -13,6 +13,8 @@ import java.io.File;
 /**
  * Handles all interactions with the R engine
  *
+ * inspired from https://github.com/yannrichet/rsession
+ *
  * @author Activeeon Team
  */
 public class Rsession {
@@ -32,7 +34,7 @@ public class Rsession {
     public static RServeConnectionFactory rserveConnectionFactory;
     public boolean TRY_MODE_DEFAULT = false;
     public boolean TRY_MODE = false;
-    public RConnection connection;
+    protected RConnection connection;
     public boolean connected = false;
     public String name;
     public RServeConf conf;

@@ -33,14 +33,35 @@ def rHome = System.getenv('R_HOME')
 
 def rExec
 def rScript
+def rBinDir = rHome ? rHome + File.separator + 'bin' + File.separator : null
 if (isWindows) {
     def ARCH = System.getenv('ProgramFiles(x86)') != null ? 'x64' : 'i386'
-    rExec = rHome ? rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'R.exe' : 'R.exe'
-    rScript = rHome ? rHome + File.separator + 'bin' + File.separator + ARCH + File.separator + 'Rscript.exe' : 'Rscript.exe'
+    rExec = rBinDir ? rBinDir + ARCH + File.separator + 'R.exe' : 'R.exe'
+    rScript = rBinDir ? rBinDir + ARCH + File.separator + 'Rscript.exe' : 'Rscript.exe'
 } else {
-    rExec = rHome ? rHome + File.separator + 'bin' + File.separator + 'R' : 'R'
-    rScript = rHome ? rHome + File.separator + 'bin' + File.separator + 'Rscript' : 'Rscript'
+    rExec = rBinDir ? rBinDir + 'R' : 'R'
+    rScript = rBinDir ? rBinDir + 'Rscript' : 'Rscript'
 }
+
+task checkRCommands() << {
+    def res1 = exec {
+        commandLine rExec, '--version'
+        ignoreExitValue = true
+    }
+
+    if (res1.getExitValue() != 0) {
+        throw "R command seems not accessible (using " + rExec + "), please check that R is installed properly"
+    }
+
+    def res2 = exec {
+        commandLine rScript, '--version'
+        ignoreExitValue = true
+    }
+    if (res2.getExitValue() != 0) {
+        throw "RScript command seems not accessible (using " + rScript + "), please check that R is installed properly"
+    }
+}
+
 
 project(':pa-rengine-common') {
     apply plugin: 'java'
@@ -99,7 +120,7 @@ project(':pa-rserve') {
         commandLine rExec, '-q', '--no-save', '-e', 'install.packages(\'Rserve\', repos=c(\'http://cran.r-project.org\'))'
     }
 
-    task addon(type: Zip){
+    task addon(type: Zip) {
         from project(':pa-rengine-common').jar
         from configurations.addons
         from jar
@@ -188,7 +209,7 @@ project(':pa-rconnector') {
         into rSrc
     }
 
-    task installrJava(type: Exec) {
+    task installrJava(type: Exec, dependsOn: checkRCommands) {
         commandLine rExec, '-q', '-no-save', '-e', 'install.packages(\'rJava\', repos=c(\'http://cran.r-project.org\'))'
     }
 
@@ -208,7 +229,7 @@ project(':pa-rconnector') {
         into "${rSrc}/inst/java"
     }
 
-    task generateDocumentation(type: Exec, dependsOn: [installrJava, copyRSources, updateVersion, copyRDependencies]) {
+    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, installrJava, copyRSources, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir rSrc
@@ -224,7 +245,7 @@ project(':pa-rconnector') {
         descFile.write(text)
     }
 
-    task checkRPackage(type: Exec, dependsOn: [addLibsToNamespace, generateDocumentation, copyRSources, updateVersion, copyRDependencies]) {
+    task checkRPackage(type: Exec, dependsOn: [checkRCommands, addLibsToNamespace, generateDocumentation, copyRSources, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -232,7 +253,7 @@ project(':pa-rconnector') {
         environment env
     }
 
-    task buildRPackage(type: Exec, dependsOn: [copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
+    task buildRPackage(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -242,7 +263,7 @@ project(':pa-rconnector') {
     task build(dependsOn: buildRPackage)
 
     // ReInstall PARConnector package to apply changes
-    task reinstallRPackage(dependsOn: buildRPackage) << {
+    task reinstallRPackage(dependsOn: [checkRCommands, buildRPackage]) << {
 
         logger.info('Reinstallling ...')
         def packageFile = file(buildDir).listFiles().find {
@@ -303,12 +324,7 @@ project(':pa-rconnector') {
 
     task startScheduler() << {
         schedProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive.scheduler.util.SchedulerStarter', '-c', '-ln', '1', '-t', '60000'].execute(null, new File(schedHome))
-        //isWindows = System.properties['os.name'].toLowerCase().contains('windows')
-        //if (isWindows) {
-        //    schedProcess = ['cmd.exe', '/C', 'proactive-server', '-ln', '1'].execute(null, new File(schedHome, "bin"))
-        //} else {
-        //
-        // }
+
         try {
             schedProcess.inputStream.eachLine {
                 println '>> ' + it
@@ -356,10 +372,12 @@ project(':pa-rconnector') {
             } catch (e) {
             }
             schedProcess.destroy();
-            // workaround for killing PARServe on windows
+            // workaround for killing PARServe on windows/linux as removing local nodes creates R zombies
             if (isWindows) {
                 ['taskkill', '/F', '/im', 'RServe.exe'].execute()
                 ['taskkill', '/F', '/im', 'Rterm.exe'].execute()
+            } else {
+                ['killall', '-u', System.getenv("USER"), 'R'].execute()
             }
         }
     }
