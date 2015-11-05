@@ -1,19 +1,25 @@
 package org.ow2.parserve.util.rsession;
 
 import org.apache.log4j.Logger;
+import org.objectweb.proactive.utils.OperatingSystem;
 import org.rosuda.REngine.Rserve.RConnection;
 
 import java.io.File;
+import java.net.InetAddress;
 
 /**
  * simple class that start Rserve locally if it's not running already - see mainly <code>checkLocalRserve</code> method. It spits out quite some debugging outout of the console, so feel free to modify it for your application if desired.<p>
  * <i>Important:</i> All applications should shutdown every Rserve that they started! Never leave Rserve running if you started it after your application quits since it may pose a security risk. Inform the user if you started an Rserve instance.
+ *
+ * from : https://github.com/s-u/REngine/blob/master/Rserve/test/StartRserve.java (with minor modifications)
  */
 public class StartRserve {
 
     private static final Logger logger = Logger.getLogger(StartRserve.class);
     public static String DEFAULT_REPOS = "http://cran.irsn.fr/";
     public static Process rProcess;
+
+
 
     /**
      * R batch to check Rserve is installed
@@ -47,7 +53,9 @@ public class StartRserve {
             repository = DEFAULT_REPOS;
         }
         logger.info("Install Rserve from " + repository + " ... (http_proxy=" + http_proxy + ") ");
-        boolean ok = doInR((http_proxy != null ? "Sys.setenv(http_proxy=" + http_proxy + ");" : "") + "install.packages('Rserve',repos='" + repository + "')", Rcmd, "--vanilla", true, null, null);
+        StringBuffer out = new StringBuffer();
+        StringBuffer err = new StringBuffer();
+        boolean ok = doInR((http_proxy != null ? "Sys.setenv(http_proxy=" + http_proxy + ");" : "") + "install.packages('Rserve',repos='" + repository + "')", Rcmd, "--vanilla", true, out, err);
         if (!ok) {
             logger.error("RServe installation failed");
             return false;
@@ -65,7 +73,11 @@ public class StartRserve {
             }
             n--;
         }
-        logger.error("RServe installation failed");
+        logger.error("RServe installation failed.");
+        logger.error("R process output stream : ");
+        logger.error(out.toString());
+        logger.error("R process error stream : ");
+        logger.error(err.toString());
         return false;
     }
 
@@ -162,10 +174,11 @@ public class StartRserve {
                     port = Integer.parseInt(rsport);
                 }
                 logger.info("Trying to connect to RServe on port : " + port);
+                String loopback = InetAddress.getLoopbackAddress().getHostAddress();
                 if (rsrvargs.contains("--RS-port") || rsrvargs.contains("port")) {
-                    c = new RConnection("localhost", port);
+                    c = new RConnection(loopback, port);
                 } else {
-                    c = new RConnection("localhost");
+                    c = new RConnection(loopback);
                 }
                 logger.info("Rserve is running.");
                 c.close();
@@ -192,16 +205,11 @@ public class StartRserve {
         if (isRserveRunning()) {
             return true;
         }
-        String osname = System.getProperty("os.name");
-        if (osname != null && osname.length() >= 7 && osname.substring(0, 7).equals("Windows")) {
+        if (OperatingSystem.getOperatingSystem().equals(OperatingSystem.windows)) {
             logger.info("Windows: query registry to find where R is installed ...");
             String installPath = null;
             try {
-                Process rp = Runtime.getRuntime().exec("reg query HKLM\\Software\\R-core\\R");
-                Utils.RegistryHog regHog = new Utils.RegistryHog(rp.getInputStream(), true);
-                rp.waitFor();
-                regHog.join();
-                installPath = regHog.getInstallPath();
+                installPath = Utils.findRInstallPathWindow();
             } catch (Exception rge) {
                 logger.error("ERROR: unable to run REG to find the location of R: " + rge);
                 return false;
@@ -212,14 +220,22 @@ public class StartRserve {
             }
             return launchRserve(installPath + "\\bin\\R.exe");
         }
-        return (launchRserve("R")
-                || /* try some common unix locations of R */ ((new File("/Library/Frameworks/R.framework/Resources/bin/R")).exists() && launchRserve("/Library/Frameworks/R.framework/Resources/bin/R"))
-                || ((new File("/usr/local/lib/R/bin/R")).exists() && launchRserve("/usr/local/lib/R/bin/R"))
-                || ((new File("/usr/lib/R/bin/R")).exists() && launchRserve("/usr/lib/R/bin/R"))
-                || ((new File("/usr/local/bin/R")).exists() && launchRserve("/usr/local/bin/R"))
-                || ((new File("/sw/bin/R")).exists() && launchRserve("/sw/bin/R"))
-                || ((new File("/usr/common/bin/R")).exists() && launchRserve("/usr/common/bin/R"))
-                || ((new File("/opt/bin/R")).exists() && launchRserve("/opt/bin/R")));
+         /* try some common unix locations of R */
+        return (launchRserve("R") || launchRserveFromAlternateLocations());
+    }
+
+    private static boolean launchRserveFromAlternateLocations() {
+        for (String dir : Utils.COMMON_R_INSTALL_DIRS) {
+            File fdir = new File(dir);
+            if (!fdir.exists() || !fdir.isDirectory())
+                continue;
+            File rExec = new File(dir, "bin/R");
+            if (rExec.exists() && rExec.canRead() && rExec.canExecute()) {
+                boolean launched = launchRserve(rExec.getAbsolutePath());
+                if (launched) return true;
+            }
+        }
+        return false;
     }
 
     /**

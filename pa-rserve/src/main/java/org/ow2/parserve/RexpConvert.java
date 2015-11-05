@@ -26,7 +26,7 @@ import java.util.*;
  * <tr><td> RObject, java bean (experimental)                   <td> REXPGenericVector
  * </table>
  *
- * @author Martyn Tebby
+ * @author Martyn Tebby (https://www.rforge.net/rscript/svn.html)
  */
 public class RexpConvert {
 

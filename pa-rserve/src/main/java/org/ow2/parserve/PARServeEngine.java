@@ -54,6 +54,8 @@ public class PARServeEngine extends PAREngine {
      * logger
      */
     protected static final Logger logger = Logger.getLogger(PARServeEngine.class);
+    public static final String COOKIE_NAME_SUFFIX = "_RServe";
+    public static final String NODE_COOKIE_NAME_SUFFIX = "node";
 
     /**
      * a file containing the configuration of the Rserve server, and of the PARServe integration
@@ -178,9 +180,9 @@ public class PARServeEngine extends PAREngine {
 
         // deactivate Node process tree killer (by replacing the existing one), to avoid duplicate killing
         final CookieBasedProcessTreeKiller processKillerDeactivated = CookieBasedProcessTreeKiller.createAllChildrenKiller(
-                "node");
+                NODE_COOKIE_NAME_SUFFIX);
         final CookieBasedProcessTreeKiller processKiller = CookieBasedProcessTreeKiller.createAllChildrenKiller(
-                "_RServe");
+                COOKIE_NAME_SUFFIX);
 
         Rsession initSession = Rsession.newInstanceTry(PARServeEngine.class.getSimpleName(), rServeConf);
 
@@ -222,11 +224,10 @@ public class PARServeEngine extends PAREngine {
         }
 
         serverEval = false;
-        Map<String, Serializable> variables = (Map<String, Serializable>) bindings.get(TASK_SCRIPT_VARIABLES);
-        if (variables != null) {
-            serverEval = "true".equals(variables.get(PARSERVE_SERVEREVAL));
+        Map<String, Serializable> jobVariables = (Map<String, Serializable>) bindings.get(TASK_SCRIPT_VARIABLES);
+        if (jobVariables != null) {
+            serverEval = "true".equals(jobVariables.get(PARSERVE_SERVEREVAL));
         }
-
 
         engine = new PARServeConnection(Rsession.newInstanceTry("Script", rServeConf), serverEval);
 
@@ -237,17 +238,7 @@ public class PARServeEngine extends PAREngine {
         try {
 
             if (!serverEval) {
-                this.enableWarnings(ctx);
-                this.customizeErrors(ctx);
-                this.assignArguments(bindings, ctx);
-                this.assignProgress(bindings, ctx);
-                this.assignResults(bindings, ctx);
-                this.assignLocalSpace(bindings, ctx);
-                this.assignSpace(bindings, ctx, DS_USER_BINDING_NAME, "userspace");
-                this.assignSpace(bindings, ctx, DS_GLOBAL_BINDING_NAME, "globalspace");
-                this.assignSpace(bindings, ctx, DS_INPUT_BINDING_NAME, "inputspace");
-                this.assignSpace(bindings, ctx, DS_OUTPUT_BINDING_NAME, "outputspace");
-                this.assignVariables(bindings, ctx);
+                prepareExecution(ctx, bindings);
             }
             // if there is an exception during the parsing, a ScriptException is immediately thrown
             engine.checkParsing(script, ctx);
@@ -280,11 +271,11 @@ public class PARServeEngine extends PAREngine {
                 }
             }
 
-            this.updateJobVariables(variables, ctx);
+            this.updateJobVariables(jobVariables, ctx);
 
             // server evaluation is for one task only, it must not be propagated
             if (serverEval) {
-                variables.put(PARSERVE_SERVEREVAL, "false");
+                jobVariables.put(PARSERVE_SERVEREVAL, "false");
             }
 
             return resultValue;
@@ -304,8 +295,8 @@ public class PARServeEngine extends PAREngine {
             if (!serverEval) {
                 // PRC-32 A ScriptException() must be thrown if the script calls stop() function
                 ScriptException toThrow = null;
-                if (listener.lastErrorMessage != null) {
-                    toThrow = new ScriptException(listener.lastErrorMessage);
+                if (lastErrorMessage != null) {
+                    toThrow = new ScriptException(lastErrorMessage);
                 }
                 if (toThrow != null) {
                     throw toThrow;
@@ -322,7 +313,7 @@ public class PARServeEngine extends PAREngine {
             Tailer tailer = null;
             outputFile = createOuputFile(bindings);
 
-            listener = new PARScriptTailerListener(ctx.getWriter(), this);
+            listener = new PARScriptTailerListener(ctx.getWriter());
             tailer = new Tailer(outputFile, listener, TAILER_PERIOD);
 
             engine.initializeOutput(outputFile, ctx);
@@ -371,19 +362,10 @@ public class PARServeEngine extends PAREngine {
 
         Writer writer;
 
-        String lastErrorMessage;
-
         Tailer tailer;
 
-        PARServeEngine engine;
-
-        boolean readError = false;
-
-        StringBuilder error = new StringBuilder();
-
-        public PARScriptTailerListener(Writer wr, PARServeEngine engine) {
+        public PARScriptTailerListener(Writer wr) {
             this.writer = wr;
-            this.engine = engine;
         }
 
         @Override
@@ -406,41 +388,19 @@ public class PARServeEngine extends PAREngine {
 
         public void handle(String line) {
             try {
+                line = filterErrorsAndProgress(line, true);
                 if (line.contains(Rsession.ROUTPUT_END)) {
                     writer.close();
                     tailer.stop();
                     return;
-                } else if (line.contains(ERROR_TAG_BEGIN)) {
-                    readError = true;
-                    int bi = line.indexOf(ERROR_TAG_BEGIN) + ERROR_TAG_BEGIN.length();
-                    error.append(line.substring(bi) + "\n");
-                    writer.append(line.replace(ERROR_TAG_BEGIN,"") + "\n");
-                } else if (line.contains(ERROR_TAG_END)) {
-                    int bi = line.indexOf(ERROR_TAG_END);
-                    error.append(line.substring(0, bi) + "\n");
-                    writer.append(line.replace(ERROR_TAG_END, "") + "\n");
-                    lastErrorMessage = error.toString();
-                    readError = false;
-
-                } else if (line.contains(TASK_PROGRESS_MSG)) {
-                    Integer value = Integer.parseInt(line.split("=")[1].trim());
-                    writer.append(line + "\n");
-                    writer.flush();
-                    ProgressFile.setProgress(taskProgressFile, value);
-                    return;
-                } else if (readError) {
-                    error.append(line + "\n");
-                    writer.append(line + "\n");
-                    writer.flush();
                 } else {
                     writer.append(line + "\n");
                     writer.flush();
                 }
+
             } catch (IOException e) {
                 logger.warn(e);
             }
         }
-
-
     }
 }
