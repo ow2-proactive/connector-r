@@ -239,9 +239,14 @@ public abstract class PAREngine extends AbstractScriptEngine {
     protected File createOuputFile(Bindings bindings) throws ScriptException {
         File outputFile;
         try {
-            String localSpace = (String) bindings.get(DS_SCRATCH_BINDING_NAME);
-            if (localSpace == null) {
+            LocalSpace dsfo = (LocalSpace) bindings.get(DS_SCRATCH_BINDING_NAME);
+
+            String localSpace;
+
+            if (dsfo == null) {
                 localSpace = System.getProperty("java.io.tmpdir");
+            } else {
+                localSpace = convertToRPath(dsfo.getLocalRoot());
             }
             Path fpath = Paths.get(localSpace, ".Rout").normalize();
             outputFile = fpath.toFile();
@@ -250,8 +255,8 @@ public abstract class PAREngine extends AbstractScriptEngine {
                 outputFile.delete();
             }
             outputFile.createNewFile();
-            logger.info("Output file created : "+outputFile);
-        } catch (IOException e) {
+            logger.info("Output file created : " + outputFile);
+        } catch (Exception e) {
             throw new ScriptException(e);
         }
         return outputFile;
