@@ -321,7 +321,7 @@ public class Utils {
             if (fdir.exists() && fdir.isDirectory()) {
                 File rExec = new File(dir, "bin/R");
                 if (rExec.exists() && rExec.canRead() && rExec.canExecute()) {
-                    return rExec.getAbsolutePath();
+                    return fdir.getAbsolutePath();
                 }
             }
         }
