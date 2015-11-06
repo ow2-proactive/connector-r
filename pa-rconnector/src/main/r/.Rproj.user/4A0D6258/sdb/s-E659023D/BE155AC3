@@ -1,0 +1,16 @@
+{
+    "contents" : "Package: PARConnector\nVersion: 6.2.0\nDate: 2015-04-13\nTitle: ProActive R Connector\nAuthor: The ProActive Team\nMaintainer: The ProActive Team <proactive@ow2.org>\nDescription: Parallel execution of R functions and split/merge workflows using ProActive Scheduler\nDepends: R (>= 2.15.0), utils (>= 2.15.0), rJava (>= 0.9), gtools (>= 2.6), codetools (>= 0.2-8), stringr (>= 0.6.2), methods\nSystemRequirements: Java (>= 1.7)\nLicense: AGPL-3\nCollate:\n     pa_inline_functions.r\n     PAinit.r\n     PAFile.r\n     PATask.r\n     PAJob.r\n     PAConnect.r\n     PAPushFile.r\n     PAPullFile.r\n     PADeleteFile.r\n     PAJobState.r\n     PAState.r\n     PAGetResult.r\n     PASchedulerStatus.r\n     PATaskStatus.r\n     PAJobStatus.r\n     PAJobResult.r\n     PASolve_saveDependencies.r\n     PA.r\n     PASolve.r\n",
+    "created" : 1428936622086.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3700446184",
+    "id" : "BE155AC3",
+    "lastKnownWriteTime" : 1434110961,
+    "path" : "C:/Users/fviale/IdeaProjects/r_connector/par-connector/src/main/r/DESCRIPTION",
+    "project_path" : "DESCRIPTION",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "dcf"
+}

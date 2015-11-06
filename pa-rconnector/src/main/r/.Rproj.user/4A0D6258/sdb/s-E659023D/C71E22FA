@@ -1,0 +1,16 @@
+{
+    "contents" : "\n#' Connects to a ProActive Scheduler\n#' \n#' \\code{PAConnect} connects to a running ProActive Scheduler using its url and login information. \n#' The url and login information can be provided inside the PAConnect call or asked interactively.\n#' \n#'  @param url url of ProActive Scheduler \n#'  @param login login of the user\n#'  @param pwd password of the user, if not provided a popup window will ask to type the password\n#'  @param cred (default to NULL) the path to an encrypt credential file which stores the login information (see ProActive Scheduler manual for more details)\n#'  @param insecure (default to FALSE) ignore invalid SSL certificate\n#'  @param .print.stack (default to TRUE) in case there is a connection problem, should the full Java stack trace be printed or simply the error message\n#'  @return a scheduler connection handle, which can be used in other PARConnector functions\n#'  @examples\n#'  \\dontrun{\n#'  PAConnect(\"http://localhost:8080/rest/rest\",\"demo\",\"demo\") # connects to a local ProActive Scheduler running on port 8080 with demo credentials\n#'  \n#'  }\n#'  @export\n#'  @seealso \\code{\\link{PASolve}}\nPAConnect <- function(url, login, pwd, \n                      cred=NULL, insecure=FALSE, .print.stack = TRUE) {\n  if (missing(url)) {\n    url <- readline(\"Scheduler REST url:\")\n  } \n  \n  if (is.null(cred)) {\n    if (missing(login)) {\n      login <- readline(\"Login:\")\n    }\n    if (missing(pwd)) {\n      if (exists(\".rs.askForPassword\")) {\n        pwd <- .rs.askForPassword(str_c(\"Password for \",login))\n      } else {\n        pwd <- readline(\"Password:\")\n      }\n    }\n  }\n    \n  \n  j_try_catch({\n    SchedulerClient <- J(\"org.ow2.proactive.scheduler.rest.SchedulerClient\")\n    client <- SchedulerClient$createInstance()\n    if (insecure) {\n        client$initInsecure(url, login, pwd)\n    } else {\n        client$init(url, login, pwd)\n    }\n  } , .handler = function(e,.print.stack) {\n    print(str_c(\"Error in PAConnect(\",url,\") :\"))\n    PAHandler(e,.print.stack)\n  }, .print.stack = .print.stack)\n     \n  PAClient(client)\n               \n  cat(\"Connected to Scheduler at \",url,\"\\n\")\n  return (client)\n}\n",
+    "created" : 1434357907920.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3127534566",
+    "id" : "C71E22FA",
+    "lastKnownWriteTime" : 1434358152,
+    "path" : "C:/Users/fviale/IdeaProjects/r_connector/par-connector/src/main/r/R/PAConnect.r",
+    "project_path" : "R/PAConnect.r",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

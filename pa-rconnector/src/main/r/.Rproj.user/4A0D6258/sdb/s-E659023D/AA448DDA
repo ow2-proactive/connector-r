@@ -1,0 +1,16 @@
+{
+    "contents" : "#' Transfer a file from a ProActive Data space to the local machine\n#' \n#' \\code{PAPullFile} will transfer a file existing in a shared data space to the local computer. The Scheduler controls two main spaces :\\cr\n#' \n#' \\itemize{\n#'      \\item{The USER Space}{ : a data space reserved for a specific user.}\n#'      \\item{The GLOBAL Space}{ : a data space accessible to all users.}\n#'  } \n#' \n#'  @param space name of the data space to transfer the file to \n#'  @param pathname location of the file inside the remote data space\n#'  @param outputFile local path of the file where the file will be copied to. The file must be absolute\n#'  @param client connection handle to the scheduler, if not provided the handle created by the last call to \\code{\\link{PAConnect}} will be used\n#'  @param .nb.tries number of total tries (in case of error during the transfer), default to 2\n#'  @param .print.stack is the Java stack trace printed in case of error, default to TRUE\n#'  @seealso  \\code{\\link{PAPushFile}}\n#'  @export\n#'  @examples\n#'  \\dontrun{\n#'  PAPullFile(\"USER\",\"/in.txt\",file.path(getwd(),\"in2.txt\")) # will transfer file at USER/in.txt to a local file in2.txt\n#'  }\nPAPullFile <- function(space, pathname, outputFile, \n                       client = PAClient(), .nb.tries = 2, .print.stack = TRUE) {\n  \n  if (client == NULL || is.jnull(client) ) {\n    stop(\"You are not currently connected to the scheduler, use PAConnect\")\n  } \n  \n  pulled <- FALSE\n  \n  # convert to absolute path\n  jfile <- .jnew(J(\"java.io.File\"),outputFile)\n  if (!jfile$isAbsolute()) {\n    outputFile <- file.path(getwd(),outputFile)\n  }\n  \n  while(.nb.tries > 0) {    \n    j_try_catch(\n    {\n      pulled <- J(client, \"pullFile\", .getSpaceName(space),pathname, outputFile)\n      .nb.tries <- 0      \n    },\n    .handler = function(e, .print.stack) {\n      .nb.tries <<- .nb.tries - 1\n      if (.nb.tries <= 0) {\n        if (.print.stack) {\n          print(str_c(\"Error in PAPullFile(\",space,\",\",pathname,\",\",outputFile,\") : \",e$jobj$getMessage()))\n        }\n        PAHandler(e, .print.stack)       \n      }   \n    }\n    ,.print.stack = .print.stack)\n  }\n  return (pulled)\n}",
+    "created" : 1433953915745.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "500043121",
+    "id" : "AA448DDA",
+    "lastKnownWriteTime" : 1434358152,
+    "path" : "C:/Users/fviale/IdeaProjects/r_connector/par-connector/src/main/r/R/PAPullFile.r",
+    "project_path" : "R/PAPullFile.r",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

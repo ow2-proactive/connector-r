@@ -1,0 +1,16 @@
+{
+    "contents" : "\nformatted_date <- function(datetime) {\n  return (J(\"org.ow2.proactive.utils.Tools\")$getFormattedDate(.jlong(datetime)))\n}\n\nformatted_duration <- function(start, end) {\n  return (J(\"org.ow2.proactive.utils.Tools\")$getFormattedDuration(.jlong(start), .jlong(end)))\n}\n\nget_job_data <- function (job.infos) {\n  return (\n    sapply(job.infos, function(job.info) {\n      id <- job.info$getJobId()$value()\n      name <- job.info$getJobId()$getReadableName()\n      owner <- job.info$getJobOwner()\n      priority <- job.info$getPriority()$name()\n      status <- job.info$getStatus()$name()\n      start.time <- job.info$getStartTime()\n      start.at <- formatted_date(start.time)\n      finished.time <- job.info$getFinishedTime()\n      duration <- formatted_duration(start.time, finished.time)\n      return (list(\n        id = id, name = name, owner = owner, priotiry = priority, \n        status = status, start.at = start.at, duration = duration))\n    })\n  )\n}\nprint_job_data <- function(job.data)  {\n  matrix <- matrix(unlist(job.data), nrow = length(job.data) / 7, byrow = T)\n  write.table(matrix, \"\", quote = F, row.name = F, col.names = \n                c(\"ID\", \"NAME\", \"OWNER\", \"PRIORITY\", \"STATUS\", \"START_AT\", \n                  \"DURATION\"))\n}\n\n\n#' Display the list of jobs in the scheduler wether pending, running or finished\n#' \n#' \\code{PAState} display the current state of the scheduler with a list of jobs\n#' \n#'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used\n#'  @export\n#'  @seealso \\code{\\link{PAConnect}}\nPAState <- function(client = PAClient()) {\n  \n  if (client == NULL || is.jnull(client) ) {\n    stop(\"You are not currently connected to the scheduler, use PAConnect\")\n  } \n  \n  \n  job.infos <- j_try_catch ({\n    return (J(client,\"getJobs\", as.integer(0), as.integer(-1), NULL, NULL));\n  })\n  job.data <- get_job_data(job.infos)\n  print_job_data(job.data)\n}\n\n\n",
+    "created" : 1434358104931.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1238330071",
+    "id" : "F021BF5A",
+    "lastKnownWriteTime" : 1434358152,
+    "path" : "C:/Users/fviale/IdeaProjects/r_connector/par-connector/src/main/r/R/PAState.r",
+    "project_path" : "R/PAState.r",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
