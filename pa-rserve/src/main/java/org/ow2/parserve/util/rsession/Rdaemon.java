@@ -53,10 +53,10 @@ public class Rdaemon {
         }
 
         logger.info("checking Rserve is available... ");
-        boolean RserveInstalled = StartRserve.isRserveInstalled(Utils.R_HOME + File.separator + "bin" + File.separator + "R" + (System.getProperty("os.name").contains("Win") ? ".exe" : ""));
+        boolean RserveInstalled = StartRserve.isRserveInstalled(Utils.getRcommand());
         if (!RserveInstalled) {
             logger.info("  no");
-            RserveInstalled = StartRserve.installRserve(Utils.R_HOME + File.separator + "bin" + File.separator + "R" + (System.getProperty("os.name").contains("Win") ? ".exe" : ""), http_proxy, null);
+            RserveInstalled = StartRserve.installRserve(Utils.getRcommand(), http_proxy, null);
             if (RserveInstalled) {
                 logger.info("  ok");
             } else {
@@ -94,7 +94,7 @@ public class Rdaemon {
         if (confPreload != null) {
             preloadFile = new File(confPreload);
         }
-        boolean started = StartRserve.launchRserve(Utils.R_HOME + File.separator + "bin" + File.separator + "R" + (System.getProperty("os.name").contains("Win") ? ".exe" : ""), /*Rserve_HOME + "\\\\..", */ "--no-save --slave", preloadFile, rServeArgs, daemon, debug, (conf.timeout > 0 ? (int) conf.timeout / 1000 : -1));
+        boolean started = StartRserve.launchRserve(Utils.getRcommand(), /*Rserve_HOME + "\\\\..", */ "--no-save --slave", preloadFile, rServeArgs, daemon, debug, (conf.timeout > 0 ? (int) conf.timeout / 1000 : -1));
 
         if (started) {
             logger.info("  ok");
