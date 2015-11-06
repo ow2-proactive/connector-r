@@ -321,11 +321,23 @@ public class Utils {
             if (fdir.exists() && fdir.isDirectory()) {
                 File rExec = new File(dir, "bin/R");
                 if (rExec.exists() && rExec.canRead() && rExec.canExecute()) {
-                    return rExec.getAbsolutePath();
+                    return fdir.getAbsolutePath();
                 }
             }
         }
         return null;
+    }
+
+    public static String getRcommand() {
+        String suffix = "";
+        if (OperatingSystem.getOperatingSystem().equals(OperatingSystem.windows)) {
+            suffix = ".exe";
+        }
+        if ((R_HOME == null) || !(new File(R_HOME).isDirectory())) {
+            return "R" + suffix;
+        } else {
+            return new File(R_HOME, "bin/R").getAbsolutePath() + suffix;
+        }
     }
 
     public static boolean findR_HOME(String r_HOME) {

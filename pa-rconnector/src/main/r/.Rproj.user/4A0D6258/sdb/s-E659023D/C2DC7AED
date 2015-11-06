@@ -1,0 +1,16 @@
+{
+    "contents" : "setClass( \n  Class=\"PAJobStatus\", \n  representation = representation(\n    status = \"character\",\n    alive = \"function\",\n    description = \"function\"),\n  prototype=prototype(\n    status = \"PENDING\",\n    alive = function(status) {\n      .enum(status,PENDING=TRUE, RUNNING=TRUE, STALLED=TRUE, FINISHED=FALSE, PAUSED=TRUE, CANCELED=FALSE, FAILED=FALSE, KILLED=FALSE)\n    },\n    description = function(status) {\n      .enum(status,PENDING=\"Pending\", RUNNING=\"Running\", STALLED=\"Stalled\", FINISHED=\"Finished\", PAUSED=\"Paused\", CANCELED=\"Cancelled\", FAILED=\"Failed\", KILLED=\"Killed\")\n    }    \n  )  \n)\n\nPAJobStatus <- function(status) {\n  new (Class=\"PAJobStatus\" , status = status)\n}\n\nsetMethod(\"toString\",\"PAJobStatus\",\n          function(x) {\n            object <- x\n            output <- object@description(object@status)\n          }\n)\n\nsetMethod(\"show\" ,\"PAJobStatus\" ,\n          function(object) {\n            cat(toString(object))                                 \n          } \n)\n\nsetGeneric(\n  name=\"isJobAlive\",\n  def=function(object) {standardGeneric(\"isJobAlive\" )}  \n)\n\nsetMethod(\"isJobAlive\" ,\"PAJobStatus\" ,\n          function(object) {\n            return(object@alive(object@status))                                \n          } \n)",
+    "created" : 1434358127625.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3315837387",
+    "id" : "C2DC7AED",
+    "lastKnownWriteTime" : 1428411745,
+    "path" : "C:/Users/fviale/IdeaProjects/r_connector/par-connector/src/main/r/R/PAJobStatus.r",
+    "project_path" : "R/PAJobStatus.r",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

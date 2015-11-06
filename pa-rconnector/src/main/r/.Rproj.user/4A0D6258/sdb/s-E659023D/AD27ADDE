@@ -1,0 +1,16 @@
+{
+    "contents" : "#' Returns a PAJobResult object for a specific jobid\n#'\n#' \\code{PAGetResult} returns a \\code{PAJobResult} object from a previously submitted job.\n#' It can be manipulated the same way as the object returned during the PASolve call\n#' It can also be used to retrieve a job submitted during a previous R session (disconnected mode)\n#'\n#' @param job.id id of the proactive job\n#' @param client connection handle to the scheduler, if not provided the handle created by the last call to \\code{\\link{PAConnect}} will be used\n#' @seealso  \\code{\\link{PAJobResult-class}} \\code{\\link{PAWaitFor}} \\code{\\link{PAWaitAny}} \\code{\\link{PASolve}}\n#' @examples\n#'  \\dontrun{\n#' > r <- PASolve('cos',1:5)\n#'   Job submitted (id : 2)\n#'   with tasks : t1, t2, t3, t4, t5\n#' > r2 <- PAGetResult(2)\n#' > r2\n#'   PARJob2 (id: 2)  (status: Finished)\n#'   t1 : Finished at Tue Jul 07 16:54:59 CEST 2015\n#'   t2 : Finished at Tue Jul 07 16:55:00 CEST 2015\n#'   t3 : Finished at Tue Jul 07 16:54:55 CEST 2015\n#'   t4 : Finished at Tue Jul 07 16:55:03 CEST 2015\n#'   t5 : Finished at Tue Jul 07 16:54:56 CEST 2015\n#' }\n#' @export\nPAGetResult <- function(job.id, \n                        client = PAClient()) {\n  if (client == NULL || is.jnull(client) ) {\n    stop(\"You are not currently connected to the scheduler, use PAConnect\")\n  } \n  \n  \n  job.state <- j_try_catch({\n    return (J(client, \"getJobState\", toString(job.id)))\n  })\n  task.states <- job.state$getTasks()\n  \n  rjob <- PAJob(job.state$getName(),\"ProActive R Job\") \n  for (i in 1:task.states$size()) {\n    task.state <- task.states$get(as.integer(i-1))\n    name <- task.state$getName()\n    rtask <- PATask(name=name)\n    addTask(rjob) <- rtask\n  }\n  \n  task.names <- sapply(task.states, function(task.state) {\n    return (task.state$getName())\n  })\n  \n  rjob.result <- PAJobResult(rjob, toString(job.id), task.names, client)\n  return (rjob.result)\n}",
+    "created" : 1434358140869.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "745147768",
+    "id" : "AD27ADDE",
+    "lastKnownWriteTime" : 1436281864,
+    "path" : "C:/Users/fviale/IdeaProjects/r_connector/par-connector/src/main/r/R/PAGetResult.r",
+    "project_path" : "R/PAGetResult.r",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
