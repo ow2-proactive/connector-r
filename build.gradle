@@ -305,12 +305,30 @@ project(':pa-rconnector') {
         includeEmptyDirs = false
     }
 
-    task changeSchedulerSettings(dependsOn: distScheduler) << {
+    // Rserve must be executed in non-fork mode
+    task changeSchedulerSettingsRServe(dependsOn: distScheduler) << {
         def schediniFile = file("${rootProject.buildDir}/scheduler/config/scheduler/settings.ini")
         def pattern = java.util.regex.Pattern.compile("pa\\.scheduler\\.task\\.fork=.*")
         def matcher = pattern.matcher(schediniFile.getText())
         matcher.find()
         def fileContent = matcher.replaceFirst("pa.scheduler.task.fork=false")
+        schediniFile.write(fileContent)
+
+        def rminiFile = file("${rootProject.buildDir}/scheduler/config/rm/settings.ini")
+        def pattern2 = java.util.regex.Pattern.compile("pa\\.rm\\.nodelookup\\.timeout=.*")
+        def matcher2 = pattern2.matcher(rminiFile.getText())
+        matcher2.find()
+        def fileContent2 = matcher2.replaceFirst("pa.rm.nodelookup.timeout=60000")
+        rminiFile.write(fileContent2)
+    }
+
+    // JRI must be executed in fork mode
+    task changeSchedulerSettingsJRI(dependsOn: distScheduler) << {
+        def schediniFile = file("${rootProject.buildDir}/scheduler/config/scheduler/settings.ini")
+        def pattern = java.util.regex.Pattern.compile("pa\\.scheduler\\.task\\.fork=.*")
+        def matcher = pattern.matcher(schediniFile.getText())
+        matcher.find()
+        def fileContent = matcher.replaceFirst("pa.scheduler.task.fork=true")
         schediniFile.write(fileContent)
 
         def rminiFile = file("${rootProject.buildDir}/scheduler/config/rm/settings.ini")
@@ -382,11 +400,11 @@ project(':pa-rconnector') {
         }
     }
 
-    task startSchedulerPARserve(dependsOn: [distScheduler, clearAddons, installPARserveJars, changeSchedulerSettings, reinstallRPackage]) << {
+    task startSchedulerPARserve(dependsOn: [distScheduler, clearAddons, installPARserveJars, changeSchedulerSettingsRServe, reinstallRPackage]) << {
         tasks.startScheduler.execute()
     }
 
-    task startSchedulerPAJRI(dependsOn: [distScheduler, clearAddons, installPAJRIJars, changeSchedulerSettings, reinstallRPackage]) << {
+    task startSchedulerPAJRI(dependsOn: [distScheduler, clearAddons, installPAJRIJars, changeSchedulerSettingsJRI, reinstallRPackage]) << {
         tasks.startScheduler.execute()
     }
 
