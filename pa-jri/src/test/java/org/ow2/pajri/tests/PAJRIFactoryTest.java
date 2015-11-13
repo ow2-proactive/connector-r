@@ -1,7 +1,8 @@
-package org.ow2.pajri;
+package org.ow2.pajri.tests;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
+import org.ow2.pajri.PAJRIFactory;
 
 import javax.script.ScriptEngineManager;
 
@@ -16,7 +17,7 @@ public class PAJRIFactoryTest {
         BasicConfigurator.configure();
         assertNotNull(new ScriptEngineManager().getEngineByExtension("r"));
         assertNotNull(new ScriptEngineManager().getEngineByExtension("R"));
-        assertNotNull(new ScriptEngineManager().getEngineByExtension("parscript"));
+        assertNotNull(new ScriptEngineManager().getEngineByExtension(PAJRIFactory.PARSCRIPT_NAME));
     }
 
     @Test
@@ -25,6 +26,6 @@ public class PAJRIFactoryTest {
         BasicConfigurator.configure();
         assertNotNull(new ScriptEngineManager().getEngineByName("R"));
         assertNotNull(new ScriptEngineManager().getEngineByName("r"));
-        assertNotNull(new ScriptEngineManager().getEngineByName("parscript"));
+        assertNotNull(new ScriptEngineManager().getEngineByName(PAJRIFactory.PARSCRIPT_NAME));
     }
 }

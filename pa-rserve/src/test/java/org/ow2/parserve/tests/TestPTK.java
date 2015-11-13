@@ -1,4 +1,4 @@
-package tests;
+package org.ow2.parserve.tests;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Assert;

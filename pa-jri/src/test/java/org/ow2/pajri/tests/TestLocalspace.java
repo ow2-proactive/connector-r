@@ -1,18 +1,20 @@
-package tests;
+package org.ow2.pajri.tests;
 
 import org.junit.Test;
 import org.ow2.pajri.PAJRIFactory;
+import testabstract.TestLocalSpace;
 
 
 /**
- * Implicit result test. The default value of an empty script is always true.
+ * Verifies that the localspace is set properly.
  *
  * @author Activeeon Team
  */
-public class TestResultDefault extends testabstract.TestResultDefault {
+public class TestLocalspace extends TestLocalSpace {
 
     @Test
     public void test() throws Exception {
         super.test(PAJRIFactory.ENGINE_NAME);
     }
+
 }

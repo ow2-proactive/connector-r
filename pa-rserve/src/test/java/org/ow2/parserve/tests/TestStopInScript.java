@@ -3,22 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tests;
+package org.ow2.parserve.tests;
 
 import org.junit.Test;
-import org.ow2.pajri.PAJRIFactory;
-
+import org.ow2.parserve.PARServeFactory;
 
 /**
- * Tests that the message of warning() is printed in the error writer
+ * Tests that the message of stop() is printed in the error writer
  *
  * @author Activeeon Team
  */
-public class TestWarningInScript extends testabstract.TestWarningInScript {
+public class TestStopInScript extends testabstract.TestStopInScript {
 
     @Test
     public void test() throws Exception {
-        super.test(PAJRIFactory.ENGINE_NAME);
+        super.test(PARServeFactory.ENGINE_NAME);
     }
 
 }

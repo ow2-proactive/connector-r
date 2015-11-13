@@ -1,18 +1,18 @@
-package tests;
+package org.ow2.pajri.tests;
 
 import org.junit.Test;
 import org.ow2.pajri.PAJRIFactory;
 
-
 /**
- * Test set_progress(x) method in R script.
+ * Tests that a R error produces a faulty task
  *
  * @author Activeeon Team
  */
-public class TestProgress extends testabstract.TestProgress {
+public class TestError extends testabstract.TestError {
 
     @Test
     public void test() throws Exception {
         super.test(PAJRIFactory.ENGINE_NAME);
     }
+
 }

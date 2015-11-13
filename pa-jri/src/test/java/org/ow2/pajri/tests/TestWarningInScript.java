@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tests;
+package org.ow2.pajri.tests;
 
 import org.junit.Test;
-import org.ow2.parserve.PARServeFactory;
+import org.ow2.pajri.PAJRIFactory;
 
 
 /**
@@ -18,7 +18,7 @@ public class TestWarningInScript extends testabstract.TestWarningInScript {
 
     @Test
     public void test() throws Exception {
-        super.test(PARServeFactory.ENGINE_NAME);
+        super.test(PAJRIFactory.ENGINE_NAME);
     }
 
 }

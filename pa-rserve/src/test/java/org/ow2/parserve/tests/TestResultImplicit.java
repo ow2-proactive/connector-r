@@ -1,4 +1,4 @@
-package tests;
+package org.ow2.parserve.tests;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

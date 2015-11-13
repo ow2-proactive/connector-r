@@ -13,7 +13,7 @@ import java.util.List;
  */
 public final class PARServeFactory extends PAREngineFactory {
 
-    protected static final String PARSERVE_NAME = "parserve";
+    public static final String PARSERVE_NAME = "parserve";
 
 
     @Override

@@ -1,16 +1,14 @@
-package tests;
+package org.ow2.parserve.tests;
 
 import org.junit.Test;
 import org.ow2.parserve.PARServeFactory;
-import testabstract.TestLocalSpace;
-
 
 /**
- * Verifies that the localspace is set properly.
+ * Tests that a R error produces a faulty task
  *
  * @author Activeeon Team
  */
-public class TestLocalspace extends TestLocalSpace {
+public class TestError extends testabstract.TestError {
 
     @Test
     public void test() throws Exception {

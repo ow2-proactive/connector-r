@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tests;
+package org.ow2.pajri.tests;
 
 import com.google.common.io.CharStreams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.ow2.parserve.PARServeEngine;
-import org.ow2.parserve.PARServeFactory;
+import org.ow2.pajri.PAJRIEngine;
+import org.ow2.pajri.PAJRIFactory;
 
 import javax.script.ScriptContext;
 import java.io.Writer;
@@ -26,19 +26,19 @@ public class TestParseError extends testabstract.TestParseError {
 
     @Before
     public void disableErrorWriter() {
-        ScriptContext sc = ((PARServeEngine) (new PARServeFactory()).getScriptEngine()).getContext();
+        ScriptContext sc = ((PAJRIEngine) (new PAJRIFactory()).getScriptEngine()).getContext();
         disabledErrorWriter = sc.getErrorWriter();
         sc.setErrorWriter(CharStreams.nullWriter());
     }
 
     @Test
     public void test() throws Exception {
-        super.test(PARServeFactory.ENGINE_NAME);
+        super.test(PAJRIFactory.ENGINE_NAME);
     }
 
     @After
     public void renableErrorWriter() {
-        ScriptContext sc = ((PARServeEngine) (new PARServeFactory()).getScriptEngine()).getContext();
+        ScriptContext sc = ((PAJRIEngine) (new PAJRIFactory()).getScriptEngine()).getContext();
         sc.setErrorWriter(disabledErrorWriter);
     }
 

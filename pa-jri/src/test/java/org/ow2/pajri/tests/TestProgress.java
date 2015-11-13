@@ -1,15 +1,15 @@
-package tests;
+package org.ow2.pajri.tests;
 
 import org.junit.Test;
 import org.ow2.pajri.PAJRIFactory;
 
 
 /**
- * Tests arguments of a script task.
+ * Test set_progress(x) method in R script.
  *
  * @author Activeeon Team
  */
-public class TestArgs extends testabstract.TestArgs {
+public class TestProgress extends testabstract.TestProgress {
 
     @Test
     public void test() throws Exception {

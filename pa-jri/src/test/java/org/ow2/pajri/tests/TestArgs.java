@@ -1,7 +1,7 @@
-package tests;
+package org.ow2.pajri.tests;
 
 import org.junit.Test;
-import org.ow2.parserve.PARServeFactory;
+import org.ow2.pajri.PAJRIFactory;
 
 
 /**
@@ -13,6 +13,6 @@ public class TestArgs extends testabstract.TestArgs {
 
     @Test
     public void test() throws Exception {
-        super.test(PARServeFactory.ENGINE_NAME);
+        super.test(PAJRIFactory.ENGINE_NAME);
     }
 }
