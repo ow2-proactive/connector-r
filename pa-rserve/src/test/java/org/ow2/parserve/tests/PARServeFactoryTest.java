@@ -1,7 +1,8 @@
-package org.ow2.parserve;
+package org.ow2.parserve.tests;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
+import org.ow2.parserve.PARServeFactory;
 
 import javax.script.ScriptEngineManager;
 

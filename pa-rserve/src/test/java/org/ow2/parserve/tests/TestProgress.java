@@ -1,15 +1,15 @@
-package tests;
+package org.ow2.parserve.tests;
 
 import org.junit.Test;
 import org.ow2.parserve.PARServeFactory;
 
 
 /**
- * Tests script engine output
+ * Test set_progress(x) method in R script.
  *
  * @author Activeeon Team
  */
-public class TestOutput extends testabstract.TestOutput {
+public class TestProgress extends testabstract.TestProgress {
 
     @Test
     public void test() throws Exception {

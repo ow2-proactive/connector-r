@@ -1,18 +1,18 @@
-package tests;
+package org.ow2.pajri.tests;
 
 import org.junit.Test;
 import org.ow2.pajri.PAJRIFactory;
 
+
 /**
- * Tests that a R error produces a faulty task
+ * Tests script engine output
  *
  * @author Activeeon Team
  */
-public class TestError extends testabstract.TestError {
+public class TestOutput extends testabstract.TestOutput {
 
     @Test
     public void test() throws Exception {
         super.test(PAJRIFactory.ENGINE_NAME);
     }
-
 }

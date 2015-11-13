@@ -1,4 +1,4 @@
-package tests;
+package org.ow2.pajri.tests;
 
 import org.junit.Test;
 import org.ow2.pajri.PAJRIFactory;

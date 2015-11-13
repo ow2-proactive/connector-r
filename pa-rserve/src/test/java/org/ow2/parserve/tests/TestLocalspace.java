@@ -1,7 +1,7 @@
-package tests;
+package org.ow2.parserve.tests;
 
 import org.junit.Test;
-import org.ow2.pajri.PAJRIFactory;
+import org.ow2.parserve.PARServeFactory;
 import testabstract.TestLocalSpace;
 
 
@@ -14,7 +14,7 @@ public class TestLocalspace extends TestLocalSpace {
 
     @Test
     public void test() throws Exception {
-        super.test(PAJRIFactory.ENGINE_NAME);
+        super.test(PARServeFactory.ENGINE_NAME);
     }
 
 }

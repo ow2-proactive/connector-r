@@ -13,7 +13,7 @@ import java.util.List;
  */
 public final class PAJRIFactory extends PAREngineFactory {
 
-    protected static final String PARSCRIPT_NAME = "parscript";
+    public static final String PARSCRIPT_NAME = "parscript";
 
 
     @Override

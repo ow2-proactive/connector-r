@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tests;
+package org.ow2.pajri.tests;
 
 import org.junit.Test;
 import org.ow2.pajri.PAJRIFactory;
