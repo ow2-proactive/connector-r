@@ -115,7 +115,7 @@ project(':pa-rserve') {
     }
 
     task installRserve(type: Exec) {
-        commandLine rExec, '-q', '--no-save', '-e', 'install.packages(\'Rserve\', repos=c(\'http://cran.r-project.org\'))'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'Rserve\', quiet=TRUE)) == 0) {install.packages(\'Rserve\', repos=c(\'http://cran.r-project.org\'))}'
     }
 
     task addon(type: Zip) {
@@ -146,6 +146,10 @@ project(':pa-jri') {
         testCompile 'junit:junit:4.12'
     }
 
+    task installrJava(type: Exec, dependsOn: checkRCommands) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rJava\', quiet=TRUE)) == 0) {install.packages(\'rJava\', repos=c(\'http://cran.r-project.org\'))}'
+    }
+
     task addon(type: Zip) {
         from project(':pa-rengine-common').jar
         from configurations.addons
@@ -153,6 +157,7 @@ project(':pa-jri') {
     }
 
     artifacts { archives addon }
+    test.dependsOn(installrJava)
     build.dependsOn(addon)
 }
 
@@ -183,6 +188,9 @@ project(':pa-rconnector') {
     def env = [:]
     env.putAll(System.getenv())
     if (!isMac) {
+        if (env.get('JAVA_HOME') == null) {
+            throw new IllegalStateException("Please set JAVA_HOME environment variable")
+        }
         if (!env.get('JAVA_HOME').endsWith("jre")) {
             env.put('JAVA_HOME', env.get('JAVA_HOME') + File.separator + 'jre')
         }
@@ -207,8 +215,12 @@ project(':pa-rconnector') {
     }
 
     task installrJava(type: Exec, dependsOn: checkRCommands) {
-        commandLine rExec, '-q', '-no-save', '-e', 'install.packages(\'rJava\', repos=c(\'http://cran.r-project.org\'))'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rJava\', quiet=TRUE)) == 0) {install.packages(\'rJava\', repos=c(\'http://cran.r-project.org\'))}'
     }
+    task installDevTools(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'devtools\', quiet=TRUE)) == 0) {install.packages(\'devtools\', repos=c(\'http://cran.r-project.org\'))}'
+    }
+
 
     // this task updates the version inside PARConnector package Description file
     task updateVersion(dependsOn: copyRSources) << {
@@ -226,11 +238,24 @@ project(':pa-rconnector') {
         into "${rSrc}/inst/java"
     }
 
-    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, installrJava, copyRSources, updateVersion, copyRDependencies]) {
+    task installGtools(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'gtools\', quiet=TRUE)) == 0) {install.packages(\'gtools\', repos=c(\'http://cran.r-project.org\'))}'
+    }
+
+    task installCodeTools(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'codetools\', quiet=TRUE)) == 0) {install.packages(\'codetools\', repos=c(\'http://cran.r-project.org\'))}'
+    }
+
+    task installStringR(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'stringr\', quiet=TRUE)) == 0) {install.packages(\'stringr\', repos=c(\'http://cran.r-project.org\'))}'
+    }
+
+
+    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, installDevTools, installGtools, installCodeTools, installStringR, installrJava, installDevTools, copyRSources, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir rSrc
-        commandLine rExec, '-q', '-no-save', '-e', 'library(devtools);library(rJava);document()'
+        commandLine rExec, '-q', '--no-save', '-e', 'library(devtools);library(rJava);library(codetools);library(stringr);library(gtools);document()'
         environment env
     }
 

@@ -310,17 +310,22 @@ public class PARServeEngine extends PAREngine {
      */
     private void initializeTailer(Bindings bindings, ScriptContext ctx) throws ScriptException {
         if (!serverEval) {
-            Tailer tailer = null;
-            outputFile = createOuputFile(bindings);
+            try {
+                Tailer tailer = null;
+                outputFile = createOuputFile(bindings);
 
-            listener = new PARScriptTailerListener(ctx.getWriter());
-            tailer = new Tailer(outputFile, listener, TAILER_PERIOD);
+                listener = new PARScriptTailerListener(ctx.getWriter());
+                tailer = new Tailer(outputFile, listener, TAILER_PERIOD);
 
-            engine.initializeOutput(outputFile, ctx);
+                engine.initializeOutput(outputFile, ctx);
 
-            tailerThread = new Thread(tailer, "PARServeEngine Tailer");
-            tailerThread.setDaemon(true);
-            tailerThread.start();
+                tailerThread = new Thread(tailer, "PARServeEngine Tailer");
+                tailerThread.setDaemon(true);
+                tailerThread.start();
+            } catch (Exception e) {
+                logger.error("Error during tailer init:", e);
+                throw new ScriptException(e);
+            }
         }
     }
 
