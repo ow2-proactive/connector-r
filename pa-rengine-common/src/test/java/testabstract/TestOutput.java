@@ -27,6 +27,9 @@ public class TestOutput {
         System.out.println("Script output:");
         System.out.println(res.getOutput());
 
+        System.out.println("Script Exception:");
+        System.out.println(res.getException());
+
         org.junit.Assert.assertTrue("R Script output is broken", res.getOutput().toString().contains(stringToPrint));
     }
 }
