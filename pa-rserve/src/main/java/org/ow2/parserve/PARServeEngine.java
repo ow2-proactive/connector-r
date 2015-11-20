@@ -43,12 +43,12 @@ public class PARServeEngine extends PAREngine {
     /**
      * period of tailer update
      */
-    public static final int TAILER_PERIOD = 500;
+    public static final int TAILER_PERIOD = 100;
 
     /**
      * timeout used to wait for the log file last messages
      */
-    public static final int TAILER_TIMEOUT = 1000;
+    public static final int TAILER_TIMEOUT = 6000;
     /**
      * logger
      */
@@ -230,11 +230,10 @@ public class PARServeEngine extends PAREngine {
 
         engine = new PARServeConnection(Rsession.newInstanceTry("Script", rServeConf), serverEval);
 
-        initializeTailer(bindings, ctx);
-
-        Object resultValue = null;
-
         try {
+
+            initializeTailer(bindings, ctx);
+            Object resultValue = null;
 
             if (!serverEval) {
                 prepareExecution(ctx, bindings);
@@ -314,13 +313,14 @@ public class PARServeEngine extends PAREngine {
                 outputFile = createOuputFile(bindings);
 
                 listener = new PARScriptTailerListener(ctx.getWriter());
-                tailer = new Tailer(outputFile, listener, TAILER_PERIOD);
-
-                engine.initializeOutput(outputFile, ctx);
+                tailer = new Tailer(outputFile, listener, TAILER_PERIOD, false, true);
 
                 tailerThread = new Thread(tailer, "PARServeEngine Tailer");
                 tailerThread.setDaemon(true);
                 tailerThread.start();
+
+                engine.initializeOutput(outputFile, ctx);
+
             } catch (Exception e) {
                 logger.error("Error during tailer init:", e);
                 throw new ScriptException(e);
@@ -333,16 +333,21 @@ public class PARServeEngine extends PAREngine {
      */
     private void terminateTailer() {
         if (!serverEval) {
-            try {
-                tailerThread.join(TAILER_TIMEOUT);
-            } catch (InterruptedException e) {
+            if (tailerThread != null) {
+                try {
+                    tailerThread.join(TAILER_TIMEOUT);
+                } catch (InterruptedException e) {
 
+                }
+                if (tailerThread.isAlive()) {
+                    tailerThread.interrupt();
+                    logger.warn("Tailer thread was interrupted");
+                }
             }
-            if (tailerThread.isAlive()) {
-                tailerThread.interrupt();
-            }
-            if (outputFile.exists()) {
+            if (outputFile != null && outputFile.exists()) {
                 outputFile.delete();
+            } else {
+                logger.error("PARServeEngine output file does not exist.");
             }
         }
     }
