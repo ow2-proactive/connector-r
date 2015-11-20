@@ -216,6 +216,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
                 outputFile.delete();
             }
             outputFile.createNewFile();
+            logger.info("Output file created : "+outputFile);
         } catch (IOException e) {
             throw new ScriptException(e);
         }
