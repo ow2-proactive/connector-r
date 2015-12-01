@@ -49,6 +49,7 @@ project(':par-script') {
         compile "org.ow2.proactive:rm-node:${schedulingVersion}"
 
         testCompile 'junit:junit:4.11'
+        testCompile "org.ow2.proactive:scheduler-node:${schedulingVersion}"
     }
 
     task addon(type: Zip){

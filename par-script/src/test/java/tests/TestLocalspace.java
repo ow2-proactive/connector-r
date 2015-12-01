@@ -16,6 +16,7 @@ import org.objectweb.proactive.extensions.dataspaces.exceptions.FileSystemExcept
 import org.objectweb.proactive.extensions.dataspaces.exceptions.SpaceNotFoundException;
 import org.ow2.parscript.PARScriptEngine;
 import org.ow2.parscript.PARScriptFactory;
+import org.ow2.proactive.scheduler.task.utils.LocalSpaceAdapter;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
@@ -37,7 +38,7 @@ public class TestLocalspace {
         String rScript = "result=getwd();";
 
         Map<String, Object> aBindings = Collections.singletonMap(PARScriptEngine.DS_SCRATCH_BINDING_NAME,
-                (Object) dsfo);
+                (Object) new LocalSpaceAdapter(dsfo));
         SimpleScript ss = new SimpleScript(rScript, PARScriptFactory.ENGINE_NAME);
         TaskScript taskScript = new TaskScript(ss);
         ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
