@@ -24,6 +24,8 @@ import javax.script.SimpleBindings;
 import org.objectweb.proactive.extensions.dataspaces.api.DataSpacesFileObject;
 import org.ow2.parscript.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
+import org.ow2.proactive.scheduler.common.task.dataspaces.LocalSpace;
+import org.ow2.proactive.scheduler.common.task.dataspaces.RemoteSpace;
 import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.TaskScript;
@@ -314,12 +316,12 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
      * to the local space of the task.
      */
     private void assignLocalSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_SCRATCH_BINDING_NAME);
+        LocalSpace dsfo = (LocalSpace) bindings.get(DS_SCRATCH_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
         try {
-            String path = convertToRPath(dsfo);
+            String path = convertToRPath(dsfo.getLocalRoot());
             Path fpath = Paths.get(path);
             if (Files.exists(fpath) && Files.isWritable(fpath)) {
                 engine.parseAndEval("setwd('" + path + "')");
@@ -331,15 +333,15 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     }
 
     private void assignUserSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_USER_BINDING_NAME);
+        RemoteSpace dsfo = (RemoteSpace) bindings.get(DS_USER_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
         String path;
         try {
-            path = convertToRPath(dsfo);
+            path = convertToRPath(dsfo.toString());
         } catch (Exception e) {
-            path = dsfo.getRealURI();
+            path = dsfo.getSpaceURL();
         }
         try {
             engine.assign("userspace", new REXPString(path));
@@ -349,15 +351,15 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     }
 
     private void assignGlobalSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_GLOBAL_BINDING_NAME);
+        RemoteSpace dsfo = (RemoteSpace) bindings.get(DS_GLOBAL_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
         String path;
         try {
-            path = convertToRPath(dsfo);
+            path = convertToRPath(dsfo.toString());
         } catch (Exception e) {
-            path = dsfo.getRealURI();
+            path = dsfo.getSpaceURL();
         }
         try {
             engine.assign("globalspace", new REXPString(path));
@@ -367,15 +369,15 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     }
 
     private void assignInputSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_INPUT_BINDING_NAME);
+        RemoteSpace dsfo = (RemoteSpace) bindings.get(DS_INPUT_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
         String path;
         try {
-            path = convertToRPath(dsfo);
+            path = convertToRPath(dsfo.toString());
         } catch (Exception e) {
-            path = dsfo.getRealURI();
+            path = dsfo.getSpaceURL();
         }
         try {
             engine.assign("inputspace", new REXPString(path));
@@ -385,15 +387,15 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
     }
 
     private void assignOutputSpace(Bindings bindings, ScriptContext ctx) {
-        DataSpacesFileObject dsfo = (DataSpacesFileObject) bindings.get(DS_OUTPUT_BINDING_NAME);
+        RemoteSpace dsfo = (RemoteSpace) bindings.get(DS_OUTPUT_BINDING_NAME);
         if (dsfo == null) {
             return;
         }
         String path;
         try {
-            path = convertToRPath(dsfo);
+            path = convertToRPath(dsfo.toString());
         } catch (Exception e) {
-            path = dsfo.getRealURI();
+            path = dsfo.getSpaceURL();
         }
         try {
             engine.assign("outputspace", new REXPString(path));
@@ -409,7 +411,15 @@ public class PARScriptEngine extends AbstractScriptEngine implements REngineCall
         String path = dsfo.getRealURI();
         URI uri = new URI(path);
         File f = new File(uri);
-        path = f.getCanonicalPath();
+        return convertToRPath(f);
+    }
+
+    private String convertToRPath(File file) throws Exception {
+        String path = file.getCanonicalPath();
+        return convertToRPath(path);
+    }
+
+    private String convertToRPath(String path) throws Exception {
         return path.replace("\\", "/");
     }
 
