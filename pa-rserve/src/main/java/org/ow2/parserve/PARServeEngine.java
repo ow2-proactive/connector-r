@@ -268,9 +268,8 @@ public class PARServeEngine extends PAREngine {
                 if (ssResultRexp != null) {
                     bindings.put(SelectionScript.RESULT_VARIABLE, engine.engineCast(ssResultRexp, null, ctx));
                 }
+                this.updateJobVariables(jobVariables, ctx);
             }
-
-            this.updateJobVariables(jobVariables, ctx);
 
             // server evaluation is for one task only, it must not be propagated
             if (serverEval) {
