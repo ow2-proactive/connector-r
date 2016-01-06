@@ -170,11 +170,15 @@ setGeneric(
 #'
 #' @param paresult a PAJobResult object
 #' @param timeout a long value specifying an optional timeout in milisecond
-#' @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used  (internal)
 #' @param callback a single parameter function which can be called when results are received. It can be useful to udapte graphical user interfaces for examples. Default to NULL.
 #' @param ... Additional argument list which are not used
 #' 
 #' @return A list of results
+#' @examples
+#'  \dontrun{
+#'   job <- PASolve('cos', 1:4)
+#'   r <- PAWaitFor(job)
+#' }
 #' @rdname PAWaitFor
 #' @seealso \code{\link{PASolve}}, \code{\link{PAJobResult-class}} and \code{\link{PAWaitAny}}
 #' @export
@@ -192,11 +196,10 @@ setGeneric(
 #'
 #' @param paresult a PAJobResult object
 #' @param timeout a long value specifying an optional timeout in milisecond
-#' @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used (internal)
 #' @param callback a single parameter function which can be called when results are received. It can be useful to udapte graphical user interfaces for examples. Default to NULL.
 #' @param ... Additional argument list which are not used
 #' 
-#' @return A result
+#' @return A job result
 #' @rdname PAWaitAny
 #' @seealso \code{\link{PASolve}}, \code{\link{PAJobResult-class}} and \code{\link{PAWaitAny}}
 #' @export
