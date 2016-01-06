@@ -7,14 +7,14 @@
 #'      \item{The GLOBAL Space}{ : a data space accessible to all users.}
 #'  } 
 #' 
-#'  @param space name of the data space to transfer the file to 
-#'  @param pathname location of the file inside the remote data space
-#'  @param outputFile local path of the file where the file will be copied to. The file must be absolute
-#'  @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
-#'  @param .nb.tries number of total tries (in case of error during the transfer), default to 2
-#'  @param .print.stack is the Java stack trace printed in case of error, default to TRUE
-#'  @seealso  \code{\link{PAPushFile}} \code{\link{PADeleteFile}}
-#'  @examples
+#' @param space name of the data space to transfer the file to
+#' @param pathname location of the file inside the remote data space
+#' @param outputFile local path of the file where the file will be copied to. The file must be absolute
+#' @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
+#' @param .nb.tries number of total tries (in case of error during the transfer), default to 2
+#' @param .print.stack is the Java stack trace printed in case of error, default to TRUE
+#' @seealso  \code{\link{PAPushFile}} \code{\link{PADeleteFile}}
+#' @examples
 #'  \dontrun{
 #'  PAPullFile("USER","/in.txt",file.path(getwd(),"in2.txt")) # will transfer file at USER/in.txt to a local file in2.txt
 #'  }
