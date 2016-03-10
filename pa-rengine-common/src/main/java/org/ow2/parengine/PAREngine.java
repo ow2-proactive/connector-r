@@ -2,6 +2,7 @@ package org.ow2.parengine;
 
 import org.apache.log4j.Logger;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
+import org.ow2.proactive.scheduler.core.properties.PASchedulerProperties;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.TaskScript;
@@ -24,7 +25,6 @@ import java.util.Map;
  */
 public abstract class PAREngine extends AbstractScriptEngine {
 
-    public static final String IS_FORKED = "is.forked";
     public static final String DS_SCRATCH_BINDING_NAME = "localspace";
     public static final String DS_INPUT_BINDING_NAME = "inputspace";
     public static final String DS_OUTPUT_BINDING_NAME = "outputspace";
@@ -62,7 +62,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
     private boolean readError = false;
 
     protected static boolean isInForkedTask() {
-        return "true".equals(System.getProperty(IS_FORKED));
+        return "true".equals(System.getProperty(PASchedulerProperties.TASK_FORK.getKey()));
     }
 
     /**
@@ -216,6 +216,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
                 outputFile.delete();
             }
             outputFile.createNewFile();
+            logger.info("Output file created : "+outputFile);
         } catch (IOException e) {
             throw new ScriptException(e);
         }

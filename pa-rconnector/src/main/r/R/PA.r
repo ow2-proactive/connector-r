@@ -1,5 +1,3 @@
-
-
 .createReplacementFunction <- function(envir) {
   rlist <- get(".replacement.list",envir)
   return (function(i) { toString(rlist[[i]])})
@@ -260,28 +258,28 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #' \code{PAM} has always a cardinality of 1, it is used solely as a multi-parameter aggregation.
 #'               
 #' 
-#'  @param funcOrFuncName function handle or function name
-#'  @param ... arguments of the funcOrFuncName function which will be vectorized over 
-#'  @param varies list of varying parameters which can be a parameter number or a parameter name, if NULL (default) then all parameters are varying
-#'  @param input.files a list of input files which will be transferred from the local machine to the remote executions, see Details section in  \code{\link{PA}} for more information
-#'  @param output.files a list of output files which will be transferred from the remote executions to the local machine
-#'  @param in.dir in case input files are used, the directory which will be used as base (default to current working directory)
-#'  @param out.dir in.dir in case ouput files are used, the directory which will be used as base (default to current working directory)
-#'  @param hostname.selection can be used to restrict the remote execution to a given machine, wildcards can be used
-#'  @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
-#'  @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
-#'  @param property.selection.value is used in combination with property.selection.name
-#'  @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
-#'  @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
-#'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
-#'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
-#'  @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
-#'  @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
-#'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
-#'  @param .debug debug mode
-#'  @return a PATask object which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
+#' @param funcOrFuncName function handle or function name
+#' @param ... arguments of the funcOrFuncName function which will be vectorized over
+#' @param varies list of varying parameters which can be a parameter number or a parameter name, if NULL (default) then all parameters are varying
+#' @param input.files a list of input files which will be transferred from the local machine to the remote executions, see Details section in  \code{\link{PA}} for more information
+#' @param output.files a list of output files which will be transferred from the remote executions to the local machine
+#' @param in.dir in case input files are used, the directory which will be used as base (default to current working directory)
+#' @param out.dir in.dir in case ouput files are used, the directory which will be used as base (default to current working directory)
+#' @param hostname.selection can be used to restrict the remote execution to a given machine, wildcards can be used
+#' @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
+#' @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
+#' @param property.selection.value is used in combination with property.selection.name
+#' @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
+#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
+#' @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
+#' @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
+#' @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
+#' @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
+#' @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
+#' @param .debug debug mode
+#' @return a PATask object which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
 #'  
-#'  @examples 
+#' @examples
 #'  \dontrun{
 #'  see examples in PAS and PA help sections before reading these examples
 #'        
@@ -300,8 +298,8 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  The results of those tasks are merged via the sum function, similar to sum( res[t2],res[t3],res[t4],res[t4]) , of course this is possible only with function which accept variable number of parameters
 #'  
 #'  }
-#'  @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}}
-#'  @export
+#' @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}}
+#' @export
 PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   dots <- list(...)
   
@@ -412,27 +410,27 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #' The cardinality will be, like for \code{\link{PA}}, determined by analysing the parameters and finding the longest list/vector among them. But the cardinality will be used in a different way, as it will be used when the result of the \code{PAS} call is given to a \code{PA} call to build a workflow. In that case, the cardinality of the \code{PAS} result will be used to produce as many \code{PA} tasks.
 #'               
 #' 
-#'  @param funcOrFuncName function handle or function name
-#'  @param ... arguments of the funcOrFuncName function which will be vectorized over 
-#'  @param varies list of varying parameters which can be a parameter number or a parameter name, if NULL (default) then all parameters are varying
-#'  @param input.files a list of input files which will be transferred from the local machine to the remote executions, see Details section in  \code{\link{PA}} for more information
-#'  @param output.files a list of output files which will be transferred from the remote executions to the local machine
-#'  @param in.dir in case input files are used, the directory which will be used as base (default to current working directory)
-#'  @param out.dir in.dir in case ouput files are used, the directory which will be used as base (default to current working directory)
-#'  @param hostname.selection can be used to restrict the remote execution to a given machine, wildcards can be used
-#'  @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
-#'  @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
-#'  @param property.selection.value is used in combination with property.selection.name
-#'  @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
-#'  @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
-#'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
-#'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
-#'  @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
-#'  @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
-#'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
-#'  @param .debug debug mode
-#'  @return a PATask object which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
-#'  @examples 
+#' @param funcOrFuncName function handle or function name
+#' @param ... arguments of the funcOrFuncName function which will be vectorized over
+#' @param varies list of varying parameters which can be a parameter number or a parameter name, if NULL (default) then all parameters are varying
+#' @param input.files a list of input files which will be transferred from the local machine to the remote executions, see Details section in  \code{\link{PA}} for more information
+#' @param output.files a list of output files which will be transferred from the remote executions to the local machine
+#' @param in.dir in case input files are used, the directory which will be used as base (default to current working directory)
+#' @param out.dir in.dir in case ouput files are used, the directory which will be used as base (default to current working directory)
+#' @param hostname.selection can be used to restrict the remote execution to a given machine, wildcards can be used
+#' @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
+#' @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
+#' @param property.selection.value is used in combination with property.selection.name
+#' @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
+#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
+#' @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
+#' @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
+#' @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
+#' @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
+#' @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
+#' @param .debug debug mode
+#' @return a PATask object which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
+#' @examples
 #'  \dontrun{
 #'  PAS("identity", 1:4) # will produce a split task of cardinality 4 that will output the vector 1:4
 #'  
@@ -449,8 +447,8 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  (PAS(function(out,ind){for (i in ind) {file.create(paste0(out,i))}}, "out", 1:4, output.files="out%2%") # will produce a split task of cardinality 4 that will create remotely the files out1, out2, out3 and out4 and transfer them back to the local machine
 #'
 #'  }       
-#'  @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult-class}} \code{\link{PAConnect}}
-#'  @export
+#' @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult-class}} \code{\link{PAConnect}}
+#' @export
 PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   
   dots <- list(...)
@@ -554,30 +552,30 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  }
 #'               
 #' 
-#'  @param funcOrFuncName function handle or function name
-#'  @param ... arguments of the funcOrFuncName function which will be vectorized over 
-#'  @param varies list of varying parameters which can be a parameter number or a parameter name, if NULL (default) then all parameters are varying
-#'  @param input.files a list of input files which will be transferred from the local machine to the remote executions, see Details for more information
-#'  @param output.files a list of output files which will be transferred from the remote executions to the local machine
-#'  @param in.dir in case input files are used, the directory which will be used as base (default to current working directory)
-#'  @param out.dir in.dir in case ouput files are used, the directory which will be used as base (default to current working directory)
-#'  @param hostname.selection can be used to restrict the remote execution to a given machine, wildcards can be used
-#'  @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
-#'  @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
-#'  @param property.selection.value is used in combination with property.selection.name
-#'  @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
-#'  @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
-#'  @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
-#'  @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
-#'  @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
-#'  @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
+#' @param funcOrFuncName function handle or function name
+#' @param ... arguments of the funcOrFuncName function which will be vectorized over
+#' @param varies list of varying parameters which can be a parameter number or a parameter name, if NULL (default) then all parameters are varying
+#' @param input.files a list of input files which will be transferred from the local machine to the remote executions, see Details for more information
+#' @param output.files a list of output files which will be transferred from the remote executions to the local machine
+#' @param in.dir in case input files are used, the directory which will be used as base (default to current working directory)
+#' @param out.dir in.dir in case ouput files are used, the directory which will be used as base (default to current working directory)
+#' @param hostname.selection can be used to restrict the remote execution to a given machine, wildcards can be used
+#' @param ip.selection can be used to restrict the remote execution to a given machine given its IP address
+#' @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
+#' @param property.selection.value is used in combination with property.selection.name
+#' @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
+#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
+#' @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
+#' @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
+#' @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
+#' @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
 #'      If set to TRUE, when input and output files are copied to USER/GLOBAL space or to the NODE execution, they will be isolated in a folder specific to the current job. 
 #'      It thus guaranties that they will be separated from other jobs execution. On the other hand it will not be possible to reuse the remote files directly in other jobs.
-#'  @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
-#'  @param .debug debug mode
-#'  @return a list of PATask objects which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
+#' @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
+#' @param .debug debug mode
+#' @return a list of PATask objects which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
 #'  
-#'  @examples
+#' @examples
 #'  \dontrun{
 #'  PA("cos", 1:4)      # will produce 4 PATasks : cos(1) , cos(2), cos(3) and cos(4) (parametric sweep with one parameter) 
 #'  
@@ -596,8 +594,8 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  See examples in  PAS and PAM help sections for split/merge examples
 #'  
 #'  }
-#'  @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult-class}} \code{\link{PAConnect}}
-#'  @export
+#' @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult-class}} \code{\link{PAConnect}}
+#' @export
 PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
   if (is.character(funcOrFuncName)) {
     fun <- match.fun(funcOrFuncName)

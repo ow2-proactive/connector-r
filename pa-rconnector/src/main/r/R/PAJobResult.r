@@ -169,9 +169,9 @@ setClassUnion("PAJobResultOrMissing", c("PAJobResult", "missing"))
 }
 
 #' @describeIn PAWaitFor
-setMethod("PAWaitFor","PAJobResultOrMissing", function(paresult = PALastResult(), timeout = .Machine$integer.max, client = PAClient(), callback = NULL) {
+setMethod("PAWaitFor","PAJobResultOrMissing", function(paresult = PALastResult(), timeout = .Machine$integer.max, callback = NULL, .client = PAClient() ) {
             
-            if (client == NULL || is.jnull(client) ) {
+            if (.client == NULL || is.jnull(.client) ) {
               stop("You are not currently connected to the scheduler, use PAConnect")
             }             
             
@@ -189,7 +189,7 @@ setMethod("PAWaitFor","PAJobResultOrMissing", function(paresult = PALastResult()
             }       
             if (task.list$size() > 0) {
               tryCatch ({
-                listentry <- client$waitForAllTasks(paresult@job.id,task.list,.jlong(timeout))
+                listentry <- .client$waitForAllTasks(paresult@job.id,task.list,.jlong(timeout))
               } , Exception = function(e) {
                 e$jobj$printStackTrace()
                 stop()
@@ -209,9 +209,9 @@ setMethod("PAWaitFor","PAJobResultOrMissing", function(paresult = PALastResult()
 )
 
 #' @describeIn PAWaitAny
-setMethod("PAWaitAny","PAJobResultOrMissing", function(paresult = PALastResult(), timeout = .Machine$integer.max, client = PAClient(), callback = NULL) {
+setMethod("PAWaitAny","PAJobResultOrMissing", function(paresult = PALastResult(), timeout = .Machine$integer.max, callback = NULL, .client = PAClient()) {
   
-  if (client == NULL || is.jnull(client) ) {
+  if (.client == NULL || is.jnull(.client) ) {
     stop("You are not currently connected to the scheduler, use PAConnect")
   }             
   
@@ -229,7 +229,7 @@ setMethod("PAWaitAny","PAJobResultOrMissing", function(paresult = PALastResult()
   }       
   if (task.list$size() > 0) {
     tryCatch ({
-      entry <- client$waitForAnyTask(paresult@job.id,task.list,.jlong(timeout))
+      entry <- .client$waitForAnyTask(paresult@job.id,task.list,.jlong(timeout))
     } , Exception = function(e) {
       e$jobj$printStackTrace()
       stop()

@@ -39,7 +39,7 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
     protected PAJRIEngine(PAJRIFactory factory) {
         this.factory = factory;
         // Fix for PRC-36: With Scheduling 6.0.1 if script tasks are not forked the error output is lost
-        this.dumpErrorsIfNotForked = !System.getProperties().contains(IS_FORKED);
+        this.dumpErrorsIfNotForked = !isInForkedTask();
     }
 
     /**

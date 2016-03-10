@@ -43,6 +43,7 @@ public class Rsession {
     boolean tryLocalRServe;
 
     private String outputFile;
+    private boolean sinkActivated = false;
 
     /**
      * create rsession using System as a logger
@@ -128,11 +129,13 @@ public class Rsession {
      */
     public void initializeOutput(File outputFile) throws REngineException, REXPMismatchException {
         this.outputFile = Utils.toRpath(outputFile);
+        // Warning, in the following expression, when using sink( ... , type=c('output', 'message'))
+        // the message/stderr output is not redirected !
         String expr = ".sink.file.con <- file('" + this.outputFile + "', 'a')\n" +
                 "sink(.sink.file.con, append=TRUE, type='output')\n" +
                 "sink(.sink.file.con, append=TRUE, type='message')\n";
-        eval("print('Hello')");
         eval(expr);
+        sinkActivated = true;
     }
 
     /**
@@ -142,10 +145,17 @@ public class Rsession {
      * @throws REXPMismatchException
      */
     public void terminateOutput() throws REXPMismatchException, REngineException {
-        String expr = "cat(\"" + ROUTPUT_END + "\\n\",file=.sink.file.con)\n" +
+        String expr = "print(\"" + ROUTPUT_END + "\");\n" +
+                "flush.console()\n" +
                 "sink();sink(type='message');\n" +
-                "close(.sink.file.con);unlink('" + outputFile + "')\n";
+                "flush(.sink.file.con);\n" +
+                "close(.sink.file.con);\n" +
+                "closeAllConnections()\n";
+
+        // cat("" + ROUTPUT_END + "\n",file=.sink.file.con)
+        sinkActivated = false;
         eval(expr);
+
     }
 
 
@@ -218,6 +228,9 @@ public class Rsession {
         try {
             synchronized (connection) {
                 e = connection.parseAndEval(expression);
+            }
+            if (sinkActivated) {
+                connection.parseAndEval("flush(.sink.file.con)");
             }
         } catch (REngineException ex) {
             logger.error("[" + name + "]" + HEAD_EXCEPTION + ex.getMessage() + "\n  " + expression);

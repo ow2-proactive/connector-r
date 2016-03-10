@@ -48,7 +48,8 @@ PAState <- function(client = PAClient()) {
   
   
   job.infos <- j_try_catch ({
-    return (J(client,"getJobs", as.integer(0), as.integer(-1), NULL, NULL));
+    jobs <- J(client,"getJobs", as.integer(0), as.integer(-1), NULL, NULL)
+    return (jobs$getList());
   })
   job.data <- get_job_data(job.infos)
   print_job_data(job.data)
