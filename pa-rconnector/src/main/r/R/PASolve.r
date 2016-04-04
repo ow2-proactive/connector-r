@@ -118,8 +118,8 @@ PASolve <- function(..., client = PAClient(), .debug = PADebug(), jobName = str_
   .peekNewSolveId()
   job <- PAJob(jobName, jobDescription)
   setPriority(job, priority)
-  // TODO: replace by setOnTaskError... good luck fviale :)
-  //setCancelJobOnError(job, cancelOnError)
+  # TODO: replace by setOnTaskError... good luck fviale :)
+  # setCancelJobOnError(job, cancelOnError)
   task.names <- NULL
   all.tasks <- list()
 
