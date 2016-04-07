@@ -224,12 +224,22 @@ project(':pa-rconnector') {
 
     // this task updates the version inside PARConnector package Description file
     task updateVersion(dependsOn: copyRSources) << {
+        def patternToExtractVersionFromVariable = java.util.regex.Pattern.compile("^((\\d+\\.)*(\\d+))");
+        def matcherToExtractVersionFromVariable = patternToExtractVersionFromVariable.matcher("${rConnectorVersion}");
+        def foundValidVersionNumber = matcherToExtractVersionFromVariable.find();
+
+        if (!foundValidVersionNumber) {
+            throw new InvalidUserDataException("Invalid version number: ${rConnectorVersion}. It should match ^((\\d+\\.)*(\\d+))");
+        }
+
+        def newVersionNumber = matcherToExtractVersionFromVariable.group(0);
+
+        // replace version number in the DESCRIPTION file
         def descFile = file("${rSrc}/DESCRIPTION")
         def pattern = java.util.regex.Pattern.compile("Version: ((\\d+\\.)*(\\d+))")
-        def v = "${rConnectorVersion}".replace("-SNAPSHOT","")
         def matcher = pattern.matcher(descFile.getText())
         matcher.find()
-        def descFileContent = matcher.replaceFirst("Version: " + v)
+        def descFileContent = matcher.replaceFirst("Version: " + newVersionNumber)
         descFile.write(descFileContent)
     }
 
