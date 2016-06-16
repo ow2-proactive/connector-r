@@ -220,16 +220,28 @@ project(':pa-rconnector') {
     task installDevTools(type: Exec, dependsOn: [checkRCommands]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'devtools\', quiet=TRUE)) == 0) {install.packages(\'devtools\', repos=c(\'http://cran.r-project.org\'))}'
     }
-
+    task installRoxygen2(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'roxygen2\', quiet=TRUE)) == 0) {install.packages(\'roxygen2\', repos=c(\'http://cran.r-project.org\'))}'
+    }
 
     // this task updates the version inside PARConnector package Description file
     task updateVersion(dependsOn: copyRSources) << {
+        def patternToExtractVersionFromVariable = java.util.regex.Pattern.compile("^((\\d+\\.)*(\\d+))");
+        def matcherToExtractVersionFromVariable = patternToExtractVersionFromVariable.matcher("${rConnectorVersion}");
+        def foundValidVersionNumber = matcherToExtractVersionFromVariable.find();
+
+        if (!foundValidVersionNumber) {
+            throw new InvalidUserDataException("Invalid version number: ${rConnectorVersion}. It should match ^((\\d+\\.)*(\\d+))");
+        }
+
+        def newVersionNumber = matcherToExtractVersionFromVariable.group(0);
+
+        // replace version number in the DESCRIPTION file
         def descFile = file("${rSrc}/DESCRIPTION")
         def pattern = java.util.regex.Pattern.compile("Version: ((\\d+\\.)*(\\d+))")
-        def v = "${rConnectorVersion}".replace("-SNAPSHOT","")
         def matcher = pattern.matcher(descFile.getText())
         matcher.find()
-        def descFileContent = matcher.replaceFirst("Version: " + v)
+        def descFileContent = matcher.replaceFirst("Version: " + newVersionNumber)
         descFile.write(descFileContent)
     }
 
@@ -251,11 +263,11 @@ project(':pa-rconnector') {
     }
 
 
-    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, installDevTools, installGtools, installCodeTools, installStringR, installrJava, installDevTools, copyRSources, updateVersion, copyRDependencies]) {
+    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, installRoxygen2, installDevTools, installGtools, installCodeTools, installStringR, installrJava, installDevTools, copyRSources, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir rSrc
-        commandLine rExec, '-q', '--no-save', '-e', 'library(devtools);library(rJava);library(codetools);library(stringr);library(gtools);document()'
+        commandLine rExec, '-q', '--no-save', '-e', 'library(roxygen2);library(devtools);library(rJava);library(codetools);library(stringr);library(gtools);document()'
         environment env
     }
 
@@ -282,7 +294,16 @@ project(':pa-rconnector') {
         commandLine rExec, 'CMD', 'INSTALL', '--build', '--preclean', '--with-keep.source', '--no-multiarch', rSrc
         environment env
     }
-    task build(dependsOn: buildRPackage)
+
+    task buildRPackageSrc(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
+        inputs.dir(rSrc)
+        outputs.dir(buildDir)
+        workingDir buildDir
+        commandLine rExec, 'CMD', 'build', '--preclean', '--no-resave-data', rSrc
+        environment env
+    }
+
+    task build(dependsOn: [buildRPackage, buildRPackageSrc])
 
     // ReInstall PARConnector package to apply changes
     task reinstallRPackage(dependsOn: [checkRCommands, buildRPackage]) << {
