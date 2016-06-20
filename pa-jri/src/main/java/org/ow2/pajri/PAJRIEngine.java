@@ -29,6 +29,8 @@ import java.util.Map;
  */
 public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineOutputInterface {
 
+    private static String tmpDir = System.getProperty("java.io.tmpdir");
+
 
     private static PAJRIEngine instance;
     /**
@@ -147,7 +149,7 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
             this.lastErrorMessage = null;
 
             // Fix for PRC-30: Always change working dir to avoid keeping a file handle on task temp dir
-            engine.engineEval("setwd(Sys.getenv(\"HOME\"))", ctx);
+            engine.engineEval("setwd(\"" + toRpath(tmpDir) + "\")", ctx);
             if (isInForkedTask()) {
                 engine.end();
             }
