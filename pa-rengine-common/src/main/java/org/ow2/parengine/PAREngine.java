@@ -256,6 +256,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
         } else if (text.startsWith(TASK_PROGRESS_MSG)) {
             Integer value = Integer.parseInt(text.split("=")[1].trim());
             ProgressFile.setProgress(taskProgressFile, value);
+            text = text.replace(TASK_PROGRESS_MSG + "=" + value, "");
         } else if (readError) {
             error.append(text + (addNL ? "\n" : ""));
         }
