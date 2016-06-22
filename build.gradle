@@ -275,7 +275,7 @@ project(':pa-rconnector') {
         def descFile = file("${rSrc}/NAMESPACE")
         def nl = System.getProperty("line.separator")
         def text = descFile.getText()
-        text = text.concat(nl + "import(rJava, stringr, codetools, devtools, gtools)" + nl)
+        text = text.concat(nl + "import(rJava, stringr, codetools, gtools)" + nl)
         descFile.write(text)
     }
 
