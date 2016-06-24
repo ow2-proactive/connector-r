@@ -8,14 +8,19 @@ import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.TaskScript;
 import org.ow2.proactive.scripting.helper.progress.ProgressFile;
 
-import javax.script.*;
+import javax.script.AbstractScriptEngine;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -127,7 +132,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
         if (results == null) {
             return;
         }
-        Map<String, Object> resultsMap = new HashMap<String, Object>(results.length);
+        Map<String, Object> resultsMap = new LinkedHashMap<>(results.length);
         for (TaskResult r : results) {
             Object value;
             try {
