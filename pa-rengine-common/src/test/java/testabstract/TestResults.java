@@ -5,6 +5,7 @@ import org.ow2.proactive.scheduler.common.task.TaskId;
 import org.ow2.proactive.scheduler.common.task.TaskLogs;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.common.task.flow.FlowAction;
+import org.ow2.proactive.scripting.InvalidScriptException;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
@@ -24,29 +25,43 @@ public class TestResults {
 
     public void test(String engineName) throws Exception {
         // Results from hypothetical previous tasks
-        String task1Name = "task1";
-        double result1 = 1d;
-        TaskId id1 = new MockedTaskId(task1Name);
-        TaskResult tr1 = new MockedTaskResult(id1, result1);
 
-        String task2Name = "task2";
-        double result2 = 2d;
-        TaskId id2 = new MockedTaskId(task2Name);
-        TaskResult tr2 = new MockedTaskResult(id2, result2);
+        int NB_TASKS = 10;
 
-        TaskResult[] results = new TaskResult[]{tr1, tr2};
+        String[] taskNames = new String[NB_TASKS];
+        TaskResult[] results = new TaskResult[NB_TASKS];
+        double[] resValues = new double[NB_TASKS];
+        String rScript1 = "result=c(";
+        String rScript2 = "result=c(";
 
-        String rScript = "result=c(results[['" + task1Name + "']],results[['" + task2Name + "']])";
+        for (int i = 1; i <= NB_TASKS; i++) {
+            taskNames[i - 1] = "task" + i;
+            resValues[i - 1] = i;
+            TaskId id = new MockedTaskId(taskNames[i - 1]);
+            results[i - 1] = new MockedTaskResult(id, resValues[i - 1]);
+            rScript1 += "results[['" + taskNames[i - 1] + "']]" + (i < NB_TASKS ? "," : "");
+            rScript2 += "results[[" + i + "]]" + (i < NB_TASKS ? "," : "");
+        }
+        rScript1 += ")";
+        rScript2 += ")";
 
+
+        executeScriptAndCheckResults(engineName, results, resValues, rScript1);
+
+        executeScriptAndCheckResults(engineName, results, resValues, rScript2);
+    }
+
+    private void executeScriptAndCheckResults(String engineName, Object results, double[] resValues, String rScript1) throws InvalidScriptException {
         Map<String, Object> aBindings = Collections.singletonMap(TaskScript.RESULTS_VARIABLE,
-                (Object) results);
-        SimpleScript ss = new SimpleScript(rScript, engineName);
+                results);
+
+        SimpleScript ss = new SimpleScript(rScript1, engineName);
         TaskScript taskScript = new TaskScript(ss);
         ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
 
         Serializable value = res.getResult();
         org.junit.Assert.assertTrue("Invalid result type of the R script", value instanceof double[]);
-        org.junit.Assert.assertArrayEquals(new double[]{result1, result2}, (double[]) res.getResult(), 0);
+        org.junit.Assert.assertArrayEquals(resValues, (double[]) res.getResult(), 0);
     }
 
     final class MockedTaskId implements TaskId {
