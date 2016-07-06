@@ -51,10 +51,14 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
      * @return the singleton instance of the engine
      */
     public static synchronized PAJRIEngine create(PAJRIFactory factory) {
-        if (isInForkedTask()) {
+        if (instance == null) {
             instance = createScriptEngine(factory);
-        } else if (instance == null) {
-            instance = createScriptEngine(factory);
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    instance.engine.end();
+                }
+            }));
         }
 
         return instance;
@@ -150,10 +154,6 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
 
             // Fix for PRC-30: Always change working dir to avoid keeping a file handle on task temp dir
             engine.engineEval("setwd(\"" + toRpath(tmpDir) + "\")", ctx);
-            if (isInForkedTask()) {
-                engine.end();
-            }
-
         }
     }
 
