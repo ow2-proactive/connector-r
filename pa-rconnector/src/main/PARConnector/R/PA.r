@@ -270,7 +270,7 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #' @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
 #' @param property.selection.value is used in combination with property.selection.name
 #' @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
-#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
+#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Can be NULL, "SINGLE_HOST" or "SINGLE_HOST_EXCLUSIVE". In the later cases, it means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
 #' @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #' @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
 #' @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
@@ -300,7 +300,7 @@ error = function(e) {print(str_c("Error when replacing pattern ", pattern, " in 
 #'  }
 #' @seealso  \code{\link{PA}} \code{\link{PAS}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAConnect}}
 #' @export
-PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
+PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = NULL, generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   dots <- list(...)
   
   # if we are merging find all list of tasks in parameters, construct new function call
@@ -422,7 +422,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #' @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
 #' @param property.selection.value is used in combination with property.selection.name
 #' @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
-#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
+#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Can be NULL, "SINGLE_HOST" or "SINGLE_HOST_EXCLUSIVE". In the later cases, it means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
 #' @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #' @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
 #' @param isolate.io.files should input/output files be isolated in the remote executions, default FALSE.
@@ -449,7 +449,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
 #'  }       
 #' @seealso  \code{\link{PA}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult-class}} \code{\link{PAConnect}}
 #' @export
-PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
+PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = NULL, generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE, client = PAClient(), .debug = PADebug()) {
   
   dots <- list(...)
    
@@ -564,7 +564,7 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #' @param property.selection.name can be used to restrict the remote execution to a given JVM resource where the property is set to the according value
 #' @param property.selection.value is used in combination with property.selection.name
 #' @param nodes.number the number of ProActive Nodes needed, on the same machine, to execute this R task (in case this task runs multiple threads in parallel, and there are multiple ProActive Nodes per machine). Default to 1.
-#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Default to "SINGLE_HOST", which means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
+#' @param topology a character string containing the ProActive topology associated with the number of nodes. The topology determines how multiple nodes will be selected. Can be NULL, "SINGLE_HOST" or "SINGLE_HOST_EXCLUSIVE". In the later cases, it means that all nodes will be selected from the same host. Refer to ProActive documentation to understand possible values.
 #' @param generic.information.list a list containing generic informations to be added to the ProActive Task (example list(INFO1 = "true"), adds the generic info INFO1 = "true" to the task)
 #' @param run.as.me a boolean value which, if set to TRUE, make the ProActive Task run under this user account (impersonation), and not under the account of the ProActive Scheduler
 #' @param walltime the maximum time expected for this task in miliseconds. If the task execution (after the task is started, i.e. without the time needed to be scheduled) exceeds this value, the task will be interrupted. Default to -1 (walltime disabled)
@@ -596,7 +596,7 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  }
 #' @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult-class}} \code{\link{PAConnect}}
 #' @export
-PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = "SINGLE_HOST", generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
+PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = NULL, generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
   if (is.character(funcOrFuncName)) {
     fun <- match.fun(funcOrFuncName)
     funname <- funcOrFuncName
@@ -852,9 +852,14 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
 
     jtsk <- getJavaObject(t)
 
-    if (nodes.number > 1) {
-      td <- .jfield(J("org.ow2.proactive.topology.descriptor.TopologyDescriptor"), topology)
-      jtsk$setParallelEnvironment(.jnew(J("org.ow2.proactive.scheduler.common.task.ParallelEnvironment"),nodes.number,td))
+    if (nodes.number > 1 || !is.null(topology)) {
+        if (is.null(topology)) {
+            topology <- "ARBITRARY"
+        }
+        td <- .jfield(o="org.ow2.proactive.topology.descriptor.TopologyDescriptor", name=topology)
+        jtsk$setParallelEnvironment(.jnew(J("org.ow2.proactive.scheduler.common.task.ParallelEnvironment"),
+            as.integer(nodes.number),
+            .jcast(td, new.class = "org.ow2.proactive.topology.descriptor.TopologyDescriptor")))
     }
 
     if (!is.null(generic.information.list)) {

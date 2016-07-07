@@ -11,7 +11,7 @@
 #' @param path path inside the remote data space where the file will be copied to
 #' @param fileName name of the file that will be created in the remote data space
 #' @param inputFile local path of the file
-#' @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
+#' @param .client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
 #' @param .print.stack is the Java stack trace printed in case of error, default to TRUE
 #' @seealso  \code{\link{PAPullFile}} \code{\link{PADeleteFile}}
 #' @examples
@@ -20,20 +20,23 @@
 #'  }
 #' @export
 PAPushFile <- function(space, path, fileName, inputFile, 
-                       client = PAClient(), .print.stack = TRUE) {
+                       .client = PAClient(), .print.stack = FALSE) {
   
-  if (client == NULL || is.jnull(client) ) {
+  if (.client == NULL || is.jnull(.client) ) {
     stop("You are not currently connected to the scheduler, use PAConnect")
-  } 
+  }
+  if (!startsWith(path,'/')) {
+       stop("path should start with a /")
+  }
   pushed <- FALSE
   
   j_try_catch(
-    pushed <- J(client, "pushFile", .getSpaceName(space), path, fileName, inputFile),     
+    pushed <- J(.client, "pushFile", .getSpaceName(space), path, fileName, inputFile),
     .handler = function(e,.print.stack) {
-      if (.print.stack) {
-        print(str_c("Error in PAPushFile(",space,",",path,",",fileName,",",inputFile,") : ", e$jobj$getMessage()))
-      }
-    PAHandler(e,.print.stack)
+        print(str_c("Error in PAPushFile('",space,"','",path,"','",fileName,"','",inputFile,"') : ", e$jobj$getMessage()))
+        if (.print.stack) {
+            PAHandler(e,.print.stack)
+        }
   },.print.stack = .print.stack)
   return (pushed)
 }
