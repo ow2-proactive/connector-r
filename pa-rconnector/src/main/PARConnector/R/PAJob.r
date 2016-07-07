@@ -102,14 +102,15 @@ setMethod("setPriority", "PAJob",
             return(object@javaObject$setPriority(prio))                          
           } 
 )
-setMethod("setCancelJobOnError", "PAJob",
-          function(object,value) {            
-            return(object@javaObject$setCancelJobOnError(value))                          
+setMethod("setOnTaskError", "PAJob",
+          function(object,value) {
+            policy <- .jfield(o="org.ow2.proactive.scheduler.common.task.OnTaskError", name=value)
+            return(object@javaObject$setOnTaskError(.jcast(policy, new.class = "org.ow2.proactive.scheduler.common.task.OnTaskError")))
           } 
 )
-setMethod("isCancelJobOnError", "PAJob",
+setMethod("getOnTaskError", "PAJob",
           function(object) {
-            return(object@javaObject$isCancelJobOnError())                          
+            return(object@javaObject$getOnTaskError()$getValue())
           } 
 )
 
@@ -133,7 +134,7 @@ setMethod("toString" ,c("PAJob"),
               output<- str_c(output,"  jobPriority : ",jo$getPriority()$toString(),"\n")
             }
             
-            output<- str_c(output,"  cancelOnError : ",jo$isCancelJobOnError(),"\n")
+            output<- str_c(output,"  onTaskError : ",jo$getOnTaskError()$getValue()$toString(),"\n")
             
             if (!is.null(jo$getInputSpace())) {      
               output <- str_c(output,"  inputSpace : ",jo$getInputSpace(),"\n")
