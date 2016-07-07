@@ -2,7 +2,7 @@ package testabstract;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Assert;
-import org.ow2.parengine.PAREngine;
+import org.ow2.proactive.scheduler.common.SchedulerConstants;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
@@ -34,7 +34,7 @@ public class TestError {
 
         String rScript = "variables$toto='" + expectedVariableValue + "'\nwarning('attention')\n" + error + "\nprint(\"" + messageAfter + "\")\n";
 
-        Map<String, Object> aBindings = Collections.singletonMap(PAREngine.TASK_SCRIPT_VARIABLES, (Object) variablesMap);
+        Map<String, Object> aBindings = Collections.singletonMap(SchedulerConstants.VARIABLES_BINDING_NAME, (Object) variablesMap);
 
         SimpleScript ss = new SimpleScript(rScript, engineName);
         TaskScript taskScript = new TaskScript(ss);

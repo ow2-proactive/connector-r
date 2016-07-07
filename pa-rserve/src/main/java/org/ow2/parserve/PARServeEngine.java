@@ -9,9 +9,9 @@ import org.ow2.parengine.PAREngine;
 import org.ow2.parserve.util.rsession.RServeConf;
 import org.ow2.parserve.util.rsession.Rsession;
 import org.ow2.parserve.util.rsession.Utils;
+import org.ow2.proactive.scheduler.common.SchedulerConstants;
 import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.TaskScript;
-import org.ow2.proactive.scripting.helper.progress.ProgressFile;
 import org.ow2.proactive.utils.CookieBasedProcessTreeKiller;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -21,7 +21,6 @@ import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
 import java.io.*;
-import java.net.InetAddress;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -224,7 +223,7 @@ public class PARServeEngine extends PAREngine {
         }
 
         serverEval = false;
-        Map<String, Serializable> jobVariables = (Map<String, Serializable>) bindings.get(TASK_SCRIPT_VARIABLES);
+        Map<String, Serializable> jobVariables = (Map<String, Serializable>) bindings.get(SchedulerConstants.VARIABLES_BINDING_NAME);
         if (jobVariables != null) {
             serverEval = "true".equals(jobVariables.get(PARSERVE_SERVEREVAL));
         }

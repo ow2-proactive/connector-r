@@ -2,7 +2,7 @@ package testabstract;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Assert;
-import org.ow2.parengine.PAREngine;
+import org.ow2.proactive.scheduler.common.SchedulerConstants;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
@@ -31,7 +31,7 @@ public class TestLocalSpace {
         String rScript = "result=getwd();";
 
         Map<String, Object> aBindings =
-                Collections.singletonMap(PAREngine.DS_SCRATCH_BINDING_NAME, (Object)
+                Collections.singletonMap(SchedulerConstants.DS_SCRATCH_BINDING_NAME, (Object)
                         path.toString());
         SimpleScript ss = new SimpleScript(rScript, engineName);
         TaskScript taskScript = new TaskScript(ss);
