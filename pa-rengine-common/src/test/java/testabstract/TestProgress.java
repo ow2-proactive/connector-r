@@ -3,7 +3,7 @@ package testabstract;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
-import org.ow2.parengine.PAREngine;
+import org.ow2.proactive.scheduler.common.SchedulerConstants;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SimpleScript;
@@ -38,7 +38,7 @@ public class TestProgress {
         Map<String, Object> aBindings = new HashMap<String, Object>();
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(SchedulerVars.PA_TASK_PROGRESS_FILE.toString(), (Object) progressFilePath);
-        aBindings.put(PAREngine.TASK_SCRIPT_VARIABLES, variables);
+        aBindings.put(SchedulerConstants.VARIABLES_BINDING_NAME, variables);
         SimpleScript ss = new SimpleScript(rScript, engineName);
         TaskScript taskScript = new TaskScript(ss);
         ByteArrayOutputStream output = new ByteArrayOutputStream();

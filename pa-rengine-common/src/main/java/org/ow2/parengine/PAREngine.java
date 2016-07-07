@@ -1,6 +1,7 @@
 package org.ow2.parengine;
 
 import org.apache.log4j.Logger;
+import org.ow2.proactive.scheduler.common.SchedulerConstants;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.core.properties.PASchedulerProperties;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
@@ -30,12 +31,7 @@ import java.util.Map;
  */
 public abstract class PAREngine extends AbstractScriptEngine {
 
-    public static final String DS_SCRATCH_BINDING_NAME = "localspace";
-    public static final String DS_INPUT_BINDING_NAME = "inputspace";
-    public static final String DS_OUTPUT_BINDING_NAME = "outputspace";
-    public static final String DS_GLOBAL_BINDING_NAME = "globalspace";
-    public static final String DS_USER_BINDING_NAME = "userspace";
-    public static final String TASK_SCRIPT_VARIABLES = "variables";
+
     public static final String TASK_PROGRESS_MSG = "TaskProgress";
     public static final String ERROR_TAG_BEGIN = "<PARError>";
     public static final String ERROR_TAG_END = "</PARError>";
@@ -103,8 +99,8 @@ public abstract class PAREngine extends AbstractScriptEngine {
         if (jobVariables == null) {
             return;
         }
-        if (engine.engineCast(engine.engineEval("exists(\"" + TASK_SCRIPT_VARIABLES + "\")", ctx), Boolean.class, ctx)) {
-            Object variablesRexp = engine.engineEval(TASK_SCRIPT_VARIABLES, ctx);
+        if (engine.engineCast(engine.engineEval("exists(\"" + SchedulerConstants.VARIABLES_BINDING_NAME + "\")", ctx), Boolean.class, ctx)) {
+            Object variablesRexp = engine.engineEval(SchedulerConstants.VARIABLES_BINDING_NAME, ctx);
             if (variablesRexp == null) {
                 return;
             }
@@ -149,9 +145,9 @@ public abstract class PAREngine extends AbstractScriptEngine {
      * assign the job variables into a R list called "variables"
      */
     protected Map<String, Serializable> assignVariables(Bindings bindings, ScriptContext ctx) {
-        Map<String, Serializable> variables = (Map<String, Serializable>) bindings.get(TASK_SCRIPT_VARIABLES);
+        Map<String, Serializable> variables = (Map<String, Serializable>) bindings.get(SchedulerConstants.VARIABLES_BINDING_NAME);
         if (variables != null) {
-            engine.engineSet(TASK_SCRIPT_VARIABLES, variables, ctx);
+            engine.engineSet(SchedulerConstants.VARIABLES_BINDING_NAME, variables, ctx);
         }
         return variables;
     }
@@ -161,7 +157,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
      * Assign a localspace variable which contains the location of the scratch space and change R current directory to it
      */
     protected void assignLocalSpace(Bindings bindings, ScriptContext ctx) {
-        String localSpace = (String) bindings.get(DS_SCRATCH_BINDING_NAME);
+        String localSpace = (String) bindings.get(SchedulerConstants.DS_SCRATCH_BINDING_NAME);
 
         if (localSpace == null) {
             return;
@@ -179,13 +175,13 @@ public abstract class PAREngine extends AbstractScriptEngine {
     /**
      * Assign variables which contain location of user|global|input|output space
      */
-    protected void assignSpace(Bindings bindings, ScriptContext ctx, String bindingName, String varName) {
+    protected void assignSpace(Bindings bindings, ScriptContext ctx, String bindingName) {
         String space = (String) bindings.get(bindingName);
         if (space == null) {
             return;
         }
         space = toRpath(space);
-        engine.engineSet(varName, space, ctx);
+        engine.engineSet(bindingName, space, ctx);
     }
 
 
@@ -194,7 +190,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
      */
     protected void assignProgress(Bindings bindings, ScriptContext ctx) {
 
-        Map<String, Serializable> variables = (Map<String, Serializable>) bindings.get(TASK_SCRIPT_VARIABLES);
+        Map<String, Serializable> variables = (Map<String, Serializable>) bindings.get(SchedulerConstants.VARIABLES_BINDING_NAME);
         if (variables != null) {
             this.taskProgressFile = (String) variables.get(SchedulerVars.PA_TASK_PROGRESS_FILE.toString());
 
@@ -210,7 +206,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
     protected File createOuputFile(Bindings bindings) throws ScriptException {
         File outputFile;
         try {
-            String localSpace = (String) bindings.get(DS_SCRATCH_BINDING_NAME);
+            String localSpace = (String) bindings.get(SchedulerConstants.DS_SCRATCH_BINDING_NAME);
             if (localSpace == null) {
                 localSpace = System.getProperty("java.io.tmpdir");
             }
@@ -239,10 +235,10 @@ public abstract class PAREngine extends AbstractScriptEngine {
         this.assignProgress(bindings, ctx);
         this.assignResults(bindings, ctx);
         this.assignLocalSpace(bindings, ctx);
-        this.assignSpace(bindings, ctx, DS_USER_BINDING_NAME, "userspace");
-        this.assignSpace(bindings, ctx, DS_GLOBAL_BINDING_NAME, "globalspace");
-        this.assignSpace(bindings, ctx, DS_INPUT_BINDING_NAME, "inputspace");
-        this.assignSpace(bindings, ctx, DS_OUTPUT_BINDING_NAME, "outputspace");
+        this.assignSpace(bindings, ctx, SchedulerConstants.DS_USER_BINDING_NAME);
+        this.assignSpace(bindings, ctx, SchedulerConstants.DS_GLOBAL_BINDING_NAME);
+        this.assignSpace(bindings, ctx, SchedulerConstants.DS_INPUT_BINDING_NAME);
+        this.assignSpace(bindings, ctx, SchedulerConstants.DS_OUTPUT_BINDING_NAME);
         this.assignVariables(bindings, ctx);
     }
 

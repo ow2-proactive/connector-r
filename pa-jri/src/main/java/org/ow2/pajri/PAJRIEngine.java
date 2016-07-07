@@ -1,8 +1,11 @@
 package org.ow2.pajri;
 
 import com.google.common.io.CharStreams;
+import org.jetbrains.annotations.NotNull;
 import org.ow2.parengine.PAREngine;
 import org.ow2.parengine.util.RLibPathConfigurator;
+import org.ow2.proactive.scheduler.common.SchedulerConstants;
+import org.ow2.proactive.scheduler.common.task.flow.FlowScript;
 import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.TaskScript;
 import org.rosuda.REngine.JRI.JRIEngine;
@@ -98,7 +101,7 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
             throw new ScriptException("No bindings specified in the script context");
         }
 
-        Map<String, Serializable> jobVariables = (Map<String, Serializable>) bindings.get(TASK_SCRIPT_VARIABLES);
+        Map<String, Serializable> jobVariables = (Map<String, Serializable>) bindings.get(SchedulerConstants.VARIABLES_BINDING_NAME);
 
         // Assign all script task related objects
         prepareExecution(ctx, bindings);
@@ -114,27 +117,13 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
             if (this.lastErrorMessage != null) {
                 toThrow = new ScriptException(this.lastErrorMessage);
             }
+            resultValue = retrieveResultVariable(ctx, bindings, rexp);
 
+            retrieveOtherVariable(SelectionScript.RESULT_VARIABLE, ctx, bindings);
 
-            // If the 'result' variable is explicitly defined in the global
-            // environment it is considered as the task result instead of the
-            // result exp
-            REXP resultRexp = engine.engineGet(TaskScript.RESULT_VARIABLE, ctx);
-            if (resultRexp != null) {
-                resultValue = engine.engineCast(resultRexp, null, ctx);
-            } else {
-                resultValue = engine.engineCast(rexp, null, ctx);
-            }
-            if (resultValue == null) {
-                resultValue = true; // TaskResult.getResult() returns true by default
-            }
-            bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
-
-            // in case the SelectionScript result is assigned in the engine, retrieve it
-            REXP ssResultRexp = engine.engineGet(SelectionScript.RESULT_VARIABLE, ctx);
-            if (ssResultRexp != null) {
-                bindings.put(SelectionScript.RESULT_VARIABLE, engine.engineCast(ssResultRexp, null, ctx));
-            }
+            retrieveOtherVariable(FlowScript.loopVariable, ctx, bindings);
+            retrieveOtherVariable(FlowScript.branchSelectionVariable, ctx, bindings);
+            retrieveOtherVariable(FlowScript.replicateRunsVariable, ctx, bindings);
 
             this.updateJobVariables(jobVariables, ctx);
 
@@ -155,6 +144,36 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
             // Fix for PRC-30: Always change working dir to avoid keeping a file handle on task temp dir
             engine.engineEval("setwd(\"" + toRpath(tmpDir) + "\")", ctx);
         }
+    }
+
+    /**
+     * Retrieve another binding from the engine, such as selection, control flow, etc
+     */
+    private void retrieveOtherVariable(String variableName, ScriptContext ctx, Bindings bindings) {
+        // in case the SelectionScript result is assigned in the engine, retrieve it
+        REXP ssResultRexp = engine.engineGet(variableName, ctx);
+        if (ssResultRexp != null) {
+            bindings.put(variableName, engine.engineCast(ssResultRexp, null, ctx));
+        }
+    }
+
+    @NotNull
+    private Object retrieveResultVariable(ScriptContext ctx, Bindings bindings, REXP rexp) {
+        Object resultValue;
+        // If the 'result' variable is explicitly defined in the global
+        // environment it is considered as the task result instead of the
+        // result exp
+        REXP resultRexp = engine.engineGet(TaskScript.RESULT_VARIABLE, ctx);
+        if (resultRexp != null) {
+            resultValue = engine.engineCast(resultRexp, null, ctx);
+        } else {
+            resultValue = engine.engineCast(rexp, null, ctx);
+        }
+        if (resultValue == null) {
+            resultValue = true; // TaskResult.getResult() returns true by default
+        }
+        bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
+        return resultValue;
     }
 
     @Override
