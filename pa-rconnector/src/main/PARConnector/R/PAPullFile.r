@@ -10,7 +10,7 @@
 #' @param space name of the data space to transfer the file to
 #' @param pathname location of the file inside the remote data space
 #' @param outputFile local path of the file where the file will be copied to. The file must be absolute
-#' @param client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
+#' @param .client connection handle to the scheduler, if not provided the handle created by the last call to \code{\link{PAConnect}} will be used
 #' @param .nb.tries number of total tries (in case of error during the transfer), default to 2
 #' @param .print.stack is the Java stack trace printed in case of error, default to TRUE
 #' @seealso  \code{\link{PAPushFile}} \code{\link{PADeleteFile}}
@@ -20,11 +20,15 @@
 #'  }
 #' @export
 PAPullFile <- function(space, pathname, outputFile, 
-                       client = PAClient(), .nb.tries = 2, .print.stack = TRUE) {
+                       .client = PAClient(), .nb.tries = 2, .print.stack = FALSE) {
   
-  if (client == NULL || is.jnull(client) ) {
+  if (.client == NULL || is.jnull(.client) ) {
     stop("You are not currently connected to the scheduler, use PAConnect")
-  } 
+  }
+
+  if (!startsWith(pathname,'/')) {
+         stop("pathname should start with a /")
+  }
   
   pulled <- FALSE
   
@@ -37,16 +41,16 @@ PAPullFile <- function(space, pathname, outputFile,
   while(.nb.tries > 0) {    
     j_try_catch(
     {
-      pulled <- J(client, "pullFile", .getSpaceName(space),pathname, outputFile)
+      pulled <- J(.client, "pullFile", .getSpaceName(space),pathname, outputFile)
       .nb.tries <- 0      
     },
     .handler = function(e, .print.stack) {
       .nb.tries <<- .nb.tries - 1
       if (.nb.tries <= 0) {
+        print(str_c("Error in PAPullFile('",space,"','",pathname,"','",outputFile,"') : ",e$jobj$getMessage()))
         if (.print.stack) {
-          print(str_c("Error in PAPullFile(",space,",",pathname,",",outputFile,") : ",e$jobj$getMessage()))
+            PAHandler(e, .print.stack)
         }
-        PAHandler(e, .print.stack)       
       }   
     }
     ,.print.stack = .print.stack)

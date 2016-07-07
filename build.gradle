@@ -181,7 +181,7 @@ project(':pa-rconnector') {
 
 
     def schedHome = "${rootProject.buildDir}/scheduler"
-    def rSrc = "${buildDir}/r-pkg-src"
+    def rSrc = "${buildDir}/PARConnector"
 
 
 
@@ -208,7 +208,7 @@ project(':pa-rconnector') {
     def schedProcess
 
     task copyRSources(type: Copy) {
-        from "${projectDir}/src/main/r"
+        from "${projectDir}/src/main/PARConnector"
         include("**/*")
         exclude("**/.*")
         into rSrc
