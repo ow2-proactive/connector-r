@@ -43,12 +43,12 @@ setGeneric(
   def=function(object,value) {standardGeneric("setPriority")}  
 ) 
 setGeneric(
-  name="setCancelJobOnError",
-  def=function(object,value) {standardGeneric("setCancelJobOnError")}  
+  name="setOnTaskError",
+  def=function(object,value) {standardGeneric("setOnTaskError")}
 ) 
 setGeneric(
-  name="isCancelJobOnError",
-  def=function(object,value) {standardGeneric("isCancelJobOnError")}  
+  name="getOnTaskError",
+  def=function(object,value) {standardGeneric("getOnTaskError")}
 ) 
 
 setGeneric(

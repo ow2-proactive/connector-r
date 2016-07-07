@@ -30,7 +30,7 @@
 #' @param jobName name of the ProActive job to be created
 #' @param jobDescription description of this job
 #' @param priority priority of this job
-#' @param cancelOnError sets the cancelling mode mechanism whenever an error occur in one tasks, does it cancel the whole job ? Default to TRUE
+#' @param onTaskError sets the cancelling mode mechanism whenever an error occur in one tasks, does it cancel the whole job ? Can be CANCEL_JOB, PAUSE_TASK, PAUSE_JOB, CONTINUE_JOB_EXECUTION.
 #' @return a \code{\link{PAJobResult-class}} object which acts as a placeholder for receiving actual results
 #' @examples
 #'  \dontrun{
@@ -93,7 +93,7 @@
 #'  }
 #' @seealso  \code{\link{PA}} \code{\link{PAS}} \code{\link{PAM}} \code{\link{PAWaitFor}} \code{\link{PAWaitAny}} \code{\link{PAConnect}}
 #' @export
-PASolve <- function(..., client = PAClient(), .debug = PADebug(), jobName = str_c("PARJob",.peekNewSolveId()) , jobDescription = "ProActive R Job", priority = "normal", cancelOnError = TRUE) {
+PASolve <- function(..., client = PAClient(), .debug = PADebug(), jobName = str_c("PARJob",.peekNewSolveId()) , jobDescription = "ProActive R Job", priority = "normal", onTaskError = NULL) {
 
   dots <- list(...)
 
@@ -118,6 +118,9 @@ PASolve <- function(..., client = PAClient(), .debug = PADebug(), jobName = str_
   .peekNewSolveId()
   job <- PAJob(jobName, jobDescription)
   setPriority(job, priority)
+  if (!is.null(onTaskError)) {
+    setOnTaskError(job, onTaskError)
+  }
   # TODO: replace by setOnTaskError... good luck fviale :)
   # setCancelJobOnError(job, cancelOnError)
   task.names <- NULL
