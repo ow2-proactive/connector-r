@@ -34,17 +34,21 @@ PAConnect <- function(url, login, pwd,
         pwd <- readline("Password:")
       }
     }
+  } else {
+    if (missing(login)) {
+       login <- readline("Login:")
+    }
+    cred <- .jnew(J("java.io.File"),cred)
+    login <- NULL
+    pwd <- NULL
   }
     
   
   j_try_catch({
     SchedulerClient <- J("org.ow2.proactive.scheduler.rest.SchedulerClient")
     client <- SchedulerClient$createInstance()
-    if (insecure) {
-        client$initInsecure(url, login, pwd)
-    } else {
-        client$init(url, login, pwd)
-    }
+    client$init(url, login, pwd, cred, insecure)
+
   } , .handler = function(e,.print.stack) {
     print(str_c("Error in PAConnect(",url,") :"))
     PAHandler(e,.print.stack)
