@@ -1,7 +1,6 @@
 package org.ow2.pajri;
 
 import com.google.common.io.CharStreams;
-import org.jetbrains.annotations.NotNull;
 import org.ow2.parengine.PAREngine;
 import org.ow2.parengine.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.SchedulerConstants;
@@ -157,7 +156,7 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
         }
     }
 
-    @NotNull
+
     private Object retrieveResultVariable(ScriptContext ctx, Bindings bindings, REXP rexp) {
         Object resultValue;
         // If the 'result' variable is explicitly defined in the global
