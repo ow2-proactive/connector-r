@@ -7,6 +7,7 @@ buildscript {
         }
         jcenter()
         maven { url 'http://repository.activeeon.com/content/groups/proactive/' }
+        maven { url 'http://dl.bintray.com/content/abashev/vfs-s3'}
     }
 }
 
@@ -74,9 +75,8 @@ project(':pa-rengine-common') {
         compile 'org.apache.commons:commons-lang3:3.1'
         compile 'commons-io:commons-io:2.4'
         compile group: 'com.google.guava', name: 'guava', version: '17.0'
-        compile("org.objectweb.proactive:programming-extension-dataspaces:${programmingVersion}") {
-	    exclude module: "vfs-s3"
-	}
+
+        compile "org.objectweb.proactive:programming-extension-dataspaces:${programmingVersion}"
         compile "org.ow2.proactive:scheduler-api:${schedulingVersion}"
         compile "org.ow2.proactive:common-api:${schedulingVersion}"
         compile "org.ow2.proactive:rm-node:${schedulingVersion}"
