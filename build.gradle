@@ -214,7 +214,11 @@ project(':pa-rconnector') {
         into rSrc
     }
 
-    task installrJava(type: Exec, dependsOn: checkRCommands) {
+    task javareconf(type: Exec, dependsOn: checkRCommands) {
+        commandLine rExec, 'CMD', 'javareconf'
+    }
+
+    task installrJava(type: Exec, dependsOn: javareconf) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rJava\', quiet=TRUE)) == 0) {install.packages(\'rJava\', repos=c(\'http://cran.r-project.org\'))}'
     }
     task installDevTools(type: Exec, dependsOn: [checkRCommands]) {
