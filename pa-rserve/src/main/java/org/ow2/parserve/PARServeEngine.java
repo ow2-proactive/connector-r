@@ -10,6 +10,7 @@ import org.ow2.parserve.util.rsession.RServeConf;
 import org.ow2.parserve.util.rsession.Rsession;
 import org.ow2.parserve.util.rsession.Utils;
 import org.ow2.proactive.scheduler.common.SchedulerConstants;
+import org.ow2.proactive.scheduler.common.task.flow.FlowScript;
 import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.TaskScript;
 import org.ow2.proactive.utils.CookieBasedProcessTreeKiller;
@@ -246,29 +247,15 @@ public class PARServeEngine extends PAREngine {
             // otherwise each step is followed till the end
             REXP rexp = engine.engineEval(script, ctx);
 
-            // If the 'result' variable is explicitly defined in the global
-            // environment it is considered as the task result instead of the
-            // result exp
-            REXP resultRexp = null;
-            if (!serverEval) {
-                resultRexp = engine.engineGet(TaskScript.RESULT_VARIABLE, ctx);
-                if (resultRexp != null) {
-                    resultValue = engine.engineCast(resultRexp, null, ctx);
-                } else {
-                    resultValue = engine.engineCast(rexp, null, ctx);
-                }
-            }
-            if (resultValue == null) {
-                resultValue = true; // TaskResult.getResult() returns true by default
-            }
-            bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
+            resultValue = retrieveResultVariable(ctx, bindings, rexp);
 
-            // in case the SelectionScript result is assigned in the engine, retrieve it
+            retrieveOtherVariable(SelectionScript.RESULT_VARIABLE, ctx, bindings);
+
+            retrieveOtherVariable(FlowScript.loopVariable, ctx, bindings);
+            retrieveOtherVariable(FlowScript.branchSelectionVariable, ctx, bindings);
+            retrieveOtherVariable(FlowScript.replicateRunsVariable, ctx, bindings);
+
             if (!serverEval) {
-                REXP ssResultRexp = engine.engineGet(SelectionScript.RESULT_VARIABLE, ctx);
-                if (ssResultRexp != null) {
-                    bindings.put(SelectionScript.RESULT_VARIABLE, engine.engineCast(ssResultRexp, null, ctx));
-                }
                 this.updateJobVariables(jobVariables, ctx);
                 this.updateResultMetadata(resultMetadata, ctx);
             }
@@ -303,6 +290,42 @@ public class PARServeEngine extends PAREngine {
                 }
             }
         }
+    }
+
+    /**
+     * Retrieve another binding from the engine, such as selection, control flow, etc
+     */
+    private void retrieveOtherVariable(String variableName, ScriptContext ctx, Bindings bindings) {
+        if (!serverEval) {
+            // in case the SelectionScript result is assigned in the engine, retrieve it
+            REXP ssResultRexp = engine.engineGet(variableName, ctx);
+            if (ssResultRexp != null) {
+                bindings.put(variableName, engine.engineCast(ssResultRexp, null, ctx));
+            }
+        }
+    }
+
+    private Object retrieveResultVariable(ScriptContext ctx, Bindings bindings, REXP rexp) {
+
+        Object resultValue = null;
+        // If the 'result' variable is explicitly defined in the global
+        // environment it is considered as the task result instead of the
+        // result exp
+        REXP resultRexp = null;
+        if (!serverEval) {
+            resultRexp = engine.engineGet(TaskScript.RESULT_VARIABLE, ctx);
+            if (resultRexp != null) {
+                resultValue = engine.engineCast(resultRexp, null, ctx);
+            } else {
+                resultValue = engine.engineCast(rexp, null, ctx);
+            }
+        }
+        if (resultValue == null) {
+            resultValue = true; // TaskResult.getResult() returns true by default
+        }
+        bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
+
+        return resultValue;
     }
 
     /**
