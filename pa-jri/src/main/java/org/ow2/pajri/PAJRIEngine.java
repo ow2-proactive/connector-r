@@ -102,6 +102,8 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
 
         Map<String, Serializable> jobVariables = (Map<String, Serializable>) bindings.get(SchedulerConstants.VARIABLES_BINDING_NAME);
 
+        Map<String, String> resultMetadata = (Map<String, String>) bindings.get(SchedulerConstants.RESULT_METADATA_VARIABLE);
+
         // Assign all script task related objects
         prepareExecution(ctx, bindings);
 
@@ -125,6 +127,7 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
             retrieveOtherVariable(FlowScript.replicateRunsVariable, ctx, bindings);
 
             this.updateJobVariables(jobVariables, ctx);
+            this.updateResultMetadata(resultMetadata, ctx);
 
 
             // PRC-32 A ScriptException() must be thrown if the script calls stop() function
