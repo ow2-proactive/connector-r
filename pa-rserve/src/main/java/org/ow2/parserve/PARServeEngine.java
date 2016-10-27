@@ -228,6 +228,8 @@ public class PARServeEngine extends PAREngine {
             serverEval = "true".equals(jobVariables.get(PARSERVE_SERVEREVAL));
         }
 
+        Map<String, String> resultMetadata = (Map<String, String>) bindings.get(SchedulerConstants.RESULT_METADATA_VARIABLE);
+
         engine = new PARServeConnection(Rsession.newInstanceTry("Script", rServeConf), serverEval);
 
         try {
@@ -268,6 +270,7 @@ public class PARServeEngine extends PAREngine {
                     bindings.put(SelectionScript.RESULT_VARIABLE, engine.engineCast(ssResultRexp, null, ctx));
                 }
                 this.updateJobVariables(jobVariables, ctx);
+                this.updateResultMetadata(resultMetadata, ctx);
             }
 
             // server evaluation is for one task only, it must not be propagated

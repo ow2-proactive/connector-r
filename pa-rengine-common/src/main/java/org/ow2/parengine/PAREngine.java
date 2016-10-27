@@ -6,7 +6,6 @@ import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.core.properties.PASchedulerProperties;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.ow2.proactive.scripting.Script;
-import org.ow2.proactive.scripting.TaskScript;
 import org.ow2.proactive.scripting.helper.progress.ProgressFile;
 
 import javax.script.AbstractScriptEngine;
@@ -110,6 +109,23 @@ public abstract class PAREngine extends AbstractScriptEngine {
     }
 
     /**
+     * Retrieve variables map from R and merge them with the java one
+     */
+    protected void updateResultMetadata(Map<String, String> metadata, ScriptContext ctx) {
+        if (metadata == null) {
+            return;
+        }
+        if (engine.engineCast(engine.engineEval("exists(\"" + SchedulerConstants.RESULT_METADATA_VARIABLE + "\")", ctx), Boolean.class, ctx)) {
+            Object metadataRexp = engine.engineEval(SchedulerConstants.RESULT_METADATA_VARIABLE, ctx);
+            if (metadataRexp == null) {
+                return;
+            }
+            Map newMap = engine.engineCast(metadataRexp, Map.class, ctx);
+            metadata.putAll(newMap);
+        }
+    }
+
+    /**
      * Assign the script arguments to the variable "args"
      */
     protected void assignArguments(Bindings bindings, ScriptContext ctx) {
@@ -124,7 +140,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
      * Assign results from previous tasks to the variable "results"
      */
     protected void assignResults(Bindings bindings, ScriptContext ctx) {
-        TaskResult[] results = (TaskResult[]) bindings.get(TaskScript.RESULTS_VARIABLE);
+        TaskResult[] results = (TaskResult[]) bindings.get(SchedulerConstants.RESULTS_VARIABLE);
         if (results == null) {
             return;
         }
@@ -138,7 +154,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
             }
             resultsMap.put(r.getTaskId().getReadableName(), value);
         }
-        engine.engineSet(TaskScript.RESULTS_VARIABLE, resultsMap, ctx);
+        engine.engineSet(SchedulerConstants.RESULTS_VARIABLE, resultsMap, ctx);
     }
 
     /**
@@ -150,6 +166,17 @@ public abstract class PAREngine extends AbstractScriptEngine {
             engine.engineSet(SchedulerConstants.VARIABLES_BINDING_NAME, variables, ctx);
         }
         return variables;
+    }
+
+    /**
+     * assign the result metadata into a R list called "resultMetadata"
+     */
+    protected Map<String, String> assignResultMetadata(Bindings bindings, ScriptContext ctx) {
+        Map<String, String> metadata = (Map<String, String>) bindings.get(SchedulerConstants.RESULT_METADATA_VARIABLE);
+        if (metadata != null) {
+            engine.engineSet(SchedulerConstants.RESULT_METADATA_VARIABLE, metadata, ctx);
+        }
+        return metadata;
     }
 
 
@@ -240,6 +267,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
         this.assignSpace(bindings, ctx, SchedulerConstants.DS_INPUT_BINDING_NAME);
         this.assignSpace(bindings, ctx, SchedulerConstants.DS_OUTPUT_BINDING_NAME);
         this.assignVariables(bindings, ctx);
+        this.assignResultMetadata(bindings, ctx);
     }
 
     protected String filterErrorsAndProgress(String text, boolean addNL) {

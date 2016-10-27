@@ -1,5 +1,6 @@
 package testabstract;
 
+import org.ow2.proactive.scheduler.common.SchedulerConstants;
 import org.ow2.proactive.scheduler.common.job.JobId;
 import org.ow2.proactive.scheduler.common.task.TaskId;
 import org.ow2.proactive.scheduler.common.task.TaskLogs;
@@ -52,7 +53,7 @@ public class TestResults {
     }
 
     private void executeScriptAndCheckResults(String engineName, Object results, double[] resValues, String rScript1) throws InvalidScriptException {
-        Map<String, Object> aBindings = Collections.singletonMap(TaskScript.RESULTS_VARIABLE,
+        Map<String, Object> aBindings = Collections.singletonMap(SchedulerConstants.RESULTS_VARIABLE,
                 results);
 
         SimpleScript ss = new SimpleScript(rScript1, engineName);
@@ -142,6 +143,11 @@ public class TestResults {
 
         @Override
         public byte[] getSerializedValue() {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getMetadata() {
             return null;
         }
 
