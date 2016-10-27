@@ -214,8 +214,13 @@ project(':pa-rconnector') {
         into rSrc
     }
 
-    task javareconf(type: Exec, dependsOn: checkRCommands) {
-        commandLine rExec, 'CMD', 'javareconf'
+    if (isLinux) {
+        task javareconf(type: Exec, dependsOn: checkRCommands) {
+            commandLine rExec, 'CMD', 'javareconf'
+        }
+    } else {
+        // empty task
+        task javareconf
     }
 
     task installrJava(type: Exec, dependsOn: javareconf) {
