@@ -39,7 +39,12 @@ import org.ow2.parserve.PARServeFactory;
 
 public class TestResultMetadata extends testabstract.TestResultMetadata {
     @Test
-    public void test() throws Exception {
-        super.test(PARServeFactory.ENGINE_NAME);
+    public void testEmptyMetadata() throws Exception {
+        super.testEmptyMetadata(PARServeFactory.ENGINE_NAME);
+    }
+
+    @Test
+    public void testMetadata() throws Exception {
+        super.testMetadata(PARServeFactory.ENGINE_NAME);
     }
 }

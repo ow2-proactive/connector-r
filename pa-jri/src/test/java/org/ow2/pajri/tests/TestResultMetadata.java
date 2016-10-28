@@ -40,7 +40,12 @@ import org.ow2.pajri.PAJRIFactory;
 public class TestResultMetadata extends testabstract.TestResultMetadata {
 
     @Test
-    public void test() throws Exception {
-        super.test(PAJRIFactory.ENGINE_NAME);
+    public void testMetadata() throws Exception {
+        super.testMetadata(PAJRIFactory.ENGINE_NAME);
+    }
+
+    @Test
+    public void testEmptyMetadata() throws Exception {
+        super.testEmptyMetadata(PAJRIFactory.ENGINE_NAME);
     }
 }

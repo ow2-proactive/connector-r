@@ -173,9 +173,16 @@ public abstract class PAREngine extends AbstractScriptEngine {
      */
     protected Map<String, String> assignResultMetadata(Bindings bindings, ScriptContext ctx) {
         Map<String, String> metadata = (Map<String, String>) bindings.get(SchedulerConstants.RESULT_METADATA_VARIABLE);
-        if (metadata != null) {
-            engine.engineSet(SchedulerConstants.RESULT_METADATA_VARIABLE, metadata, ctx);
+        if (metadata == null) {
+            return null;
         }
+        // If the map is empty, the R engine will convert it as a NULL object.
+        // we need to add a dummy metadata to avoid this issue.
+        if (metadata.isEmpty()) {
+            metadata.put("r.result", "true");
+        }
+        engine.engineSet(SchedulerConstants.RESULT_METADATA_VARIABLE, metadata, ctx);
+
         return metadata;
     }
 
