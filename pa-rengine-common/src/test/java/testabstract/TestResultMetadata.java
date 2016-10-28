@@ -47,7 +47,30 @@ import java.util.Map;
 
 public class TestResultMetadata {
 
-    public void test(String engineName) throws Exception {
+    public void testEmptyMetadata(String engineName) throws Exception {
+        BasicConfigurator.resetConfiguration();
+        BasicConfigurator.configure();
+
+        HashMap<String, String> metadata = new HashMap();
+
+        Map<String, Object> aBindings = Collections.singletonMap(SchedulerConstants.RESULT_METADATA_VARIABLE,
+                (Object) metadata);
+
+        String rScript = "resultMetadata[['b']]='valueb'; result = TRUE";
+
+        SimpleScript ss = new SimpleScript(rScript, engineName);
+        TaskScript taskScript = new TaskScript(ss);
+        ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
+        org.junit.Assert
+                .assertEquals(
+                        "The result should be true",
+                        true, res.getResult());
+        org.junit.Assert
+                .assertEquals("The metadata map should contain the metadata defined in the script", "valueb", metadata.get("b"));
+    }
+
+
+    public void testMetadata(String engineName) throws Exception {
         BasicConfigurator.resetConfiguration();
         BasicConfigurator.configure();
 
@@ -56,6 +79,7 @@ public class TestResultMetadata {
 
         Map<String, Object> aBindings = Collections.singletonMap(SchedulerConstants.RESULT_METADATA_VARIABLE,
                 (Object) metadata);
+
 
         String rScript = "resultMetadata[['b']]='valueb'; result = resultMetadata[['a']]";
 
