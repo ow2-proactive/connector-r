@@ -1,11 +1,29 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * ProActive Parallel Suite(TM):
+ * The Open Source library for parallel and distributed
+ * Workflows & Scheduling, Orchestration, Cloud Automation
+ * and Big Data Analysis on Enterprise Grids & Clouds.
+ *
+ * Copyright (c) 2007 - 2017 ActiveEon
+ * Contact: contact@activeeon.com
+ *
+ * This library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation: version 3 of
+ * the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * If needed, contact us to obtain a release under GPL Version 2 or 3
+ * or a different license than the AGPL.
  */
 package org.ow2.parengine.util;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,12 +31,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.StringUtils;
+
+
 /**
  * @author ActiveEon Team
  */
 public class RLibPathConfigurator {
 
     public static final boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
+
     public static final boolean isMac = System.getProperty("os.name").toLowerCase().contains("mac");
 
     /**
@@ -33,18 +55,17 @@ public class RLibPathConfigurator {
             if (isBlank) {
                 try {
                     rHome = WinRegistry.readString(WinRegistry.HKEY_LOCAL_MACHINE, // HKEY
-                            "SOFTWARE\\R-core\\R", // Key
-                            "InstallPath");
+                                                   "SOFTWARE\\R-core\\R", // Key
+                                                   "InstallPath");
                     if (!(new File(rHome).exists())) {
-                        throw new FileNotFoundException("The path " + rHome
-                                + " given by the Windows Registry key does not exists");
+                        throw new FileNotFoundException("The path " + rHome +
+                                                        " given by the Windows Registry key does not exists");
                     }
 
                     RLibPathConfigurator.setEnvVar("R_HOME", rHome);
                 } catch (Exception e) {
-                    throw new IllegalStateException(
-                            "Unable to locate R homedir from Windows Registry, it seems R is not installed, please define the R_HOME env variable",
-                            e);
+                    throw new IllegalStateException("Unable to locate R homedir from Windows Registry, it seems R is not installed, please define the R_HOME env variable",
+                                                    e);
                 }
             }
             dynamicAddLibraryPathWindows(rHome);
@@ -58,8 +79,8 @@ public class RLibPathConfigurator {
                     }
                     RLibPathConfigurator.setEnvVar("R_HOME", rHome);
                 } catch (Exception e) {
-                    throw new IllegalStateException(
-                            "Unable to locate R homedir, the R_HOME env variable must be defined", e);
+                    throw new IllegalStateException("Unable to locate R homedir, the R_HOME env variable must be defined",
+                                                    e);
                 }
             }
             dynamicAddLibraryPathMac(rHome);
@@ -73,8 +94,8 @@ public class RLibPathConfigurator {
                     }
                     RLibPathConfigurator.setEnvVar("R_HOME", rHome);
                 } catch (Exception e) {
-                    throw new IllegalStateException(
-                            "Unable to locate R homedir, the R_HOME env variable must be defined", e);
+                    throw new IllegalStateException("Unable to locate R homedir, the R_HOME env variable must be defined",
+                                                    e);
                 }
             }
             dynamicAddLibraryPathLinux(rHome);
@@ -94,8 +115,8 @@ public class RLibPathConfigurator {
         }
         String rJavaPath = packagesLibraryPath + fs + "rJava";
         if (!new File(rJavaPath).exists()) {
-            throw new IllegalStateException("Unable to locate rJava in " + rJavaPath
-                    + " the R_LIBS env variable must be defined");
+            throw new IllegalStateException("Unable to locate rJava in " + rJavaPath +
+                                            " the R_LIBS env variable must be defined");
         }
         String jriLibraryPath = rJavaPath + fs + "jri" + fs;
         // Use correct libraries depending on jvm architecture
@@ -117,8 +138,7 @@ public class RLibPathConfigurator {
             String varValue = System.getenv("Path");
             RLibPathConfigurator.setEnvVar("Path", varValue + File.pathSeparator + rLibraryPath);
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to add R lib to Path environment variable "
-                    + rLibraryPath, e);
+            throw new IllegalStateException("Unable to add R lib to Path environment variable " + rLibraryPath, e);
         }
     }
 
@@ -134,8 +154,8 @@ public class RLibPathConfigurator {
         }
         String rJavaPath = packagesLibraryPath + fs + "rJava";
         if (!new File(rJavaPath).exists()) {
-            throw new IllegalStateException("Unable to locate rJava package in " + rJavaPath
-                    + " the R_LIBS env variable must be defined");
+            throw new IllegalStateException("Unable to locate rJava package in " + rJavaPath +
+                                            " the R_LIBS env variable must be defined");
         }
         // Dynamically add to java library path
         String jriLibraryPath = rJavaPath + fs + "jri" + fs;
@@ -158,8 +178,8 @@ public class RLibPathConfigurator {
         }
         String rJavaPath = packagesLibraryPath + fs + "rJava";
         if (!new File(rJavaPath).exists()) {
-            throw new IllegalStateException("Unable to locate rJava package in " + rJavaPath
-                    + " the R_LIBS env variable must be defined");
+            throw new IllegalStateException("Unable to locate rJava package in " + rJavaPath +
+                                            " the R_LIBS env variable must be defined");
         }
         // Dynamically add to java library path
         String jriLibraryPath = rJavaPath + fs + "jri" + fs;
@@ -205,8 +225,8 @@ public class RLibPathConfigurator {
             try {
                 clazz = Class.forName("org.ow2.proactive.scheduler.util.process.Environment");
             } catch (Exception ee) {
-                throw new IllegalStateException(
-                        "Unable to load Environement class required to set the env variable " + var, e);
+                throw new IllegalStateException("Unable to load Environement class required to set the env variable " +
+                                                var, e);
             }
         }
         try {

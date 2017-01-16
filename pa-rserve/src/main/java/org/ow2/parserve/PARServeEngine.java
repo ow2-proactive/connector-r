@@ -1,6 +1,39 @@
+/*
+ * ProActive Parallel Suite(TM):
+ * The Open Source library for parallel and distributed
+ * Workflows & Scheduling, Orchestration, Cloud Automation
+ * and Big Data Analysis on Enterprise Grids & Clouds.
+ *
+ * Copyright (c) 2007 - 2017 ActiveEon
+ * Contact: contact@activeeon.com
+ *
+ * This library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation: version 3 of
+ * the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * If needed, contact us to obtain a release under GPL Version 2 or 3
+ * or a different license than the AGPL.
+ */
 package org.ow2.parserve;
 
-import com.google.common.io.CharStreams;
+import java.io.*;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
+
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListenerAdapter;
 import org.apache.log4j.Logger;
@@ -18,13 +51,8 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptException;
-import java.io.*;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import com.google.common.io.CharStreams;
+
 
 /**
  * R implementation of ScriptEngine using REngine through JRI. Sub-class of the
@@ -36,6 +64,7 @@ import java.util.Set;
 public class PARServeEngine extends PAREngine {
 
     public static final int PARSERVE_RSERVE_PORT = 6412;
+
     /**
      * Name of the variable used to trigger a RServe server ansync evaluation
      */
@@ -50,17 +79,21 @@ public class PARServeEngine extends PAREngine {
      * timeout used to wait for the log file last messages
      */
     public static final int TAILER_TIMEOUT = 6000;
+
     /**
      * logger
      */
     protected static final Logger logger = Logger.getLogger(PARServeEngine.class);
+
     public static final String COOKIE_NAME_SUFFIX = "_RServe";
+
     public static final String NODE_COOKIE_NAME_SUFFIX = "node";
 
     /**
      * a file containing the configuration of the Rserve server, and of the PARServe integration
      */
-    public static File rServePropertyFile = new File(System.getProperty("proactive.home"), "addons/" + PARServeEngine.class.getSimpleName() + ".ini");
+    public static File rServePropertyFile = new File(System.getProperty("proactive.home"),
+                                                     "addons/" + PARServeEngine.class.getSimpleName() + ".ini");
 
     private static RServeConf rServeConf;
 
@@ -73,13 +106,13 @@ public class PARServeEngine extends PAREngine {
      * Thread and listener reading the outputFile
      */
     private Thread tailerThread;
+
     private PARScriptTailerListener listener;
 
     /**
      * Evaluation on RServe server instead of Rserve session
      */
     protected boolean serverEval;
-
 
     protected PARServeEngine(PARServeFactory factory) {
         this.factory = factory;
@@ -107,7 +140,6 @@ public class PARServeEngine extends PAREngine {
 
     private static PARServeEngine createScriptEngine(PARServeFactory factory) {
 
-
         final PARServeEngine instance = new PARServeEngine(factory);
         try {
             if (instance.rServeConf == null) {
@@ -116,7 +148,7 @@ public class PARServeEngine extends PAREngine {
             }
 
         } catch (Exception ex) {
-            logger.error("Unable to instantiate the PARserveEngine",ex);
+            logger.error("Unable to instantiate the PARserveEngine", ex);
             throw new IllegalStateException("Unable to instantiate the PARserveEngine", ex);
         }
 
@@ -167,7 +199,15 @@ public class PARServeEngine extends PAREngine {
                 }
             }
         }
-        return new RServeConf(null, rServePort, login, password, timeout, daemon, debug, rServeProperties, rEnvProperties);
+        return new RServeConf(null,
+                              rServePort,
+                              login,
+                              password,
+                              timeout,
+                              daemon,
+                              debug,
+                              rServeProperties,
+                              rEnvProperties);
     }
 
     /**
@@ -179,14 +219,13 @@ public class PARServeEngine extends PAREngine {
     private void initializePTK() throws REXPMismatchException, REngineException {
 
         // deactivate Node process tree killer (by replacing the existing one), to avoid duplicate killing
-        final CookieBasedProcessTreeKiller processKillerDeactivated = CookieBasedProcessTreeKiller.createAllChildrenKiller(
-                NODE_COOKIE_NAME_SUFFIX);
-        final CookieBasedProcessTreeKiller processKiller = CookieBasedProcessTreeKiller.createAllChildrenKiller(
-                COOKIE_NAME_SUFFIX);
+        final CookieBasedProcessTreeKiller processKillerDeactivated = CookieBasedProcessTreeKiller.createAllChildrenKiller(NODE_COOKIE_NAME_SUFFIX);
+        final CookieBasedProcessTreeKiller processKiller = CookieBasedProcessTreeKiller.createAllChildrenKiller(COOKIE_NAME_SUFFIX);
 
         Rsession initSession = Rsession.newInstanceTry(PARServeEngine.class.getSimpleName(), rServeConf);
 
-        initSession.eval("Sys.setenv(" + processKiller.getCookieName() + "=\"" + processKiller.getCookieValue() + "\")");
+        initSession.eval("Sys.setenv(" + processKiller.getCookieName() + "=\"" + processKiller.getCookieValue() +
+                         "\")");
         final int rServePid = initSession.eval("Sys.getpid()").asInteger();
 
         logger.info("Rserve PID : " + rServePid);
@@ -200,7 +239,9 @@ public class PARServeEngine extends PAREngine {
                 if (OperatingSystem.getOperatingSystem().equals(OperatingSystem.windows)) {
                     try {
                         // on windows, PTK does not seem to work for RServe, rely on taskkill command.
-                        Runtime.getRuntime().exec(new String[]{"taskkill", "/F", "/PID", "" + rServePid, "/T"}).waitFor();
+                        Runtime.getRuntime()
+                               .exec(new String[] { "taskkill", "/F", "/PID", "" + rServePid, "/T" })
+                               .waitFor();
                     } catch (Exception e) {
                         logger.error(e);
                     }
@@ -387,7 +428,6 @@ public class PARServeEngine extends PAREngine {
         }
         return eval(s, context);
     }
-
 
     /**
      * This class reads the content of the .Rout file produced by the Rsession as the tail command.

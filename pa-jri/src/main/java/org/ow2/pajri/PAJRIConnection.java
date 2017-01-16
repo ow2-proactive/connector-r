@@ -1,4 +1,36 @@
+/*
+ * ProActive Parallel Suite(TM):
+ * The Open Source library for parallel and distributed
+ * Workflows & Scheduling, Orchestration, Cloud Automation
+ * and Big Data Analysis on Enterprise Grids & Clouds.
+ *
+ * Copyright (c) 2007 - 2017 ActiveEon
+ * Contact: contact@activeeon.com
+ *
+ * This library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation: version 3 of
+ * the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * If needed, contact us to obtain a release under GPL Version 2 or 3
+ * or a different license than the AGPL.
+ */
 package org.ow2.pajri;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.Writer;
+
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
 
 import org.ow2.parengine.PARConnection;
 import org.rosuda.REngine.JRI.JRIEngine;
@@ -6,11 +38,6 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
 
-import javax.script.ScriptContext;
-import javax.script.ScriptException;
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.Writer;
 
 /**
  * Abstract dialog with JRI sessions.
@@ -24,7 +51,6 @@ public class PAJRIConnection implements PARConnection {
     public PAJRIConnection(JRIEngine engine) {
         this.engine = engine;
     }
-
 
     @Override
     public REXP engineEval(String expr, ScriptContext ctx) {
@@ -72,7 +98,6 @@ public class PAJRIConnection implements PARConnection {
         return null;
     }
 
-
     @Override
     public void checkParsing(String expression, ScriptContext ctx) throws ScriptException {
 
@@ -80,7 +105,8 @@ public class PAJRIConnection implements PARConnection {
             engineSet(".tmp.", expression, ctx);
             REXP r = engineEval("try(parse(text=.tmp.), silent=TRUE)", ctx);
             engineEval("rm(.tmp.)", ctx);
-            if (r.inherits("try-error")) throw new ScriptException(r.asString());
+            if (r.inherits("try-error"))
+                throw new ScriptException(r.asString());
         } catch (REXPMismatchException e) {
             throw new ScriptException(e);
         }
@@ -100,7 +126,6 @@ public class PAJRIConnection implements PARConnection {
     public void end() {
         engine.close();
     }
-
 
     @Override
     public void writeExceptionToError(Exception ex, ScriptContext ctx) {

@@ -1,6 +1,40 @@
+/*
+ * ProActive Parallel Suite(TM):
+ * The Open Source library for parallel and distributed
+ * Workflows & Scheduling, Orchestration, Cloud Automation
+ * and Big Data Analysis on Enterprise Grids & Clouds.
+ *
+ * Copyright (c) 2007 - 2017 ActiveEon
+ * Contact: contact@activeeon.com
+ *
+ * This library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation: version 3 of
+ * the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * If needed, contact us to obtain a release under GPL Version 2 or 3
+ * or a different license than the AGPL.
+ */
 package org.ow2.pajri;
 
-import com.google.common.io.CharStreams;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import java.util.Map;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
+
 import org.ow2.parengine.PAREngine;
 import org.ow2.parengine.util.RLibPathConfigurator;
 import org.ow2.proactive.scheduler.common.SchedulerConstants;
@@ -13,14 +47,8 @@ import org.rosuda.REngine.REngine;
 import org.rosuda.REngine.REngineCallbacks;
 import org.rosuda.REngine.REngineOutputInterface;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.Writer;
-import java.util.Map;
+import com.google.common.io.CharStreams;
+
 
 /**
  * R implementation of ScriptEngine using REngine through JRI. Sub-class of the
@@ -33,8 +61,8 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
 
     private static String tmpDir = System.getProperty("java.io.tmpdir");
 
-
     private static PAJRIEngine instance;
+
     /**
      * Enabled if this engine is not running inside a forked node
      */
@@ -76,7 +104,7 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
                 throw new IllegalStateException("Unable to configure the library path for R", e);
             }
         }
-        String[] args = {"--vanilla", "--slave"};
+        String[] args = { "--vanilla", "--slave" };
 
         PAJRIEngine instance = new PAJRIEngine(factory);
         try {
@@ -129,7 +157,6 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
             this.updateJobVariables(jobVariables, ctx);
             this.updateResultMetadata(resultMetadata, ctx);
 
-
             // PRC-32 A ScriptException() must be thrown if the script calls stop() function
             if (toThrow != null) {
                 throw toThrow;
@@ -159,7 +186,6 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
         }
     }
 
-
     private Object retrieveResultVariable(ScriptContext ctx, Bindings bindings, REXP rexp) {
         Object resultValue;
         // If the 'result' variable is explicitly defined in the global
@@ -188,7 +214,6 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
         }
         return eval(s, ctx);
     }
-
 
     /**
      * called when R prints output to the console.
