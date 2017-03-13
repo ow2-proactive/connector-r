@@ -1,7 +1,29 @@
+/*
+ * ProActive Parallel Suite(TM):
+ * The Open Source library for parallel and distributed
+ * Workflows & Scheduling, Orchestration, Cloud Automation
+ * and Big Data Analysis on Enterprise Grids & Clouds.
+ *
+ * Copyright (c) 2007 - 2017 ActiveEon
+ * Contact: contact@activeeon.com
+ *
+ * This library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation: version 3 of
+ * the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * If needed, contact us to obtain a release under GPL Version 2 or 3
+ * or a different license than the AGPL.
+ */
 package org.ow2.parserve;
-
-import org.ow2.parengine.RObject;
-import org.rosuda.REngine.*;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -10,6 +32,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+
+import org.ow2.parengine.RObject;
+import org.rosuda.REngine.*;
+
 
 /**
  * Routines to convert between Java Objects and R expressions.
@@ -58,7 +84,7 @@ public class RexpConvert {
             if (rexp.isNumeric()) {
                 int[] dim = rexp.dim();
                 return (dim != null && dim.length == 2) ? rexp.asDoubleMatrix()
-                        : (len == 1) ? rexp.asDouble() : rexp.asDoubles();
+                                                        : (len == 1) ? rexp.asDouble() : rexp.asDoubles();
             }
             if (rexp.isLogical()) {
                 boolean[] bools = ((REXPLogical) rexp).isTRUE();
@@ -168,7 +194,7 @@ public class RexpConvert {
     /**
      * Convert from R expression to Java List.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     static List asList(REXP rexp) throws REXPMismatchException {
         RList rlist = rexp.asList();
         List list = new ArrayList(rlist.size());
@@ -181,7 +207,7 @@ public class RexpConvert {
     /**
      * Convert from R expression to Java Map.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     static Map asMap(REXP rexp) throws REXPMismatchException {
         RList rlist = rexp.asList();
         int len = rlist.size();
@@ -237,8 +263,7 @@ public class RexpConvert {
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(type);
             PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();
-            Map<String, PropertyDescriptor> map
-                    = new HashMap<String, PropertyDescriptor>(props.length * 2);
+            Map<String, PropertyDescriptor> map = new HashMap<String, PropertyDescriptor>(props.length * 2);
             for (PropertyDescriptor prop : props) {
                 map.put(prop.getName(), prop);
             }
@@ -263,7 +288,7 @@ public class RexpConvert {
     /**
      * Convert from R expression to Java Enum.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     static Enum asEnum(REXP rexp, Class<?> type) throws REXPMismatchException {
         return Enum.valueOf((Class<Enum>) type, rexp.asString());
     }
@@ -329,7 +354,7 @@ public class RexpConvert {
             }
         }
         RList rlist = new RList();
-        rlist.put("dim", new REXPInteger(new int[]{nrow, ncol}));
+        rlist.put("dim", new REXPInteger(new int[] { nrow, ncol }));
         REXPList attrs = new REXPList(rlist);
         return new REXPDouble(ret, attrs);
     }

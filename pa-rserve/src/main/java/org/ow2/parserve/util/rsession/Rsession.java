@@ -1,4 +1,31 @@
+/*
+ * ProActive Parallel Suite(TM):
+ * The Open Source library for parallel and distributed
+ * Workflows & Scheduling, Orchestration, Cloud Automation
+ * and Big Data Analysis on Enterprise Grids & Clouds.
+ *
+ * Copyright (c) 2007 - 2017 ActiveEon
+ * Contact: contact@activeeon.com
+ *
+ * This library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation: version 3 of
+ * the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * If needed, contact us to obtain a release under GPL Version 2 or 3
+ * or a different license than the AGPL.
+ */
 package org.ow2.parserve.util.rsession;
+
+import java.io.File;
 
 import org.apache.log4j.Logger;
 import org.rosuda.REngine.REXP;
@@ -8,7 +35,6 @@ import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
-import java.io.File;
 
 /**
  * Handles all interactions with the R engine
@@ -20,29 +46,48 @@ import java.io.File;
 public class Rsession {
 
     public final static int MinRserveVersion = 103;
-    public final static String STATUS_NOT_SET = "Unknown status", STATUS_READY = "Ready", STATUS_ERROR = "Error", STATUS_ENDED = "End", STATUS_NOT_CONNECTED = "Not connected", STATUS_CONNECTING = "Connecting...";
+
+    public final static String STATUS_NOT_SET = "Unknown status", STATUS_READY = "Ready", STATUS_ERROR = "Error",
+            STATUS_ENDED = "End", STATUS_NOT_CONNECTED = "Not connected", STATUS_CONNECTING = "Connecting...";
+
     public static final boolean UNIX_OPTIMIZE = true;
+
     public final static String HEAD_SET = "[set] ";
+
     public final static String HEAD_EVAL = "[eval] ";
+
     public final static String HEAD_SERVEREVAL = "[server-eval] ";
+
     public final static String HEAD_EXCEPTION = "[exception] ";
+
     public final static String HEAD_ERROR = "[error] ";
+
     public final static String ROUTPUT_END = "<rsession-end>";
+
     public final static String IO_HEAD = "[IO] ";
 
     private static final Logger logger = Logger.getLogger(Rsession.class);
+
     public static RServeConnectionFactory rserveConnectionFactory;
+
     public boolean TRY_MODE_DEFAULT = false;
+
     public boolean TRY_MODE = false;
+
     protected RConnection connection;
+
     public boolean connected = false;
+
     public String name;
+
     public RServeConf conf;
 
     public String status = STATUS_NOT_SET;
+
     boolean tryLocalRServe;
 
     private String outputFile;
+
     private boolean sinkActivated = false;
 
     /**
@@ -54,7 +99,6 @@ public class Rsession {
         RServeConnectionFactory.initializeOnce(conf);
         begin();
     }
-
 
     /**
      * Build a new Rsession, connects to an existing server or fork a new one.
@@ -100,7 +144,8 @@ public class Rsession {
             logger.error(message2);
             throw new IllegalArgumentException(message2);
         } else {
-            logger.info("[" + name + "]" + "Connected to Local Rserve. (Version " + connection.getServerVersion() + ")");
+            logger.info("[" + name + "]" + "Connected to Local Rserve. (Version " + connection.getServerVersion() +
+                        ")");
         }
     }
 
@@ -132,8 +177,8 @@ public class Rsession {
         // Warning, in the following expression, when using sink( ... , type=c('output', 'message'))
         // the message/stderr output is not redirected !
         String expr = ".sink.file.con <- file('" + this.outputFile + "', 'a')\n" +
-                "sink(.sink.file.con, append=TRUE, type='output')\n" +
-                "sink(.sink.file.con, append=TRUE, type='message')\n";
+                      "sink(.sink.file.con, append=TRUE, type='output')\n" +
+                      "sink(.sink.file.con, append=TRUE, type='message')\n";
         eval(expr);
         sinkActivated = true;
     }
@@ -145,19 +190,14 @@ public class Rsession {
      * @throws REXPMismatchException
      */
     public void terminateOutput() throws REXPMismatchException, REngineException {
-        String expr = "print(\"" + ROUTPUT_END + "\");\n" +
-                "flush.console()\n" +
-                "sink();sink(type='message');\n" +
-                "flush(.sink.file.con);\n" +
-                "close(.sink.file.con);\n" +
-                "closeAllConnections()\n";
+        String expr = "print(\"" + ROUTPUT_END + "\");\n" + "flush.console()\n" + "sink();sink(type='message');\n" +
+                      "flush(.sink.file.con);\n" + "close(.sink.file.con);\n" + "closeAllConnections()\n";
 
         // cat("" + ROUTPUT_END + "\n",file=.sink.file.con)
         sinkActivated = false;
         eval(expr);
 
     }
-
 
     /**
      * This method is used to verify that an expression is correctly parsed, it throws error either
@@ -173,7 +213,8 @@ public class Rsession {
             try {
                 REXP r = connection.parseAndEval("try(parse(text=.tmp.), silent=TRUE)");
                 connection.parseAndEval("rm(.tmp.)");
-                if (r.inherits("try-error")) throw new REngineException(connection, r.asString());
+                if (r.inherits("try-error"))
+                    throw new REngineException(connection, r.asString());
             } catch (REngineException e) {
                 logger.error("[" + name + "]" + HEAD_EXCEPTION + e.getMessage() + "\n  " + expression);
                 throw e;
@@ -196,7 +237,8 @@ public class Rsession {
         synchronized (connection) {
             try {
                 REXP r = connection.parseAndEval("try({" + expression + "}, silent=TRUE)");
-                if (r != null && r.inherits("try-error")) throw new REngineException(connection, r.asString());
+                if (r != null && r.inherits("try-error"))
+                    throw new REngineException(connection, r.asString());
             } catch (REngineException e) {
                 logger.error("[" + name + "]" + HEAD_EXCEPTION + e.getMessage() + "\n  " + expression);
                 throw e;
@@ -206,7 +248,6 @@ public class Rsession {
             }
         }
     }
-
 
     /**
      * launch R command and return value.
@@ -240,10 +281,8 @@ public class Rsession {
             throw ex;
         }
 
-
         return e;
     }
-
 
     /**
      * launch R command on RServe server directly (asynchronous).
@@ -270,7 +309,6 @@ public class Rsession {
         }
     }
 
-
     /**
      * Set R object in R env.
      *
@@ -280,7 +318,8 @@ public class Rsession {
     public void set(String varname, REXP var) {
         //assert connected : "R environment not initialized. Please make sure that R.init() method was called first.";
         if (!connected) {
-            logger.error("[" + name + "]" + HEAD_EXCEPTION + "R environment not initialized. Please make sure that R.init() method was called first.");
+            logger.error("[" + name + "]" + HEAD_EXCEPTION +
+                         "R environment not initialized. Please make sure that R.init() method was called first.");
             throw new IllegalStateException("R environment not initialized. Please make sure that R.init() method was called first.");
         }
 
@@ -294,8 +333,10 @@ public class Rsession {
                     connection.assign(varname, var);
                 }
             } catch (RserveException ex) {
-                logger.error("[" + name + "]" + HEAD_EXCEPTION + ex.getMessage() + "\n  set(String varname=" + varname + ",Object (REXP) var)");
-                throw new RuntimeException("[" + name + "]" + HEAD_EXCEPTION + ex.getMessage() + "\n  set(String varname=" + varname + ",Object (REXP) var)", ex);
+                logger.error("[" + name + "]" + HEAD_EXCEPTION + ex.getMessage() + "\n  set(String varname=" + varname +
+                             ",Object (REXP) var)");
+                throw new RuntimeException("[" + name + "]" + HEAD_EXCEPTION + ex.getMessage() +
+                                           "\n  set(String varname=" + varname + ",Object (REXP) var)", ex);
             }
         }
     }

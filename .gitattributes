@@ -1,0 +1,13 @@
+*.java eol=lf
+*.gradle eol=lf
+*.sh eol=lf
+*.md eol=lf
+*.r eol=lf
+*.js eol=lf
+
+*.bat eol=crlf
+
+*.png binary
+*.jpg binary
+
+*.r linguist-language=R

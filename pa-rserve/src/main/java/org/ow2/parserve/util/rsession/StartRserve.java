@@ -1,11 +1,37 @@
+/*
+ * ProActive Parallel Suite(TM):
+ * The Open Source library for parallel and distributed
+ * Workflows & Scheduling, Orchestration, Cloud Automation
+ * and Big Data Analysis on Enterprise Grids & Clouds.
+ *
+ * Copyright (c) 2007 - 2017 ActiveEon
+ * Contact: contact@activeeon.com
+ *
+ * This library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation: version 3 of
+ * the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * If needed, contact us to obtain a release under GPL Version 2 or 3
+ * or a different license than the AGPL.
+ */
 package org.ow2.parserve.util.rsession;
+
+import java.io.File;
+import java.net.InetAddress;
 
 import org.apache.log4j.Logger;
 import org.objectweb.proactive.utils.OperatingSystem;
 import org.rosuda.REngine.Rserve.RConnection;
 
-import java.io.File;
-import java.net.InetAddress;
 
 /**
  * simple class that start Rserve locally if it's not running already - see mainly <code>checkLocalRserve</code> method. It spits out quite some debugging outout of the console, so feel free to modify it for your application if desired.<p>
@@ -16,10 +42,10 @@ import java.net.InetAddress;
 public class StartRserve {
 
     private static final Logger logger = Logger.getLogger(StartRserve.class);
+
     public static String DEFAULT_REPOS = "http://cran.irsn.fr/";
+
     public static Process rProcess;
-
-
 
     /**
      * R batch to check Rserve is installed
@@ -29,7 +55,12 @@ public class StartRserve {
      */
     public static boolean isRserveInstalled(String Rcmd) {
         StringBuffer result = new StringBuffer();
-        boolean done = doInR("i=installed.packages();is.element(set=i,el='Rserve')", Rcmd, "--vanilla -q", true, result, result);
+        boolean done = doInR("i=installed.packages();is.element(set=i,el='Rserve')",
+                             Rcmd,
+                             "--vanilla -q",
+                             true,
+                             result,
+                             result);
         if (!done) {
             return false;
         }
@@ -55,7 +86,8 @@ public class StartRserve {
         logger.info("Install Rserve from " + repository + " ... (http_proxy=" + http_proxy + ") ");
         StringBuffer out = new StringBuffer();
         StringBuffer err = new StringBuffer();
-        boolean ok = doInR((http_proxy != null ? "Sys.setenv(http_proxy=" + http_proxy + ");" : "") + "install.packages('Rserve',repos='" + repository + "')", Rcmd, "--vanilla", true, out, err);
+        boolean ok = doInR((http_proxy != null ? "Sys.setenv(http_proxy=" + http_proxy + ");" : "") +
+                           "install.packages('Rserve',repos='" + repository + "')", Rcmd, "--vanilla", true, out, err);
         if (!ok) {
             logger.error("RServe installation failed");
             return false;
@@ -89,7 +121,8 @@ public class StartRserve {
      * @param rargs arguments are are to be passed to R (e.g. --vanilla -q)
      * @return <code>true</code> if Rserve is running or was successfully started, <code>false</code> otherwise.
      */
-    public static boolean doInR(String todo, String Rcmd, String rargs, boolean wait, StringBuffer out, StringBuffer err) {
+    public static boolean doInR(String todo, String Rcmd, String rargs, boolean wait, StringBuffer out,
+            StringBuffer err) {
         try {
             boolean isWindows = false;
             String osname = System.getProperty("os.name");
@@ -100,7 +133,7 @@ public class StartRserve {
                 rProcess = Runtime.getRuntime().exec(command);
             } else /* unix startup */ {
                 command = "echo \"" + todo + "\"|" + Rcmd + " " + rargs;
-                rProcess = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", command});
+                rProcess = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
             }
             logger.info("  executing " + command);
             // we need to fetch the output - some platforms will die if you don't ...
@@ -134,7 +167,7 @@ public class StartRserve {
      * shortcut to <code>launchRserve(cmd, "--no-save --slave", "--no-save --slave", false)</code>
      */
     public static boolean launchRserve(String cmd) {
-        return launchRserve(cmd, /*null,*/ "--no-save --slave", null, "--no-save --slave", false, false, -1);
+        return launchRserve(cmd, /* null, */ "--no-save --slave", null, "--no-save --slave", false, false, -1);
     }
 
     /**
@@ -145,13 +178,23 @@ public class StartRserve {
      * @param rsrvargs arguments to be passed to Rserve
      * @return <code>true</code> if Rserve is running or was successfully started, <code>false</code> otherwise.
      */
-    public static boolean launchRserve(String cmd, /*String libloc,*/ String rargs, File preloadFile, String rsrvargs, boolean daemon, boolean debug, int timeout) {
+    public static boolean launchRserve(String cmd, /* String libloc, */ String rargs, File preloadFile, String rsrvargs,
+            boolean daemon, boolean debug, int timeout) {
         logger.info("Waiting for Rserve to start ...");
         boolean startRserve;
         if (daemon) {
-            startRserve = doInR("library(Rserve);" + (preloadFile != null ? "source('" + Utils.toRpath(preloadFile) + "');" : "") + "Rserve(" + (debug ? "TRUE" : "FALSE") + ",args='" + rsrvargs + "')", cmd, rargs, false, null, null);
+            startRserve = doInR("library(Rserve);" +
+                                (preloadFile != null ? "source('" + Utils.toRpath(preloadFile) + "');" : "") +
+                                "Rserve(" + (debug ? "TRUE" : "FALSE") + ",args='" + rsrvargs + "')",
+                                cmd,
+                                rargs,
+                                false,
+                                null,
+                                null);
         } else {
-            startRserve = doInR("library(Rserve);" + (preloadFile != null ? "source('" + Utils.toRpath(preloadFile) + "');" : "") + "run.Rserve(" + rsrvargs + ")", cmd, rargs, false, null, null);
+            startRserve = doInR("library(Rserve);" +
+                                (preloadFile != null ? "source('" + Utils.toRpath(preloadFile) + "');" : "") +
+                                "run.Rserve(" + rsrvargs + ")", cmd, rargs, false, null, null);
         }
         if (startRserve) {
             logger.info("Rserve startup done, let us try to connect ...");
@@ -220,7 +263,7 @@ public class StartRserve {
             }
             return launchRserve(installPath + "\\bin\\R.exe");
         }
-         /* try some common unix locations of R */
+        /* try some common unix locations of R */
         return (launchRserve("R") || launchRserveFromAlternateLocations());
     }
 
@@ -232,7 +275,8 @@ public class StartRserve {
             File rExec = new File(dir, "bin/R");
             if (rExec.exists() && rExec.canRead() && rExec.canExecute()) {
                 boolean launched = launchRserve(rExec.getAbsolutePath());
-                if (launched) return true;
+                if (launched)
+                    return true;
             }
         }
         return false;

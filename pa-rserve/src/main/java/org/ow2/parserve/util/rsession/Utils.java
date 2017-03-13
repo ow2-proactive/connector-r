@@ -1,11 +1,29 @@
+/*
+ * ProActive Parallel Suite(TM):
+ * The Open Source library for parallel and distributed
+ * Workflows & Scheduling, Orchestration, Cloud Automation
+ * and Big Data Analysis on Enterprise Grids & Clouds.
+ *
+ * Copyright (c) 2007 - 2017 ActiveEon
+ * Contact: contact@activeeon.com
+ *
+ * This library is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation: version 3 of
+ * the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * If needed, contact us to obtain a release under GPL Version 2 or 3
+ * or a different license than the AGPL.
+ */
 package org.ow2.parserve.util.rsession;
-
-import org.apache.log4j.Logger;
-import org.objectweb.proactive.utils.OperatingSystem;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPList;
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.RList;
 
 import java.io.*;
 import java.net.BindException;
@@ -15,6 +33,14 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+import org.objectweb.proactive.utils.OperatingSystem;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPList;
+import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.RList;
+
+
 /**
  * Various utility functions used by the rsession package
  *
@@ -23,17 +49,13 @@ import java.util.Properties;
 public class Utils {
 
     public final static String R_HOME_KEY = "R_HOME";
-    public static final String[] COMMON_R_INSTALL_DIRS = {
-            "/Library/Frameworks/R.framework/Resources",
-            "/usr/local/lib/R",
-            "/usr/lib/R",
-            "/usr/local",
-            "/sw",
-            "/usr/common",
-            "/opt"
-    };
+
+    public static final String[] COMMON_R_INSTALL_DIRS = { "/Library/Frameworks/R.framework/Resources",
+                                                           "/usr/local/lib/R", "/usr/lib/R", "/usr/local", "/sw",
+                                                           "/usr/common", "/opt" };
 
     public static String R_HOME = null;
+
     static String separator = ",";
 
     private static final Logger logger = Logger.getLogger(Utils.class);
@@ -344,7 +366,8 @@ public class Utils {
         Map<String, String> env = System.getenv();
         Properties prop = System.getProperties();
 
-        if (r_HOME != null) R_HOME = r_HOME;
+        if (r_HOME != null)
+            R_HOME = r_HOME;
         if (R_HOME == null || !(new File(R_HOME).isDirectory())) {
             if (env.containsKey(R_HOME_KEY)) {
                 R_HOME = env.get(R_HOME_KEY);
@@ -360,7 +383,7 @@ public class Utils {
                     try {
                         R_HOME = Utils.findRInstallPathWindow();
                     } catch (Exception e) {
-                        logger.error("Error when querying registry for R installation",e);
+                        logger.error("Error when querying registry for R installation", e);
                     }
                 } else {
                     R_HOME = findRInstallPathLinuxMac();
@@ -379,8 +402,7 @@ public class Utils {
         long time = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
         StringBuffer sb = new StringBuffer();
-        sb =
-                sdf.format(new Date(time), sb, new java.text.FieldPosition(0));
+        sb = sdf.format(new Date(time), sb, new java.text.FieldPosition(0));
         return sb.toString();
     }
 
@@ -399,6 +421,7 @@ public class Utils {
     public abstract static class TimeOut {
 
         private boolean timedOut = false;
+
         private Object result = null;
 
         protected TimeOut() {
@@ -467,8 +490,11 @@ public class Utils {
     public static class RegistryHog extends Thread {
 
         public Process rProcess;
+
         InputStream is;
+
         boolean capture;
+
         String installPath;
 
         RegistryHog(InputStream is, boolean capture) {
@@ -517,7 +543,9 @@ public class Utils {
     static class StreamHog extends Thread {
 
         InputStream is;
+
         boolean capture;
+
         StringBuffer out = new StringBuffer();
 
         StreamHog(InputStream is, boolean capture) {
