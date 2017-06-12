@@ -92,7 +92,11 @@ setMethod(
 
 .getLogsFromJavaResult <- function(paresult, tresult) {              
   jlogs <- tresult$getOutput()         
-  logs <- jlogs$getAllLogs(TRUE)
+  if (!is.null(jlogs)) {
+    logs <- jlogs$getAllLogs(TRUE)
+  } else {
+    logs <- NULL
+  }
   
   return(logs)
 }
