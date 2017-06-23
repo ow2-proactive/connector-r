@@ -187,6 +187,18 @@ public class TestResults {
             return false;
         }
 
+        public boolean isRaw() {
+            return false;
+        }
+
+        public Map<String, Serializable> getVariables() {
+            return null;
+        }
+
+        public Serializable getValue() {
+            return value;
+        }
+
         @Override
         public Serializable value() throws Throwable {
             return this.value;

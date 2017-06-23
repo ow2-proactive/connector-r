@@ -108,9 +108,9 @@ setMethod("setOnTaskError", "PAJob",
             return(object@javaObject$setOnTaskError(.jcast(policy, new.class = "org.ow2.proactive.scheduler.common.task.OnTaskError")))
           } 
 )
-setMethod("getOnTaskError", "PAJob",
+setMethod("getOnTaskErrorProperty", "PAJob",
           function(object) {
-            return(object@javaObject$getOnTaskError()$getValue())
+            return(object@javaObject$getOnTaskErrorProperty()$getValue())
           } 
 )
 
@@ -134,7 +134,7 @@ setMethod("toString" ,c("PAJob"),
               output<- str_c(output,"  jobPriority : ",jo$getPriority()$toString(),"\n")
             }
             
-            output<- str_c(output,"  onTaskError : ",jo$getOnTaskError()$getValue()$toString(),"\n")
+            output<- str_c(output,"  onTaskError : ",jo$getOnTaskErrorProperty()$getValue()$toString(),"\n")
             
             if (!is.null(jo$getInputSpace())) {      
               output <- str_c(output,"  inputSpace : ",jo$getInputSpace(),"\n")
