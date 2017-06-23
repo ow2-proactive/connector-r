@@ -458,11 +458,14 @@ project(':pa-rconnector') {
             }
             schedProcess.destroy();
             // workaround for killing PARServe on windows/linux as removing local nodes creates R zombies
-            if (isWindows) {
-                ['taskkill', '/F', '/im', 'RServe.exe'].execute()
-                ['taskkill', '/F', '/im', 'Rterm.exe'].execute()
-            } else {
-                ['killall', '-u', System.getenv("USER"), 'R'].execute()
+            try {
+                if (isWindows) {
+                    ['taskkill', '/F', '/im', 'RServe.exe'].execute()
+                    ['taskkill', '/F', '/im', 'Rterm.exe'].execute()
+                } else {
+                    ['killall', '-u', System.getenv("USER"), 'R'].execute()
+                }
+            } catch (e) {
             }
         }
     }
