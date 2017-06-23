@@ -408,7 +408,7 @@ project(':pa-rconnector') {
 
 
     task startScheduler() << {
-        schedProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive.scheduler.util.SchedulerStarter', '-c', '-ln', '1', '-t', '60000'].execute(null, new File(schedHome))
+        schedProcess = ['java', '-classpath', 'dist/lib/*', 'org.ow2.proactive.scheduler.util.SchedulerStarter', '-c', '-ln', '3', '-t', '60000'].execute(null, new File(schedHome))
 
         try {
             schedProcess.inputStream.eachLine {
