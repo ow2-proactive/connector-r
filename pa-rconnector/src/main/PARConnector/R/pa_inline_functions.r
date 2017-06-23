@@ -47,8 +47,8 @@ setGeneric(
   def=function(object,value) {standardGeneric("setOnTaskError")}
 ) 
 setGeneric(
-  name="getOnTaskError",
-  def=function(object,value) {standardGeneric("getOnTaskError")}
+  name="getOnTaskErrorProperty",
+  def=function(object,value) {standardGeneric("getOnTaskErrorProperty")}
 ) 
 
 setGeneric(
