@@ -175,7 +175,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
         }
         String[] args = new String[serializable_args.length];
         for (int i = 0; i < args.length; i++) {
-            args[i] = (String) serializable_args[i];
+            args[i] = serializable_args[i].toString();
         }
         engine.engineSet("args", args, ctx);
     }
