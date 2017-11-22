@@ -169,9 +169,13 @@ public abstract class PAREngine extends AbstractScriptEngine {
      * Assign the script arguments to the variable "args"
      */
     protected void assignArguments(Bindings bindings, ScriptContext ctx) {
-        String[] args = (String[]) bindings.get(Script.ARGUMENTS_NAME);
-        if (args == null) {
+        Serializable[] serializable_args = (Serializable[]) bindings.get(Script.ARGUMENTS_NAME);
+        if (serializable_args == null) {
             return;
+        }
+        String[] args = new String[serializable_args.length];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = serializable_args[i].toString();
         }
         engine.engineSet("args", args, ctx);
     }
