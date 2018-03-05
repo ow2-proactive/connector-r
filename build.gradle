@@ -220,6 +220,9 @@ project(':pa-rconnector') {
         env.put('LD_LIBRARY_PATH', ldLib.getAbsolutePath())
     }
 
+    // disable pdf view to avoid a popup
+    env.put('R_PDFVIEWER','ls')
+
     def schedProcess
 
     task copyRSources(type: Copy) {
@@ -319,6 +322,14 @@ project(':pa-rconnector') {
         environment env
     }
 
+    task generatePDF(type: Exec, dependsOn: buildRPackage) {
+        inputs.dir(rSrc)
+        outputs.dir(buildDir)
+        workingDir buildDir
+        commandLine rExec, 'CMD', 'Rd2pdf', 'PARConnector'
+        environment env
+    }
+
     task buildRPackageSrc(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
@@ -327,7 +338,7 @@ project(':pa-rconnector') {
         environment env
     }
 
-    task build(dependsOn: [buildRPackage, buildRPackageSrc])
+    task build(dependsOn: [buildRPackage, buildRPackageSrc, generatePDF])
 
     // ReInstall PARConnector package to apply changes
     task reinstallRPackage(dependsOn: [checkRCommands, buildRPackage]) << {
