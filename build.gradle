@@ -86,11 +86,9 @@ project(':pa-rengine-common') {
     dependencies {
         compile configurations.addons
         compile 'log4j:log4j:1.2.17'
-        compile 'org.apache.commons:commons-lang3:3.1'
         compile 'commons-io:commons-io:2.4'
         compile group: 'com.google.guava', name: 'guava', version: '17.0'
 
-        compile "org.objectweb.proactive:programming-extension-dataspaces:${programmingVersion}"
         compile "org.ow2.proactive:scheduler-api:${schedulingVersion}"
         compile "org.ow2.proactive:common-api:${schedulingVersion}"
         compile "org.ow2.proactive:rm-node:${schedulingVersion}"
@@ -322,7 +320,11 @@ project(':pa-rconnector') {
         environment env
     }
 
-    task generatePDF(type: Exec, dependsOn: buildRPackage) {
+    task deletePDF(type: Delete, dependsOn: buildRPackage) {
+        delete "$buildDir/PARConnector.pdf"
+    }
+
+    task generatePDF(type: Exec, dependsOn: deletePDF) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir

@@ -31,7 +31,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.StringUtils;
+import com.google.common.base.Strings;
 
 
 /**
@@ -49,7 +49,7 @@ public class RLibPathConfigurator {
      */
     public static void configureLibraryPath() {
         String rHome = System.getenv("R_HOME");
-        boolean isBlank = StringUtils.isBlank(rHome);
+        boolean isBlank = Strings.isNullOrEmpty(rHome);
         if (isWindows) {
             // On Windows try to locate from Windows Registry
             if (isBlank) {
@@ -110,7 +110,7 @@ public class RLibPathConfigurator {
         String packagesLibraryPath = rHome + fs + "library";
         // If R_LIBS env var is defined locate rJava there
         String rLibs = System.getenv("R_LIBS");
-        if (!StringUtils.isBlank(rLibs)) {
+        if (!Strings.isNullOrEmpty(rLibs)) {
             packagesLibraryPath = rLibs;
         }
         String rJavaPath = packagesLibraryPath + fs + "rJava";
@@ -147,7 +147,7 @@ public class RLibPathConfigurator {
         String packagesLibraryPath = rHome + fs + "library";
         // If R_LIBS env var is defined locate rJava there
         String rLibs = System.getenv("R_LIBS");
-        if (!StringUtils.isBlank(rLibs)) {
+        if (!Strings.isNullOrEmpty(rLibs)) {
             if (new File(rLibs + fs + "rJava").exists()) {
                 packagesLibraryPath = rLibs;
             }
@@ -171,7 +171,7 @@ public class RLibPathConfigurator {
         String packagesLibraryPath = rHome + fs + "site-library";
         // If R_LIBS env var is defined locate rJava there
         String rLibs = System.getenv("R_LIBS");
-        if (!StringUtils.isBlank(rLibs)) {
+        if (!Strings.isNullOrEmpty(rLibs)) {
             if (new File(rLibs + fs + "rJava").exists()) {
                 packagesLibraryPath = rLibs;
             }
