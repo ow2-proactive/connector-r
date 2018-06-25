@@ -14,11 +14,11 @@ var hostName = args[0];
 if (SelectionUtils.checkHostName(hostName)) 
 {
 	selected = true;
-	println("Hostname = " + hostName + " ==> selected");
-    }
+	print("Hostname = " + hostName + " ==> selected");
+}
 else 
-    {
+{
 	selected = false;
-	println("Hostname <> " + hostName + " ==> not selected");
-    }
+	print("Hostname <> " + hostName + " ==> not selected");
+}
 
