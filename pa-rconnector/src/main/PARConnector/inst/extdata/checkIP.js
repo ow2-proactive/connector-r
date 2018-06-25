@@ -17,11 +17,11 @@ The IP can be given as x.x.x.x or using the token * to match a network for examp
 if (SelectionUtils.checkIp(ipMask)) 
 {
 	selected = true;
-	println("Host's IP matches with " + args[0] + " ==> selected");
-    }
+	print("Host's IP matches with " + args[0] + " ==> selected");
+}
 else 
-    {
+{
 	selected = false;
-	println("Host's IP does not match with " + args[0] + " ==> not selected");
-    }
+	print("Host's IP does not match with " + args[0] + " ==> not selected");
+}
 
