@@ -191,6 +191,11 @@ public class TestResults {
             return false;
         }
 
+        @Override
+        public Map<String, Serializable> getResultMap() {
+            return null;
+        }
+
         public Map<String, Serializable> getVariables() {
             return null;
         }
