@@ -318,8 +318,13 @@ public abstract class PAREngine extends AbstractScriptEngine {
                           ERROR_TAG_END + "', sep='\\n') })", ctx);
     }
 
+    protected void setNumericLocale(ScriptContext ctx) {
+        engine.engineEval("Sys.setlocale(category = 'LC_NUMERIC', locale = 'C')", ctx);
+    }
+
     protected void prepareExecution(ScriptContext ctx, Bindings bindings) {
         this.enableWarnings(ctx);
+        this.setNumericLocale(ctx);
         this.customizeErrors(ctx);
         this.assignArguments(bindings, ctx);
         this.assignProgress(bindings, ctx);
