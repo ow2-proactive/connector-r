@@ -330,6 +330,18 @@ project(':pa-rconnector') {
         workingDir buildDir
         commandLine rExec, 'CMD', 'Rd2pdf', 'PARConnector'
         environment env
+        // This task requires a properly configured environment, notably:
+        // - a LaTex installation (for example https://miktex.org)
+        // - Even with the latex binaries, you might find the dreaded:
+        // Warning: running command '"C:\PROGRA~1\MiKTeX 2.9\miktex\bin\x64\texify.exe"  --pdf "Rd2.tex" --max-iterations=20 -I "C:/PROGRA~1/R/R-3.4.4/share/texmf/tex/latex" -I "C:/PROGRA~1/R/R-3.4.4/share/texmf/bibtex/bst"' had status 1
+        // Error : running 'texi2dvi' on 'Rd2.tex' failed
+        //
+        // LaTeX errors:
+        // !pdfTeX error: pdflatex (file ts1-zi4r): Font ts1-zi4r at 600 not found
+        //  ==> Fatal error occurred, no output PDF file produced!
+        //
+        // In this case, good luck to find a solution..
+        ignoreExitValue = true
     }
 
     task buildRPackageSrc(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
