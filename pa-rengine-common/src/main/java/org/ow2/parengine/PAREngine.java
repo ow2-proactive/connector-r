@@ -213,6 +213,17 @@ public abstract class PAREngine extends AbstractScriptEngine {
     }
 
     /**
+     * assign the generic info into a R list called "genericInformation"
+     */
+    protected Map<String, String> assignGenericInformation(Bindings bindings, ScriptContext ctx) {
+        Map<String, String> genericInformation = (Map<String, String>) bindings.get(SchedulerConstants.GENERIC_INFO_BINDING_NAME);
+        if (genericInformation != null) {
+            engine.engineSet(SchedulerConstants.GENERIC_INFO_BINDING_NAME, genericInformation, ctx);
+        }
+        return genericInformation;
+    }
+
+    /**
      * assign the result metadata into a R list called "resultMetadata"
      */
     protected Map<String, String> assignResultMetadata(Bindings bindings, ScriptContext ctx) {
@@ -319,6 +330,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
         this.assignSpace(bindings, ctx, SchedulerConstants.DS_INPUT_BINDING_NAME);
         this.assignSpace(bindings, ctx, SchedulerConstants.DS_OUTPUT_BINDING_NAME);
         this.assignVariables(bindings, ctx);
+        this.assignGenericInformation(bindings, ctx);
         this.assignResultMetadata(bindings, ctx);
     }
 
