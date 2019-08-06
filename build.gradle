@@ -288,7 +288,7 @@ project(':pa-rconnector') {
     }
 
 
-    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, installRoxygen2, installDevTools, installGtools, installCodeTools, installStringR, installrJava, installDevTools, copyRSources, updateVersion, copyRDependencies]) {
+    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir rSrc
@@ -304,7 +304,7 @@ project(':pa-rconnector') {
         descFile.write(text)
     }
 
-    task checkRPackage(type: Exec, dependsOn: [checkRCommands, addLibsToNamespace, generateDocumentation, copyRSources, updateVersion, copyRDependencies]) {
+    task checkRPackage(type: Exec, dependsOn: [addLibsToNamespace]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -312,7 +312,7 @@ project(':pa-rconnector') {
         environment env
     }
 
-    task buildRPackage(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
+    task buildRPackage(type: Exec, dependsOn: [checkRPackage]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -344,7 +344,7 @@ project(':pa-rconnector') {
         ignoreExitValue = true
     }
 
-    task buildRPackageSrc(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
+    task buildRPackageSrc(type: Exec, dependsOn: [checkRPackage]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -352,7 +352,7 @@ project(':pa-rconnector') {
         environment env
     }
 
-    task build(dependsOn: [buildRPackage, buildRPackageSrc, generatePDF])
+    task buildR(dependsOn: [buildRPackageSrc, generatePDF])
 
     // ReInstall PARConnector package to apply changes
     task reinstallRPackage(dependsOn: [checkRCommands, buildRPackage]) << {
@@ -509,6 +509,10 @@ project(':pa-rconnector') {
 
     task runFuncTestsPAJRI(dependsOn: startSchedulerPAJRI) << {
         tasks.runFuncTests.execute();
+    }
+
+    task installRPackages {
+        dependsOn installRoxygen2, installDevTools, installGtools, installCodeTools, installStringR, installStringR, installrJava, installDevTools
     }
 }
 
