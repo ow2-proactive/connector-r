@@ -1,4 +1,7 @@
+import com.github.jk1.license.render.*
+
 apply plugin: 'java'
+apply plugin: 'com.github.jk1.dependency-license-report'
 
 buildscript {
     repositories {
@@ -18,6 +21,7 @@ buildscript {
     dependencies {
         classpath "com.diffplug.gradle.spotless:spotless:2.4.0"
         classpath "org.ow2.proactive:coding-rules:1.0.0"
+    classpath 'com.github.jk1:gradle-license-report:1.7'
         delete "gradle/ext"
         ant.unjar src: configurations.classpath.find { it.name.startsWith("coding-rules") }, dest: 'gradle/ext'
     }
@@ -37,6 +41,11 @@ subprojects {
         addons
     }
 
+}
+
+licenseReport {
+    configurations = ['runtime']
+    renderers = [new InventoryHtmlReportRenderer()]
 }
 
 apply from: "$rootDir/gradle/ext/coding-format.gradle"
