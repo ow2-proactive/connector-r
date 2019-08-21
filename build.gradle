@@ -1,4 +1,7 @@
+import com.github.jk1.license.render.*
+
 apply plugin: 'java'
+apply plugin: 'com.github.jk1.dependency-license-report'
 
 buildscript {
     repositories {
@@ -18,6 +21,7 @@ buildscript {
     dependencies {
         classpath "com.diffplug.gradle.spotless:spotless:2.4.0"
         classpath "org.ow2.proactive:coding-rules:1.0.0"
+    classpath 'com.github.jk1:gradle-license-report:1.7'
         delete "gradle/ext"
         ant.unjar src: configurations.classpath.find { it.name.startsWith("coding-rules") }, dest: 'gradle/ext'
     }
@@ -37,6 +41,11 @@ subprojects {
         addons
     }
 
+}
+
+licenseReport {
+    configurations = ['runtime']
+    renderers = [new InventoryHtmlReportRenderer()]
 }
 
 apply from: "$rootDir/gradle/ext/coding-format.gradle"
@@ -288,7 +297,7 @@ project(':pa-rconnector') {
     }
 
 
-    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, installRoxygen2, installDevTools, installGtools, installCodeTools, installStringR, installrJava, installDevTools, copyRSources, updateVersion, copyRDependencies]) {
+    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, updateVersion, copyRDependencies]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir rSrc
@@ -304,7 +313,7 @@ project(':pa-rconnector') {
         descFile.write(text)
     }
 
-    task checkRPackage(type: Exec, dependsOn: [checkRCommands, addLibsToNamespace, generateDocumentation, copyRSources, updateVersion, copyRDependencies]) {
+    task checkRPackage(type: Exec, dependsOn: [addLibsToNamespace]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -312,7 +321,7 @@ project(':pa-rconnector') {
         environment env
     }
 
-    task buildRPackage(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
+    task buildRPackage(type: Exec, dependsOn: [checkRPackage]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -344,7 +353,7 @@ project(':pa-rconnector') {
         ignoreExitValue = true
     }
 
-    task buildRPackageSrc(type: Exec, dependsOn: [checkRCommands, copyRSources, updateVersion, copyRDependencies, checkRPackage]) {
+    task buildRPackageSrc(type: Exec, dependsOn: [checkRPackage]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
@@ -352,7 +361,7 @@ project(':pa-rconnector') {
         environment env
     }
 
-    task build(dependsOn: [buildRPackage, buildRPackageSrc, generatePDF])
+    task buildR(dependsOn: [buildRPackageSrc, generatePDF])
 
     // ReInstall PARConnector package to apply changes
     task reinstallRPackage(dependsOn: [checkRCommands, buildRPackage]) << {
@@ -509,6 +518,10 @@ project(':pa-rconnector') {
 
     task runFuncTestsPAJRI(dependsOn: startSchedulerPAJRI) << {
         tasks.runFuncTests.execute();
+    }
+
+    task installRPackages {
+        dependsOn installRoxygen2, installDevTools, installGtools, installCodeTools, installStringR, installStringR, installrJava, installDevTools
     }
 }
 
