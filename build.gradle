@@ -363,6 +363,8 @@ project(':pa-rconnector') {
 
     task buildR(dependsOn: [buildRPackageSrc, generatePDF])
 
+    build.dependsOn buildR
+
     // ReInstall PARConnector package to apply changes
     task reinstallRPackage(dependsOn: [checkRCommands, buildRPackage]) << {
 
