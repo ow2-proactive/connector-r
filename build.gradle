@@ -86,6 +86,29 @@ task checkRCommands() << {
     }
 }
 
+task setUserLibPath dependsOn(checkRCommands)
+// find user R library path
+def userLibPath = new ByteArrayOutputStream()
+
+userLibPath = new ByteArrayOutputStream()
+exec {
+    commandLine rScript, '--no-save', '-e', 'cat(Sys.getenv(\'R_LIBS_USER\'))'
+    standardOutput = userLibPath;
+}
+userLibPath = userLibPath.toString().trim()
+
+if (isWindows) {
+    userLibPath = userLibPath.replace("/", "\\")
+} else {
+    userLibPath = userLibPath.replace("~", System.getenv("HOME"))
+}
+println "userLibPath:\n$userLibPath";
+
+// create the user libary directory if it does not exist
+new File(userLibPath).mkdirs();
+
+assert new File(userLibPath).exists()
+
 
 project(':pa-rengine-common') {
     apply plugin: 'java'
@@ -137,7 +160,7 @@ project(':pa-rserve') {
     }
 
     task installRserve(type: Exec) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'Rserve\', quiet=TRUE)) == 0) {install.packages(\'Rserve\', repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'Rserve\', quiet=TRUE)) == 0) {install.packages(\'Rserve\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
     task addon(type: Zip) {
@@ -169,7 +192,7 @@ project(':pa-jri') {
     }
 
     task installrJava(type: Exec, dependsOn: checkRCommands) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rJava\', quiet=TRUE)) == 0) {install.packages(\'rJava\', repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rJava\', quiet=TRUE)) == 0) {install.packages(\'rJava\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
     task addon(type: Zip) {
@@ -248,16 +271,6 @@ project(':pa-rconnector') {
         task javareconf
     }
 
-    task installrJava(type: Exec, dependsOn: javareconf) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rJava\', quiet=TRUE)) == 0) {install.packages(\'rJava\', repos=c(\'http://cran.r-project.org\'))}'
-    }
-    task installDevTools(type: Exec, dependsOn: [checkRCommands]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'devtools\', quiet=TRUE)) == 0) {install.packages(\'devtools\', repos=c(\'http://cran.r-project.org\'))}'
-    }
-    task installRoxygen2(type: Exec, dependsOn: [checkRCommands]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'roxygen2\', quiet=TRUE)) == 0) {install.packages(\'roxygen2\', repos=c(\'http://cran.r-project.org\'))}'
-    }
-
     // this task updates the version inside PARConnector package Description file
     task updateVersion(dependsOn: copyRSources) << {
         def patternToExtractVersionFromVariable = java.util.regex.Pattern.compile("^((\\d+\\.)*(\\d+))");
@@ -284,20 +297,34 @@ project(':pa-rconnector') {
         into "${rSrc}/inst/java"
     }
 
+    task installrJava(type: Exec, dependsOn: javareconf) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rJava\', quiet=TRUE)) == 0) {install.packages(\'rJava\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installDevTools(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'devtools\', quiet=TRUE)) == 0) {install.packages(\'devtools\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installRoxygen2(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'roxygen2\', quiet=TRUE)) == 0) {install.packages(\'roxygen2\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+
     task installGtools(type: Exec, dependsOn: [checkRCommands]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'gtools\', quiet=TRUE)) == 0) {install.packages(\'gtools\', repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'gtools\', quiet=TRUE)) == 0) {install.packages(\'gtools\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
     task installCodeTools(type: Exec, dependsOn: [checkRCommands]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'codetools\', quiet=TRUE)) == 0) {install.packages(\'codetools\', repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'codetools\', quiet=TRUE)) == 0) {install.packages(\'codetools\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
     task installStringR(type: Exec, dependsOn: [checkRCommands]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'stringr\', quiet=TRUE)) == 0) {install.packages(\'stringr\', repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'stringr\', quiet=TRUE)) == 0) {install.packages(\'stringr\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+
+    task installRPackages {
+        dependsOn installDevTools, installGtools, installCodeTools, installStringR, installrJava, installRoxygen2
     }
 
 
-    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, updateVersion, copyRDependencies]) {
+    task generateDocumentation(type: Exec, dependsOn: [checkRCommands, updateVersion, copyRDependencies, installRPackages]) {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir rSrc
@@ -325,7 +352,7 @@ project(':pa-rconnector') {
         inputs.dir(rSrc)
         outputs.dir(buildDir)
         workingDir buildDir
-        commandLine rExec, 'CMD', 'INSTALL', '--build', '--preclean', '--with-keep.source', '--no-multiarch', rSrc
+        commandLine rExec, 'CMD', 'INSTALL', "--library=$userLibPath", '--build', '--preclean', '--with-keep.source', '--no-multiarch', rSrc
         environment env
     }
 
@@ -363,6 +390,8 @@ project(':pa-rconnector') {
 
     task buildR(dependsOn: [buildRPackageSrc, generatePDF])
 
+    build.dependsOn buildR
+
     // ReInstall PARConnector package to apply changes
     task reinstallRPackage(dependsOn: [checkRCommands, buildRPackage]) << {
 
@@ -373,7 +402,7 @@ project(':pa-rconnector') {
                     it.name.endsWith('zip') }
         exec {
             workingDir buildDir
-            commandLine rExec, 'CMD', 'INSTALL', '--no-multiarch', packageFile.getAbsolutePath()
+            commandLine rExec, 'CMD', 'INSTALL', "--library=$userLibPath", '--no-multiarch', packageFile.getAbsolutePath()
             environment env
         }
     }
@@ -518,10 +547,6 @@ project(':pa-rconnector') {
 
     task runFuncTestsPAJRI(dependsOn: startSchedulerPAJRI) << {
         tasks.runFuncTests.execute();
-    }
-
-    task installRPackages {
-        dependsOn installRoxygen2, installDevTools, installGtools, installCodeTools, installStringR, installStringR, installrJava, installDevTools
     }
 }
 
