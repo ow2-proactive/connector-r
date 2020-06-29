@@ -165,6 +165,22 @@ public abstract class PAREngine extends AbstractScriptEngine {
         }
     }
 
+    protected void updateResultMap(Map<String, Serializable> resultMap, ScriptContext ctx) {
+        if (resultMap == null) {
+            return;
+        }
+        if (engine.engineCast(engine.engineEval("exists(\"" + SchedulerConstants.RESULT_MAP_BINDING_NAME + "\")", ctx),
+                              Boolean.class,
+                              ctx)) {
+            Object resultMapRexp = engine.engineEval(SchedulerConstants.RESULT_MAP_BINDING_NAME, ctx);
+            if (resultMapRexp == null) {
+                return;
+            }
+            Map newMap = engine.engineCast(resultMapRexp, Map.class, ctx);
+            resultMap.putAll(newMap);
+        }
+    }
+
     /**
      * Assign the script arguments to the variable "args"
      */
@@ -239,6 +255,24 @@ public abstract class PAREngine extends AbstractScriptEngine {
         engine.engineSet(SchedulerConstants.RESULT_METADATA_VARIABLE, metadata, ctx);
 
         return metadata;
+    }
+
+    /**
+     * assign the result map into a R list called "resultMap"
+     */
+    protected Map<String, Serializable> assignResultMap(Bindings bindings, ScriptContext ctx) {
+        Map<String, Serializable> resultMap = (Map<String, Serializable>) bindings.get(SchedulerConstants.RESULT_MAP_BINDING_NAME);
+        if (resultMap == null) {
+            return null;
+        }
+        // If the map is empty, the R engine will convert it as a NULL object.
+        // we need to add a dummy map to avoid this issue.
+        if (resultMap.isEmpty()) {
+            resultMap.put("r.result", "true");
+        }
+        engine.engineSet(SchedulerConstants.RESULT_MAP_BINDING_NAME, resultMap, ctx);
+
+        return resultMap;
     }
 
     /**
@@ -337,6 +371,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
         this.assignVariables(bindings, ctx);
         this.assignGenericInformation(bindings, ctx);
         this.assignResultMetadata(bindings, ctx);
+        this.assignResultMap(bindings, ctx);
     }
 
     protected String filterErrorsAndProgress(String text, boolean addNL) {
