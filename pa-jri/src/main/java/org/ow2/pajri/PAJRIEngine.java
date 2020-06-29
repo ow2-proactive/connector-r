@@ -132,6 +132,8 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
 
         Map<String, String> resultMetadata = (Map<String, String>) bindings.get(SchedulerConstants.RESULT_METADATA_VARIABLE);
 
+        Map<String, Serializable> resultMap = (Map<String, Serializable>) bindings.get(SchedulerConstants.RESULT_MAP_BINDING_NAME);
+
         // Assign all script task related objects
         prepareExecution(ctx, bindings);
 
@@ -156,6 +158,7 @@ public class PAJRIEngine extends PAREngine implements REngineCallbacks, REngineO
 
             this.updateJobVariables(jobVariables, ctx);
             this.updateResultMetadata(resultMetadata, ctx);
+            this.updateResultMap(resultMap, ctx);
 
             // PRC-32 A ScriptException() must be thrown if the script calls stop() function
             if (toThrow != null) {
