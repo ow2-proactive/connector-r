@@ -271,6 +271,7 @@ public class PARServeEngine extends PAREngine {
         }
 
         Map<String, String> resultMetadata = (Map<String, String>) bindings.get(SchedulerConstants.RESULT_METADATA_VARIABLE);
+        Map<String, Serializable> resultMap = (Map<String, Serializable>) bindings.get(SchedulerConstants.RESULT_MAP_BINDING_NAME);
 
         engine = new PARServeConnection(Rsession.newInstanceTry("Script", rServeConf), serverEval);
 
@@ -299,6 +300,7 @@ public class PARServeEngine extends PAREngine {
             if (!serverEval) {
                 this.updateJobVariables(jobVariables, ctx);
                 this.updateResultMetadata(resultMetadata, ctx);
+                this.updateResultMap(resultMap, ctx);
             }
 
             // server evaluation is for one task only, it must not be propagated
