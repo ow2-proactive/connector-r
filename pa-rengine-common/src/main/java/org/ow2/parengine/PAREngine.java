@@ -162,6 +162,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
             }
             Map newMap = engine.engineCast(metadataRexp, Map.class, ctx);
             metadata.putAll(newMap);
+            metadata.remove("r.result");
         }
     }
 
@@ -178,6 +179,7 @@ public abstract class PAREngine extends AbstractScriptEngine {
             }
             Map newMap = engine.engineCast(resultMapRexp, Map.class, ctx);
             resultMap.putAll(newMap);
+            resultMap.remove("r.result");
         }
     }
 
