@@ -139,6 +139,15 @@ setMethod("addSelectionScript" ,"PATask" ,
                  }
 )
 
+setMethod("setCleaningScript" ,"PATask" ,
+                 function(object,value,engine) {
+                   sscript = new(J("org.ow2.proactive.scripting.SimpleScript"),value,engine)
+                   return(object@javaObject$setCleaningScript(sscript))
+                 }
+)
+
+
+
 setMethod("toString","PATask",
   function(x, width = NULL, ...) {
             object <- x
@@ -185,14 +194,14 @@ setMethod("toString","PATask",
               output <- str_c(output,jo$getSelectionScripts()$toString())   
               output <- str_c(output,"\n")
             }
-            if (!is.null(jo$getPreScript())) {  
-              output <- str_c(output,"  preScript : ",jo$getPreScript(),"\n")
+            if (!is.null(jo$getPreScript())) {
+              output <- str_c(output,"  preScript : ",jo$getPreScript()$getScript(),"\n")
             }
             if (!is.null(jo$getPostScript())) {  
-              output <- str_c(output,"  postScript : ",jo$getPostScript(),"\n")
+              output <- str_c(output,"  postScript : ",jo$getPostScript()$getScript(),"\n")
             }            
             if (!is.null(jo$getCleaningScript())) {  
-              output <- str_c(output,"  cleanScript : ",jo$getCleaningScript(),"\n")
+              output <- str_c(output,"  cleanScript : ",jo$getCleaningScript()$getScript(),"\n")
             }
             if (jo$isRunAsMe()) {  
               output <- str_c(output,"  runAsMe : ",jo$isRunAsMe(),"\n")
