@@ -372,7 +372,7 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
           run.as.me = run.as.me,
           walltime = walltime,
           isolate.io.files = isolate.io.files,
-          client = client, .debug = .debug)
+          client = client, .debug = .debug, .notransfer = TRUE)
   # Restore the task id
   assign("patask.id", id, envir=cacheEnv)
 
@@ -383,9 +383,8 @@ PAM <- function(funcOrFuncName, ..., varies=list(), input.files=list(), output.f
   # For each task in mutlipleTasksList add all input/output files to the merge task
   for (task in multipleTasksList) {
     nbFiles <- length(task@inputfiles)
-    # Skip the first .rdata file and get only the user defined inputfiles
-    if (nbFiles > 1) {
-      for (file in task@inputfiles[2:nbFiles]) { # file is a PAFile object
+    if (nbFiles > 0) {
+      for (file in task@inputfiles[1:nbFiles]) { # file is a PAFile object
           if (!is.null(file)) {
             addInputFiles(mergeTask) <- file
           }
@@ -454,7 +453,7 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
   dots <- list(...)
    
   # we generate a task with a forced cardinality of 1
-  task <- PA(funcOrFuncName, ..., varies=list(),input.files=input.files, output.files=output.files, in.dir = in.dir, out.dir = out.dir, hostname.selection = hostname.selection, ip.selection = ip.selection, property.selection.name = property.selection.name, property.selection.value = property.selection.value, nodes.number = nodes.number, topology = topology, generic.information.list = generic.information.list, run.as.me = run.as.me, walltime = walltime, isolate.io.files = isolate.io.files, client = client, .debug = .debug)
+  task <- PA(funcOrFuncName, ..., varies=list(),input.files=input.files, output.files=output.files, in.dir = in.dir, out.dir = out.dir, hostname.selection = hostname.selection, ip.selection = ip.selection, property.selection.name = property.selection.name, property.selection.value = property.selection.value, nodes.number = nodes.number, topology = topology, generic.information.list = generic.information.list, run.as.me = run.as.me, walltime = walltime, isolate.io.files = isolate.io.files, client = client, .debug = .debug, .notransfer = FALSE)
   if (length(task) > 1) {
     stop(paste0("Internal Error : Unexpected task list length, expected 1, received ",length(task)))
   }
@@ -573,6 +572,7 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'      It thus guaranties that they will be separated from other jobs execution. On the other hand it will not be possible to reuse the remote files directly in other jobs.
 #' @param client connection handle to the scheduler, if not provided the handle created by the last call to PAConnect will be used
 #' @param .debug debug mode
+#' @param .notransfer disable file transfer of environment file
 #' @return a list of PATask objects which can be submitted to the ProActive Scheduler via a \code{\link{PASolve}} call or given as parameter to other \code{\link{PA}}, \code{\link{PAS}} or \code{\link{PAM}} functions
 #'  
 #' @examples
@@ -596,7 +596,7 @@ PAS <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.fil
 #'  }
 #' @seealso  \code{\link{PAS}} \code{\link{PAM}}  \code{\link{PASolve}} \code{\link{mapply}} \code{\link{PAJobResult-class}} \code{\link{PAConnect}}
 #' @export
-PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = NULL, generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug()) {
+PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.files=list(), in.dir = getwd(), out.dir = getwd(), hostname.selection = NULL, ip.selection = NULL, property.selection.name = NULL, property.selection.value = NULL, nodes.number = 1, topology = NULL, generic.information.list = NULL, run.as.me = FALSE, walltime = -1, isolate.io.files = FALSE,  client = PAClient(), .debug = PADebug(), .notransfer = FALSE) {
   if (is.character(funcOrFuncName)) {
     fun <- match.fun(funcOrFuncName)
     funname <- funcOrFuncName
@@ -773,16 +773,16 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
     }
     
     PASolveCall <- as.call(c(fun,final.param.list[[i]]))
-    
-    # save function call and all dependencies in a file
-    assign("PASolveCall", PASolveCall, envir = newenvir)
-    save(list = c(depVariableNames,"PASolveCall"),file = env_file, envir = newenvir); 
-            
-    
-    pasolvefile <- PAFile(basename(env_file),hash = hash,working.dir = file.path(str_replace_all(tempdir(),fixed("\\"), "/"),hash))
-    pushFile(pasolvefile, client = client)      
-    
-    addInputFiles(t) <- pasolvefile 
+    if (!.notransfer) {
+      # save function call and all dependencies in a file
+      assign("PASolveCall", PASolveCall, envir = newenvir)
+      save(list = c(depVariableNames,"PASolveCall"),file = env_file, envir = newenvir);
+
+      pasolvefile <- PAFile(basename(env_file),hash = hash,working.dir = file.path(str_replace_all(tempdir(),fixed("\\"), "/"),hash))
+      pushFile(pasolvefile, client = client)
+      unlink(env_file)
+      addInputFiles(t) <- pasolvefile
+    }
      
     if (isolate.io.files) {
       # if input/output files are isolated the workdir will be set to the hash directory
@@ -827,7 +827,16 @@ PA <- function(funcOrFuncName, ..., varies=NULL, input.files=list(), output.file
     }
     total_script <- str_c(total_script, ".set_progress(100)\n")
     setScript(t,total_script) 
-    
+
+    if (!.notransfer) {
+      env_file_in_userspace <- str_c(hash,"/","pasolve_",tname,".rdata")
+      clean_script <- "userspaceapi.connect()\n"
+      clean_script <- str_c(clean_script, "userspaceapi.deleteFile(\"", env_file_in_userspace, "\")\n")
+      clean_script <- str_c(clean_script, "rdataFiles = userspaceapi.listFiles(\"", hash, "\", \"*.rdata\")\n")
+      clean_script <- str_c(clean_script, "if (rdataFiles.isEmpty()) { userspaceapi.deleteFile(\"", hash, "\") }\n")
+      clean_script <- str_c(clean_script, "userspaceapi.disconnect()\n")
+      setCleaningScript(t,clean_script,"groovy")
+    }
     
     # add selection script if hostname.selection is provided
     if (!is.null(hostname.selection)) {

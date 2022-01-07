@@ -2,7 +2,7 @@
 
 setGeneric(
   name="getName",
-  def=function(object,value) {standardGeneric("getName")}  
+  def=function(object) {standardGeneric("getName")}
 )
 
 setGeneric(
@@ -17,18 +17,28 @@ setGeneric(
 
 setGeneric(
   name="getDefinition",
-  def=function(object,value) {standardGeneric("getDefinition")}  
+  def=function(object) {standardGeneric("getDefinition")}
 )
 setGeneric(
   name="setDefinition",
-  def=function(object,value) {standardGeneric("setDefinition")}  
+  def=function(object,value) {standardGeneric("setDefinition")}
+)
+
+setGeneric(
+  name="getDescription",
+  def=function(object) {standardGeneric("getDescription" )}
+)
+
+setGeneric(
+  name="setDescription",
+  def=function(object,value) {standardGeneric("setDescription" )}
 )
 
 ### PAJob
 
 setGeneric(
   name="getProjectName",
-  def=function(object,value) {standardGeneric("getProjectName")}  
+  def=function(object) {standardGeneric("getProjectName")}
 )
 setGeneric(
   name="setProjectName",
@@ -36,7 +46,7 @@ setGeneric(
 ) 
 setGeneric(
   name="getPriority",
-  def=function(object,value) {standardGeneric("getPriority")}  
+  def=function(object) {standardGeneric("getPriority")}
 )
 setGeneric(
   name="setPriority",
@@ -48,7 +58,7 @@ setGeneric(
 ) 
 setGeneric(
   name="getOnTaskErrorProperty",
-  def=function(object,value) {standardGeneric("getOnTaskErrorProperty")}
+  def=function(object) {standardGeneric("getOnTaskErrorProperty")}
 ) 
 
 setGeneric(
@@ -67,17 +77,7 @@ setGeneric(
 setGeneric(
   name="setScript",
   def=function(object,value) {standardGeneric("setScript")}  
-) 
-
-setGeneric(
-  name="getDescription",
-  def=function(object,value) {standardGeneric("getDescription" )}  
-) 
-
-setGeneric(
-  name="setDescription",
-  def=function(object,value) {standardGeneric("setDescription" )}  
-) 
+)
 
 setGeneric(
   name="getQuoteExp",
@@ -91,47 +91,47 @@ setGeneric(
 
 setGeneric(
   name="getInputFiles",
-  def=function(object,value) {standardGeneric("getInputFiles" )}  
+  def=function(object) {standardGeneric("getInputFiles" )}
 )
 
 setGeneric(
   name="getOutputFiles",
-  def=function(object,value) {standardGeneric("getOutputFiles" )}  
+  def=function(object) {standardGeneric("getOutputFiles" )}
 )
 
 setGeneric(
   name="getSelectionScripts",
-  def=function(object,value) {standardGeneric("getSelectionScripts" )}  
+  def=function(object) {standardGeneric("getSelectionScripts" )}
 )
 
 setGeneric(
   name="getPreScript",
-  def=function(object,value) {standardGeneric("getPreScript" )}  
+  def=function(object) {standardGeneric("getPreScript" )}
 )
 
 setGeneric(
   name="setPreScript",
-  def=function(object,value) {standardGeneric("setPreScript" )}  
+  def=function(object,value,engine) {standardGeneric("setPreScript" )}
 )
 
 setGeneric(
   name="getPostScript",
-  def=function(object,value) {standardGeneric("getPostScript" )}  
+  def=function(object) {standardGeneric("getPostScript" )}
 )
 
 setGeneric(
   name="setPostScript",
-  def=function(object,value) {standardGeneric("setPostScript" )}  
+  def=function(object,value,engine) {standardGeneric("setPostScript" )}
 )
 
 setGeneric(
-  name="getCleanScript",
-  def=function(object,value) {standardGeneric("getCleanScript" )}  
+  name="getCleaningScript",
+  def=function(object) {standardGeneric("getCleaningScript" )}
 )
 
 setGeneric(
-  name="setCleanScript",
-  def=function(object,value) {standardGeneric("setCleanScript" )}  
+  name="setCleaningScript",
+  def=function(object,value,engine) {standardGeneric("setCleaningScript" )}
 )
 
 setGeneric(
