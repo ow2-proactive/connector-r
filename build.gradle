@@ -297,11 +297,28 @@ project(':pa-rconnector') {
         from configurations.restJars, configurations.rengine
         into "${rSrc}/inst/java"
     }
-
     task installrJava(type: Exec, dependsOn: javareconf) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rJava\', quiet=TRUE)) == 0) {install.packages(\'rJava\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
-    task installDevTools(type: Exec, dependsOn: [checkRCommands]) {
+    task installRlang(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rlang\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/rlang/rlang_1.0.6.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installVctrs(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'vctrs\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/vctrs/vctrs_0.5.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installHttpuv(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'httpuv\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/httpuv/httpuv_1.6.7.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installFastmap(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'fastmap\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/fastmap/fastmap_1.1.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installPurrr(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'purrr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/purrr/purrr_0.3.5.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installHttr(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'httr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/httr/httr_1.4.4.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installDevTools(type: Exec, dependsOn: [checkRCommands,installRlang,installVctrs,installHttpuv,installFastmap,installPurrr,installHttr]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'devtools\', quiet=TRUE)) == 0) {install.packages(\'devtools\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
     task installRoxygen2(type: Exec, dependsOn: [checkRCommands]) {
