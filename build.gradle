@@ -303,7 +303,10 @@ project(':pa-rconnector') {
     task installRlang(type: Exec, dependsOn: [checkRCommands]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rlang\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/rlang/rlang_1.0.6.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-    task installVctrs(type: Exec, dependsOn: [checkRCommands]) {
+    task installLifecycle(type: Exec, dependsOn: [checkRCommands]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'lifecycle\', quiet=TRUE)) == 0) {install.packages(\'lifecycle\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installVctrs(type: Exec, dependsOn: [installLifecycle]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'vctrs\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/vctrs/vctrs_0.5.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installHttpuv(type: Exec, dependsOn: [checkRCommands]) {
