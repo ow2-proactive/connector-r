@@ -309,7 +309,13 @@ project(':pa-rconnector') {
     task installVctrs(type: Exec, dependsOn: [installLifecycle]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'vctrs\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/vctrs/vctrs_0.5.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-    task installHttpuv(type: Exec, dependsOn: [installRlang]) {
+    task installPromises(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'promises\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/promises_1.2.0.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installLater(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'later\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/later/later_1.3.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installHttpuv(type: Exec, dependsOn: [installPromises,installLater]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'httpuv\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/httpuv/httpuv_1.6.7.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installFastmap(type: Exec, dependsOn: [installRlang]) {
@@ -318,14 +324,44 @@ project(':pa-rconnector') {
     task installPurrr(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'purrr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/purrr/purrr_0.3.5.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
+    task installUseThis(type: Exec, dependsOn: [installPurrr]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'usethis\', quiet=TRUE)) == 0) {install.packages(\'usethis\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installEllipsis(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'ellipsis\', quiet=TRUE)) == 0) {install.packages(\'ellipsis\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installCachemem(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'cachem\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/cachem/cachem_1.0.6.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installMemoise(type: Exec, dependsOn: [installRlang,installCachemem]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'memoise\', quiet=TRUE)) == 0) {install.packages(\'memoise\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installWaldo(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'waldo\', quiet=TRUE)) == 0) {install.packages(\'waldo\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installPkgload(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'pkgload\', quiet=TRUE)) == 0) {install.packages(\'pkgload\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installTestThat(type: Exec, dependsOn: [installRlang,installWaldo,installPkgload]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'testthat\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/testthat/testthat_3.1.5.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installMiniUI(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'miniUI\', quiet=TRUE)) == 0) {install.packages(\'miniUI\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installPkgdown(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'pkgdown\', quiet=TRUE)) == 0) {install.packages(\'pkgdown\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
     task installHttr(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'httr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/httr/httr_1.4.4.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-    task installDevTools(type: Exec, dependsOn: [checkRCommands,installRlang,installVctrs,installHttpuv,installFastmap,installPurrr,installHttr]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'devtools\', quiet=TRUE)) == 0) {install.packages(\'devtools\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    task installProfvis(type: Exec, dependsOn: [installPurrr,installVctrs,installFastmap]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'profvis\', quiet=TRUE)) == 0) {install.packages(\'profvis\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
     task installRoxygen2(type: Exec, dependsOn: [checkRCommands]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'roxygen2\', quiet=TRUE)) == 0) {install.packages(\'roxygen2\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installDevTools(type: Exec, dependsOn: [checkRCommands,installRlang,installVctrs,installHttpuv,installFastmap,installPurrr,installHttr,installUseThis,installEllipsis,installMemoise,installMiniUI,installPkgdown,installProfvis,installTestThat,installRoxygen2]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'devtools\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/devtools/devtools_2.4.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
     task installGtools(type: Exec, dependsOn: [checkRCommands]) {
