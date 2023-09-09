@@ -120,7 +120,7 @@ project(':pa-rengine-common') {
         compile configurations.addons
         compile 'log4j:log4j:1.2.17'
         compile 'commons-io:commons-io:2.4'
-        compile group: 'com.google.guava', name: 'guava', version: '17.0'
+        compile group: 'com.google.guava', name: 'guava', version: '32.0.1-jre'
 
         compile "org.ow2.proactive:scheduler-api:${schedulingVersion}"
         compile "org.ow2.proactive:common-api:${schedulingVersion}"
