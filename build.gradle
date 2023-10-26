@@ -219,7 +219,7 @@ project(':pa-rconnector') {
     dependencies {
         scheduler group: "org.ow2.proactive", name: "scheduling", version: schedulingVersion, ext: "zip"
 
-        restJars 'xerces:xercesImpl:2.11.0'
+        restJars 'xerces:xercesImpl:2.12.2'
         restJars "org.ow2.proactive_grid_cloud_portal:rest-client:${schedulingVersion}"
 
         rengine "org.rosuda.REngine:REngine:2.1.0"
