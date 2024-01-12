@@ -505,16 +505,28 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'profvis\', quiet=TRUE)) == 0) {install.packages(\'profvis\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
-    task installRoxygen2(type: Exec, dependsOn: [checkRCommands,installPkgload,installPurrr,installStringR,installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'roxygen2\', quiet=TRUE)) == 0) {install.packages(\'roxygen2\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
-    }
-
-    task installRcmdcheck(type: Exec, dependsOn: [checkRCommands,installPkgbuild]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rcmdcheck\', quiet=TRUE)) == 0) {install.packages(\'rcmdcheck\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    task installKnitr(type: Exec, dependsOn: [checkRCommands,installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'knitr\', quiet=TRUE)) == 0) {install.packages(\'knitr\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
     task installTestThat(type: Exec, dependsOn: [installRlang,installWaldo,installPkgload,installPraise,installBrio,installCallr,installDesc,installDigest,installEllipsis]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'testthat\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/testthat/testthat_3.1.5.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+
+    task installCommonmark(type: Exec, dependsOn: [checkRCommands,installRlang,installCurl,installTestThat,installXml2]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'commonmark\', quiet=TRUE)) == 0) {install.packages(\'commonmark\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+
+    task installBrew(type: Exec, dependsOn: [checkRCommands,installRlang,installTestThat]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'brew\', quiet=TRUE)) == 0) {install.packages(\'brew\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+
+    task installRoxygen2(type: Exec, dependsOn: [checkRCommands,installPkgload,installPurrr,installStringR,installRlang,installWithr,installXml2,installKnitr,installCommonmark,installBrew]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'roxygen2\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/roxygen2/roxygen2_7.2.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+
+    task installRcmdcheck(type: Exec, dependsOn: [checkRCommands,installPkgbuild]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rcmdcheck\', quiet=TRUE)) == 0) {install.packages(\'rcmdcheck\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
     task installUseThis(type: Exec, dependsOn: [installRlang,installClipr,installGert,installPurrr,installGh]) {
