@@ -640,21 +640,21 @@ project(':pa-rconnector') {
     }
 
     task clearAddons(type: Delete) {
-        delete fileTree(dir: "${schedHome}/addons", include: "*.jar")
+        delete fileTree(dir: "${schedHome}/addons/client", include: "*.jar")
     }
 
     task installPARserveJars(type: Copy) {
         from project(':pa-rengine-common').jar
         from project(':pa-rserve').jar
         from project(":pa-rserve").configurations.addons
-        into "${schedHome}/addons"
+        into "${schedHome}/addons/client"
     }
 
     task installPAJRIJars(type: Copy) {
         from project(':pa-rengine-common').jar
         from project(':pa-jri').jar
         from project(":pa-jri").configurations.addons
-        into "${schedHome}/addons"
+        into "${schedHome}/addons/client"
     }
 
     // The following task will unzip the scheduler project into build/scheduler dir
@@ -664,7 +664,7 @@ project(':pa-rconnector') {
         eachFile { fileCopyDetails ->
             fileCopyDetails.path = fileCopyDetails.path.replaceAll(/(.*\/?)scheduling-${schedulingVersion}\/(.*)/, '$1$2')
         }
-        includeEmptyDirs = false
+        includeEmptyDirs = true
     }
 
     // Rserve must be executed in non-fork mode

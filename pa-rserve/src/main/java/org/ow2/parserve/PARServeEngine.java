@@ -93,7 +93,7 @@ public class PARServeEngine extends PAREngine {
      * a file containing the configuration of the Rserve server, and of the PARServe integration
      */
     public static File rServePropertyFile = new File(System.getProperty("proactive.home"),
-                                                     "addons/" + PARServeEngine.class.getSimpleName() + ".ini");
+                                                     "addons/client/" + PARServeEngine.class.getSimpleName() + ".ini");
 
     private static RServeConf rServeConf;
 

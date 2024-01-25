@@ -108,15 +108,26 @@ public class RLibPathConfigurator {
         String sunArchDataModel = System.getProperty("sun.arch.data.model");
         String rLibraryPath = rHome + fs + "bin" + fs;
         String packagesLibraryPath = rHome + fs + "library";
-        // If R_LIBS env var is defined locate rJava there
-        String rLibs = System.getenv("R_LIBS");
+
+        // try using R_LIBS_USER to locate rJava
+        try {
+            configureUsingEnvVariable("R_LIBS_USER", fs, sunArchDataModel, rLibraryPath, packagesLibraryPath);
+        } catch (Exception e) {
+            // fallback to using R_LIBS env var
+            configureUsingEnvVariable("R_LIBS", fs, sunArchDataModel, rLibraryPath, packagesLibraryPath);
+        }
+    }
+
+    private static void configureUsingEnvVariable(String envVariableName, String fs, String sunArchDataModel,
+            String rLibraryPath, String packagesLibraryPath) {
+        String rLibs = System.getenv(envVariableName);
         if (!Strings.isNullOrEmpty(rLibs)) {
             packagesLibraryPath = rLibs;
         }
         String rJavaPath = packagesLibraryPath + fs + "rJava";
         if (!new File(rJavaPath).exists()) {
-            throw new IllegalStateException("Unable to locate rJava in " + rJavaPath +
-                                            " the R_LIBS env variable must be defined");
+            throw new IllegalStateException("Unable to locate rJava in " + rJavaPath + " the " + envVariableName +
+                                            " env variable must be defined");
         }
         String jriLibraryPath = rJavaPath + fs + "jri" + fs;
         // Use correct libraries depending on jvm architecture
