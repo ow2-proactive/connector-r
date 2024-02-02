@@ -304,37 +304,37 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rlang\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/rlang/rlang_1.0.6.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installGlue(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'glue\', quiet=TRUE)) == 0) {install.packages(\'glue\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'glue\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/glue/glue_1.6.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installCurl(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'curl\', quiet=TRUE)) == 0) {install.packages(\'curl\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'curl\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/curl/curl_5.1.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installMagrittr(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'magrittr\', quiet=TRUE)) == 0) {install.packages(\'magrittr\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'magrittr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/magrittr/magrittr_2.0.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installRappdirs(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rappdirs\', quiet=TRUE)) == 0) {install.packages(\'rappdirs\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rappdirs\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/rappdirs/rappdirs_0.3.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installDesc(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'desc\', quiet=TRUE)) == 0) {install.packages(\'desc\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'desc\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/desc/desc_1.4.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installPrettyunits(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'prettyunits\', quiet=TRUE)) == 0) {install.packages(\'prettyunits\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'prettyunits\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/prettyunits_1.2.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installProcessx(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'processx\', quiet=TRUE)) == 0) {install.packages(\'processx\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'processx\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/processx/processx_3.8.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installRprojroot(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rprojroot\', quiet=TRUE)) == 0) {install.packages(\'rprojroot\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rprojroot\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/rprojroot/rprojroot_2.0.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installCrayon(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'crayon\', quiet=TRUE)) == 0) {install.packages(\'crayon\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'crayon\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/crayon/crayon_1.5.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installWithr(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'withr\', quiet=TRUE)) == 0) {install.packages(\'withr\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'withr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/withr/withr_2.5.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installCallr(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'callr\', quiet=TRUE)) == 0) {install.packages(\'callr\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'callr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/callr/callr_3.7.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installStringi(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'stringi\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/stringi/stringi_1.7.8.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
@@ -348,29 +348,29 @@ project(':pa-rconnector') {
     task installPurrr(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'purrr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/purrr/purrr_0.3.5.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-    task installAskPass(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'askpass\', quiet=TRUE)) == 0) {install.packages(\'askpass\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    task installSys(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'sys\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/sys/sys_3.4.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installAskPass(type: Exec, dependsOn: [installRlang,installSys]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'askpass\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/askpass_1.2.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installRstudioApi(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rstudioapi\', quiet=TRUE)) == 0) {install.packages(\'rstudioapi\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rstudioapi\', quiet=TRUE)) == 0) {install.packages(\'https://cran.rstudio.com/src/contrib/rstudioapi_0.15.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installZip(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'zip\', quiet=TRUE)) == 0) {install.packages(\'zip\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'zip\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/zip_2.3.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installClipr(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'clipr\', quiet=TRUE)) == 0) {install.packages(\'clipr\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'clipr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/clipr_0.8.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installEllipsis(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'ellipsis\', quiet=TRUE)) == 0) {install.packages(\'ellipsis\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'ellipsis\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/ellipsis_0.3.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installPraise(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'praise\', quiet=TRUE)) == 0) {install.packages(\'praise\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'praise\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/praise_1.0.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installBrio(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'brio\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/brio/brio_1.1.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
-    }
-    task installFontawesome(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'fontawesome\', quiet=TRUE)) == 0) {install.packages(\'fontawesome\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
     task installFs(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'fs\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/fs/fs_1.5.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
@@ -381,8 +381,6 @@ project(':pa-rconnector') {
     task installCpp11(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'cpp11\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/cpp11/cpp11_0.4.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-
-
     task installLifecycle(type: Exec, dependsOn: [installRlang,installGlue]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'lifecycle\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/lifecycle/lifecycle_1.0.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
@@ -410,8 +408,12 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'openssl\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/openssl/openssl_2.0.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
-    task installCredentials(type: Exec, dependsOn: [installRlang,installOpenSsl]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'credentials\', quiet=TRUE)) == 0) {install.packages(\'credentials\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    task installJsonlite(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'jsonlite\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/jsonlite_1.8.8.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+
+    task installCredentials(type: Exec, dependsOn: [installRlang,installOpenSsl,installCurl,installJsonlite]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'credentials\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/credentials_2.0.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
     task installGert(type: Exec, dependsOn: [installRlang,installOpenSsl,installCredentials,installRstudioApi,installZip]) {
@@ -423,7 +425,7 @@ project(':pa-rconnector') {
     }
 
     task installMemoise(type: Exec, dependsOn: [installRlang,installCachemem]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'memoise\', quiet=TRUE)) == 0) {install.packages(\'memoise\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'memoise\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/memoise_2.0.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
     task installTibble(type: Exec, dependsOn: [installRlang,installVctrs]) {
@@ -454,8 +456,16 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'pkgload\', quiet=TRUE)) == 0 || packageVersion(\'pkgload\') != \'1.3.1\') {install.packages(\'https://cran.r-project.org/src/contrib/Archive/pkgload/pkgload_1.3.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
-    task installHtmltools(type: Exec, dependsOn: [installRlang,installDigest,installFastmap]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'htmltools\', quiet=TRUE)) == 0) {install.packages(\'htmltools\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    task installBase64enc(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'base64enc\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/base64enc_0.1-3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+
+    task installHtmltools(type: Exec, dependsOn: [installRlang,installDigest,installFastmap,installEllipsis,installBase64enc]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'htmltools\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/htmltools_0.5.7.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+
+    task installFontawesome(type: Exec, dependsOn: [installRlang,installHtmltools]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'fontawesome\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/fontawesome_0.5.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
     task installSass(type: Exec, dependsOn: [installRlang,installFs,installHtmltools]) {
@@ -466,7 +476,7 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'bslib\', quiet=TRUE)) == 0) {install.packages(\'bslib\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
-    task installShiny(type: Exec, dependsOn: [installRlang,installFastmap,installFontawesome,installHtmltools,installBslib,installLifecycle]) {
+    task installShiny(type: Exec, dependsOn: [installRlang,installFastmap,installFontawesome,installHtmltools,installBslib,installLifecycle,installWithr]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'shiny\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/shiny/shiny_1.7.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
@@ -485,7 +495,12 @@ project(':pa-rconnector') {
     task installRagg(type: Exec, dependsOn: [installTextshaping]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'ragg\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/ragg/ragg_1.2.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-    task installPkgdown(type: Exec, dependsOn: [installRlang,installCpp11,installSystemfonts,installRagg,installVctrs,installStringR,installBrio,installXml2]) {
+
+    task installDownlit(type: Exec, dependsOn: [installRlang,installBrio,installDesc,installDigest,installMemoise,installVctrs,installWithr]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'downlit\', quiet=TRUE)) == 0) {install.packages(\'downlit\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+
+    task installPkgdown(type: Exec, dependsOn: [installRlang,installCpp11,installSystemfonts,installRagg,installVctrs,installStringR,installBrio,installXml2,installWithr,installDownlit]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'pkgdown\', quiet=TRUE)) == 0) {install.packages(\'pkgdown\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
