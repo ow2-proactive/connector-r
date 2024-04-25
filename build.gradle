@@ -306,6 +306,12 @@ project(':pa-rconnector') {
     task installGlue(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'glue\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/glue/glue_1.6.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
+    task installWhisker(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'whisker\', quiet=TRUE)) == 0) {install.packages(\'whisker\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installYaml(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'yaml\', quiet=TRUE)) == 0) {install.packages(\'yaml\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
     task installCurl(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'curl\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/curl/curl_5.1.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
@@ -355,7 +361,7 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'askpass\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/askpass_1.2.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installRstudioApi(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rstudioapi\', quiet=TRUE)) == 0) {install.packages(\'https://cran.rstudio.com/src/contrib/rstudioapi_0.15.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rstudioapi\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/rstudioapi/rstudioapi_0.15.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installZip(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'zip\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/zip_2.3.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
@@ -512,8 +518,15 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'httr2\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/httr2/httr2_0.2.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
-    task installGh(type: Exec, dependsOn: [installRlang,installHttr2]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'gh\', quiet=TRUE)) == 0) {install.packages(\'gh\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    task installIni(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'ini\', quiet=TRUE)) == 0) {install.packages(\'ini\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+    task installGitcreds(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'gitcreds\', quiet=TRUE)) == 0) {install.packages(\'gitcreds\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
+    }
+
+    task installGh(type: Exec, dependsOn: [installRlang,installHttr2,installGitcreds,installIni,installJsonlite]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'gh\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/gh/gh_1.4.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
     task installProfvis(type: Exec, dependsOn: [installPurrr,installVctrs,installFastmap]) {
@@ -544,7 +557,8 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rcmdcheck\', quiet=TRUE)) == 0) {install.packages(\'rcmdcheck\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
-    task installUseThis(type: Exec, dependsOn: [installRlang,installClipr,installGert,installPurrr,installGh]) {
+
+    task installUseThis(type: Exec, dependsOn: [installRlang,installClipr,installCrayon,installCurl,installDesc,installFs,installGert,installGh,installGlue,installJsonlite,installLifecycle,installPurrr,installRappdirs,installRprojroot,installWhisker,installWithr,installRstudioApi,installYaml]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'usethis\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/usethis/usethis_2.1.6.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
