@@ -533,11 +533,15 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'profvis\', quiet=TRUE)) == 0) {install.packages(\'profvis\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
-    task installKnitr(type: Exec, dependsOn: [checkRCommands,installRlang]) {
+    task installEvaluate(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'evaluate\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/evaluate/evaluate_0.23.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+
+    task installKnitr(type: Exec, dependsOn: [checkRCommands,installRlang,installEvaluate]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'knitr\', quiet=TRUE)) == 0) {install.packages(\'knitr\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
-    task installTestThat(type: Exec, dependsOn: [installRlang,installWaldo,installPkgload,installPraise,installBrio,installCallr,installDesc,installDigest,installEllipsis]) {
+    task installTestThat(type: Exec, dependsOn: [installRlang,installWaldo,installPkgload,installPraise,installBrio,installCallr,installDesc,installDigest,installEllipsis,installEvaluate]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'testthat\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/testthat/testthat_3.1.5.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
