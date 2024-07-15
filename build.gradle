@@ -387,7 +387,10 @@ project(':pa-rconnector') {
     task installCpp11(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'cpp11\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/cpp11/cpp11_0.4.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-    task installLifecycle(type: Exec, dependsOn: [installRlang,installGlue]) {
+    task installCli(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'cli\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/cli/cli_3.6.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installLifecycle(type: Exec, dependsOn: [installRlang,installGlue,installCli]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'lifecycle\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/lifecycle/lifecycle_1.0.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installVctrs(type: Exec, dependsOn: [installLifecycle]) {
@@ -467,7 +470,7 @@ project(':pa-rconnector') {
     }
 
     task installHtmltools(type: Exec, dependsOn: [installRlang,installDigest,installFastmap,installEllipsis,installBase64enc]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'htmltools\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/htmltools_0.5.7.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'htmltools\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/htmltools/htmltools_0.5.7.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
     task installFontawesome(type: Exec, dependsOn: [installRlang,installHtmltools]) {
