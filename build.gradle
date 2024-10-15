@@ -422,7 +422,7 @@ project(':pa-rconnector') {
     }
 
     task installCredentials(type: Exec, dependsOn: [installRlang,installOpenSsl,installCurl,installJsonlite]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'credentials\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/credentials_2.0.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'credentials\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/credentials/credentials_2.0.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
     task installGert(type: Exec, dependsOn: [installRlang,installOpenSsl,installCredentials,installRstudioApi,installZip]) {
