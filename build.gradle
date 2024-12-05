@@ -517,7 +517,7 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'downlit\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/downlit/downlit_0.4.3.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
-    task installHttr(type: Exec, dependsOn: [installRlang,installOpenSsl]) {
+    task installHttr(type: Exec, dependsOn: [installRlang,installOpenSsl,installCurl]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'httr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/httr/httr_1.4.4.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
