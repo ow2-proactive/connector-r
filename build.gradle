@@ -349,7 +349,7 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'digest\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/digest/digest_0.6.30.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installRcpp(type: Exec, dependsOn: [installRlang]) {
-        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rcpp\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/Rcpp/Rcpp_1.0.11.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'Rcpp\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/Rcpp/Rcpp_1.0.11.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
     task installLater(type: Exec, dependsOn: [installRlang,installRcpp]) {
