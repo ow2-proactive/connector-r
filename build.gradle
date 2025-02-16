@@ -321,7 +321,10 @@ project(':pa-rconnector') {
     task installRappdirs(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rappdirs\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/rappdirs/rappdirs_0.3.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-    task installDesc(type: Exec, dependsOn: [installRlang]) {
+    task installR6(type: Exec, dependsOn: [installRlang]) {
+        commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'R6\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/R6/R6_2.5.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
+    }
+    task installDesc(type: Exec, dependsOn: [installRlang,installR6]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'desc\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/desc/desc_1.4.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installPrettyunits(type: Exec, dependsOn: [installRlang]) {
@@ -339,7 +342,7 @@ project(':pa-rconnector') {
     task installWithr(type: Exec, dependsOn: [installRlang]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'withr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/withr/withr_2.5.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
-    task installCallr(type: Exec, dependsOn: [installRlang]) {
+    task installCallr(type: Exec, dependsOn: [installRlang,installProcessx,installR6]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'callr\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/callr/callr_3.7.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
     task installStringi(type: Exec, dependsOn: [installRlang]) {
@@ -409,7 +412,7 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'fastmap\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/fastmap/fastmap_1.1.0.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
-    task installPromises(type: Exec, dependsOn: [installRlang,installFastmap,installLater]) {
+    task installPromises(type: Exec, dependsOn: [installRlang,installFastmap,installLater,installR6]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'promises\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/promises/promises_1.2.0.1.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
@@ -481,7 +484,7 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'fontawesome\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/fontawesome_0.5.2.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
-    task installSass(type: Exec, dependsOn: [installRlang,installFs,installHtmltools]) {
+    task installSass(type: Exec, dependsOn: [installRlang,installFs,installHtmltools,installR6]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'sass\', quiet=TRUE)) == 0) {install.packages(\'sass\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
@@ -552,7 +555,7 @@ project(':pa-rconnector') {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'rmarkdown\', quiet=TRUE)) == 0) {install.packages(\'rmarkdown\', Sys.getenv(\'R_LIBS_USER\'), repos=c(\'http://cran.r-project.org\'))}'
     }
 
-    task installPkgdown(type: Exec, dependsOn: [installRlang,installCpp11,installSystemfonts,installRagg,installVctrs,installStringR,installBrio,installXml2,installWithr,installDownlit,installPurrr,installHttr,installMagrittr,installJsonlite,installRmarkdown,installTibble,installWhisker,installFs,installXml2]) {
+    task installPkgdown(type: Exec, dependsOn: [installRlang,installCpp11,installSystemfonts,installRagg,installVctrs,installStringR,installBrio,installXml2,installWithr,installDownlit,installPurrr,installHttr,installMagrittr,installJsonlite,installRmarkdown,installTibble,installWhisker,installFs,installXml2,installCallr]) {
         commandLine rExec, '-q', '--no-save', '-e', 'if (length(find.package(\'pkgdown\', quiet=TRUE)) == 0) {install.packages(\'https://cran.r-project.org/src/contrib/Archive/pkgdown/pkgdown_2.0.7.tar.gz\', Sys.getenv(\'R_LIBS_USER\'), repos=NULL, type=\'source\')}'
     }
 
